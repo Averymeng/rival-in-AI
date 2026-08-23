@@ -83,10 +83,13 @@ def render_score_matrix(mid, header, rows):
     radar_data = []
     for oi, obj in enumerate(objects):
         c = PALETTE[oi % len(PALETTE)]
-        radar_data.append({"name": obj, "value": matrix[oi],
-                           "lineStyle": {"color": c, "width": 2.5},
-                           "itemStyle": {"color": c},
-                           "areaStyle": {"color": c, "opacity": 0.08}})
+        d = {"name": obj, "value": matrix[oi],
+             "lineStyle": {"color": c, "width": 2.5},
+             "itemStyle": {"color": c}}
+        # 只对主体（首个对象）填充淡色，竞品仅描边，避免中心阴影重复叠加变深
+        if oi == 0:
+            d["areaStyle"] = {"color": c, "opacity": 0.12}
+        radar_data.append(d)
     radar_opt = {
         "backgroundColor": "transparent",
         "textStyle": {"color": "#6c6c88"},
@@ -352,7 +355,8 @@ section li{margin:5px 0;}
 .quote{font-size:13px;padding:12px 14px;border-radius:10px;background:var(--bg);line-height:1.6;}
 .quote.pos{border-left:3px solid var(--green);} .quote.neg{border-left:3px solid var(--red);}
 .qtag{display:inline-block;font-size:11px;color:var(--muted);margin-right:8px;font-weight:600;}
-.src-card{font-size:12px;color:var(--muted);background:var(--bg);border-radius:10px;padding:10px 12px;margin:6px 0;}
+.src-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.src-card{font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;}
 .src-card a{color:var(--brand);text-decoration:none;}
 .src-card a:hover{text-decoration:underline;}
 .tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;margin:10px 0;}
@@ -390,7 +394,7 @@ def main():
 
     i = 0; mid = 0; sec_idx = 0
     summary_items = []; priority = {"must": [], "should": [], "could": []}
-    sentiment = []; timeline = []; evidence = []
+    sentiment = []; timeline = []; evidence = []; special_sid = {}
     cur_section = ""
     open_section = False
     n = len(lines)
@@ -420,6 +424,10 @@ def main():
                 body_parts.append(close_prev + '<section id="' + sid + '"><h2>执行摘要</h2><div class="summary-grid" id="sum"></div></section>')
             elif htext == "来源":
                 body_parts.append(close_prev + '<section id="' + sid + '"><h2>来源</h2><div id="src"></div></section>')
+            elif htext in ("用户口碑", "时间线"):
+                # 口碑/时间线由专用卡片渲染，用插槽占位，避免「空标题段 + 重复卡片」
+                body_parts.append(close_prev + '<div id="' + sid + '" class="slot"></div>')
+                special_sid[htext] = sid
             else:
                 body_parts.append(close_prev + '<section id="' + sid + '"><h2>' + html.escape(htext) + '</h2>')
                 open_section = True
@@ -494,19 +502,25 @@ def main():
 
     if timeline:
         mid += 1
-        body_parts.append(render_timeline(mid, timeline))
+        tid = special_sid.get("时间线")
+        if tid:
+            body_parts = [p.replace('<div id="' + tid + '" class="slot"></div>', render_timeline(mid, timeline)) for p in body_parts]
     if sentiment:
-        body_parts.append(render_sentiment(sentiment))
+        sid_ = special_sid.get("用户口碑")
+        if sid_:
+            body_parts = [p.replace('<div id="' + sid_ + '" class="slot"></div>', render_sentiment(sentiment)) for p in body_parts]
     if priority["must"] or priority["should"] or priority["could"]:
         body_parts.append(render_priority(priority["must"], priority["should"], priority["could"]))
     if evidence:
         cards = ""
         for nm, lk in evidence:
             if lk.startswith("http"):
-                cards += '<div class="src-card">' + html.escape(nm) + '：<a href="' + lk + '" target="_blank">' + lk + '</a></div>'
+                # 只显示来源名作为可点击链接，不堆砌原始 URL
+                cards += '<div class="src-card"><a href="' + lk + '" target="_blank" rel="noopener">' + html.escape(nm) + '</a></div>'
             else:
                 cards += '<div class="src-card">' + html.escape(nm) + '：' + html.escape(lk) + '</div>'
-        body_parts = [p.replace('<div id="src"></div>', '<div>' + cards + '</div>') for p in body_parts]
+        cards = '<div class="src-grid">' + cards + '</div>'
+        body_parts = [p.replace('<div id="src"></div>', cards) for p in body_parts]
 
     # 构建导航
     nav_items = ""
