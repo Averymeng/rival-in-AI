@@ -8,15 +8,19 @@
 · 深度：快
 · 输出：可视化报告
 
-## 执行摘要
-- Cursor 是增长最快的 AI 原生 IDE：ARR 约 17 个月从 0 到 10 亿+，2026 初破 20 亿，超半数财富 500 强在用。
-- 核心壁垒不在模型，而在「VS Code fork 的 AI 工作流 + 开发者习惯锁定 + 多模型路由」的体验闭环。
-- 最大对手分两类：Copilot 靠 GitHub/Microsoft 分发守份额，Claude Code 靠最强 Agent 抢资深开发者。
-- 风险集中点：底层智能来自 Anthropic/OpenAI，自研 Composer 口碑一般；若微软把能力原生塞进 VS Code，溢价或被压缩。
-- 开源/免费侧（Cline/Aider/Zed/Trae）以 BYOK 与零成本切长尾，但难撼主流付费盘。
+## 核心结论
+- $2B+ ARR：Cursor 2026 年初年化经常性收入破 20 亿美元，增长史上最快之一。
+- 50%+ 财富 500 强：企业客户渗透率高，B 端成为主增长引擎。
+- AI 原生 IDE 领导者：以 VS Code fork + 多模型路由 + Agent 工作流锁定开发者习惯。
+- 核心风险：底层智能依赖 Anthropic/OpenAI，自研 Composer 口碑一般，微软若原生集成将压缩溢价。
 
-## 市场概览
-AI 编程工具 2025 市场约 73–150 亿美元（口径不一）。格局三层：① 分发型（Copilot，GitHub 100M 开发者底座）；② AI 原生 IDE（Cursor 领跑，Windsurf 跟进）；③ 终端/开源 Agent（Claude Code、Cline、Aider、Zed）。来源：agentmarketcap.ai、广发证券研报、axis-intelligence。
+## 关键洞察
+- 竞争格局分三层：Copilot 守分发、Claude Code 抢 Agent、Cursor 占 AI 原生 IDE。
+- 最大护城河不是模型，而是「工作流 + 习惯锁定 + 多模型路由」的体验闭环。
+- 开源/免费侧（Cline/Aider/Zed/Trae）以 BYOK 与零成本切长尾，但难撼主流付费盘。
+- 企业级权限/合规一体化、本地私有模型可观测性、非 VS Code 生态入口是当前空白机会。
+
+## 市场格局地图
 
 | 名称 | X | Y | 规模 |
 |---|---|---|---|
@@ -38,14 +42,15 @@ AI 编程工具 2025 市场约 73–150 亿美元（口径不一）。格局三�
 - Zed / Aider / Cline：速度 / 终端纪律 / 开源透明，各切极客长尾。
 
 ## 功能矩阵
-| 功能 | Cursor | Copilot | Claude Code | Windsurf | Trae | Zed | Aider | Cline |
-|---|---|---|---|---|---|---|---|---|
-| 多文件 Agent | 强 | 中 | 强 | 强 | 中 | 中 | 中 | 强 |
-| 全仓库索引 | 强 | 中 | 强 | 强(云端) | 中 | 中 | 弱 | 中 |
-| 多模型路由 | 强 | 弱 | 弱 | 中 | 中 | 中 | 强 | 强 |
-| 终端执行 | 是 | 是 | 是 | 是 | 是 | 部分 | 是 | 是 |
-| IDE 形态 | 独立 | 插件 | CLI/插件 | 独立 | 独立 | 独立 | CLI | 插件 |
-| 免费额度 | 有 | 有 | 有限 | 有 | 有 | 有 | 开源 | 开源 |
+
+| 功能 | Cursor | Copilot | Claude Code | Windsurf |
+|---|---|---|---|---|
+| 多文件 Agent | 强 | 中 | 强 | 强 |
+| 全仓库索引 | 强 | 中 | 强 | 强 |
+| 多模型路由 | 强 | 弱 | 弱 | 中 |
+| 终端执行 | 是 | 是 | 是 | 是 |
+| IDE 形态 | 独立 | 插件 | CLI/插件 | 独立 |
+| 免费额度 | 有 | 有 | 有限 | 有 |
 
 ## AI 能力
 评分口径见图表图例（5=领先，3=平均，1=基本不覆盖）。
@@ -95,7 +100,6 @@ AI 编程工具 2025 市场约 73–150 亿美元（口径不一）。格局三�
 - Trae：6 个月 MAU 破百万，字节内部 92% 工程师在用。来源：agentmarketcap、axis-intelligence、gradually.ai。
 
 ## 机会点
-待填补的空白方向（竞品尚未深做）：
 
 | 名称 | X | Y | 规模 |
 |---|---|---|---|
@@ -130,6 +134,7 @@ Should：补齐本地/私有模型可观测性与成本控制
 Could：探索非 VS Code 生态的轻量 AI 工作流入口
 
 ## 来源
+
 | 来源 | 链接 |
 |---|---|
 | Cursor 官网定价 | https://cursor.com/pricing |
