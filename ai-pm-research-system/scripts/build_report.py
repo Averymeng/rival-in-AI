@@ -125,10 +125,10 @@ def render_score_matrix(mid, header, rows):
             '<div id="radar_' + str(mid) + '" class="echart"></div></div>\n'
             '<div class="chart-card"><div class="chart-header"><span class="chart-title">维度热力矩阵</span></div>'
             '<div id="heat_' + str(mid) + '" class="echart"></div></div>\n'
-            '<script>(function(){var c=echarts.init(document.getElementById("radar_' + str(mid) + '"));'
+            '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("radar_' + str(mid) + '"));'
             'c.setOption(' + json.dumps(radar_opt, ensure_ascii=False) + ');REG.push(c);'
             'var h=echarts.init(document.getElementById("heat_' + str(mid) + '"));'
-            'h.setOption(' + json.dumps(heat_opt, ensure_ascii=False) + ');REG.push(h);})();</script>')
+            'h.setOption(' + json.dumps(heat_opt, ensure_ascii=False) + ');REG.push(h);});</script>')
 
 
 def render_scatter(mid, header, rows, is_opp):
@@ -163,8 +163,8 @@ def render_scatter(mid, header, rows, is_opp):
     opt_json = opt_json.replace('"__SCATTER_TOOLTIP__"', SCATTER_TOOLTIP).replace('"__SCATTER_LABEL__"', SCATTER_LABEL)
     return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">' + title + '</span></div>'
             '<div id="scatter_' + str(mid) + '" class="echart"></div></div>\n'
-            '<script>(function(){var c=echarts.init(document.getElementById("scatter_' + str(mid)
-            + '"));c.setOption(' + opt_json + ');REG.push(c);})();</script>')
+            '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("scatter_' + str(mid)
+            + '"));c.setOption(' + opt_json + ');REG.push(c);});</script>')
 
 
 def render_funnel(mid, header, rows):
@@ -189,8 +189,8 @@ def render_funnel(mid, header, rows):
     }
     return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">转化漏斗</span></div>'
             '<div id="funnel_' + str(mid) + '" class="echart"></div></div>\n'
-            '<script>(function(){var c=echarts.init(document.getElementById("funnel_' + str(mid)
-            + '"));c.setOption(' + json.dumps(opt, ensure_ascii=False) + ');REG.push(c);})();</script>')
+            '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("funnel_' + str(mid)
+            + '"));c.setOption(' + json.dumps(opt, ensure_ascii=False) + ');REG.push(c);});</script>')
 
 
 def render_timeline(mid, items):
@@ -213,8 +213,8 @@ def render_timeline(mid, items):
     }
     return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">时间线</span></div>'
             '<div id="tl_' + str(mid) + '" class="echart" style="height:220px"></div></div>\n'
-            '<script>(function(){var c=echarts.init(document.getElementById("tl_' + str(mid)
-            + '"));c.setOption(' + json.dumps(opt, ensure_ascii=False) + ');REG.push(c);})();</script>')
+            '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("tl_' + str(mid)
+            + '"));c.setOption(' + json.dumps(opt, ensure_ascii=False) + ');REG.push(c);});</script>')
 
 
 def parse_kpi(text):
@@ -392,6 +392,7 @@ def main():
     summary_items = []; priority = {"must": [], "should": [], "could": []}
     sentiment = []; timeline = []; evidence = []
     cur_section = ""
+    open_section = False
     n = len(lines)
 
     # 第一遍先收集所有 h2 作为导航
@@ -413,12 +414,15 @@ def main():
             sec_idx += 1
             cur_section = htext
             sid = "sec-" + str(sec_idx)
+            close_prev = "</section>" if open_section else ""
+            open_section = False
             if htext == "执行摘要":
-                body_parts.append('<section id="' + sid + '"><h2>执行摘要</h2><div class="summary-grid" id="sum"></div></section>')
+                body_parts.append(close_prev + '<section id="' + sid + '"><h2>执行摘要</h2><div class="summary-grid" id="sum"></div></section>')
             elif htext == "来源":
-                body_parts.append('<section id="' + sid + '"><h2>来源</h2><div id="src"></div></section>')
+                body_parts.append(close_prev + '<section id="' + sid + '"><h2>来源</h2><div id="src"></div></section>')
             else:
-                body_parts.append('<section id="' + sid + '"><h2>' + html.escape(htext) + '</h2>')
+                body_parts.append(close_prev + '<section id="' + sid + '"><h2>' + html.escape(htext) + '</h2>')
+                open_section = True
             i += 1; continue
 
         # 研究简报 / 本次假设 → 顶部标签
@@ -480,6 +484,9 @@ def main():
         if line.strip() and not line.lstrip().startswith("#"):
             body_parts.append("<p>" + html.escape(line.strip()) + "</p>")
         i += 1
+
+    if open_section:
+        body_parts.append("</section>")
 
     # 处理执行摘要 KPI 卡
     if summary_items:
