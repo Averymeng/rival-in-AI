@@ -361,7 +361,7 @@ def main():
         '<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>'
         '<style>' + CSS + '</style></head><body><div class="wrap">'
         '<header class="top"><h1>' + html.escape(title) + '</h1>'
-        '<div class="sub">AI PM Research System · 可视化研究报告</div></header>'
+        '<div class="sub">AIPM·瞭望台 · 可视化研究报告</div></header>'
         + brief_html + "".join(body_parts) +
         '</div><script>var REG=[];window.addEventListener("resize",function(){REG.forEach(function(c){c.resize();});});</script>'
         '</body></html>')
