@@ -52,9 +52,11 @@ def is_score_matrix(header, rows):
 
 
 def is_scatter(header, rows):
-    if len(header) != 4: return False
+    # 市场/机会地图：必须含 X / Y 坐标轴列，避免与评分矩阵（维度×对象）混淆
+    if len(header) < 4: return False
+    if not ('X' in header and 'Y' in header): return False
     for r in rows:
-        if len(r) < 4: continue
+        if len(r) < 3: continue
         if not re.match(r'^\d+(\.\d+)?$', r[1]) or not re.match(r'^\d+(\.\d+)?$', r[2]):
             return False
     return True
@@ -319,7 +321,7 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang 
 .assumption-bar{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:28px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px 24px;}
 .assumption-bar span{white-space:nowrap;}
 .assumption-bar b{color:var(--ink);font-weight:600;margin-right:4px;}
-section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 32px;margin-bottom:24px;}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 32px;margin-bottom:24px;width:100%;}
 section h2{margin:0 0 18px;font-size:22px;font-weight:600;line-height:1.4;color:var(--ink);}
 section h3{font-size:16px;font-weight:600;color:var(--ink);margin:20px 0 10px;}
 section p{margin:8px 0;font-size:14px;color:var(--ink);line-height:1.75;}
@@ -436,12 +438,13 @@ def main():
 
         if i in table_at:
             _, header, rows = table_at[i]
-            if is_score_matrix(header, rows):
-                mid += 1
-                body_parts.append(render_score_matrix(mid, header, rows))
-            elif is_scatter(header, rows) and ("地图" in cur_section):
+            # 优先识别 4 列散点/气泡表（市场地图/机会地图），避免被 score_matrix 误吞
+            if is_scatter(header, rows):
                 mid += 1
                 body_parts.append(render_scatter(mid, header, rows, "机会" in cur_section))
+            elif is_score_matrix(header, rows):
+                mid += 1
+                body_parts.append(render_score_matrix(mid, header, rows))
             elif is_funnel(header, rows) or ("漏斗" in cur_section and len(header) >= 2):
                 mid += 1
                 body_parts.append(render_funnel(mid, header, rows))
