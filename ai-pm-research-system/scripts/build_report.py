@@ -2,17 +2,16 @@
 # -*- coding: utf-8 -*-
 """AIPM·瞭望台 · 可视化渲染器
 约定写法（Markdown）→ 自包含 HTML（ECharts CDN）。
-支持：能力雷达图 + 维度热力矩阵 / 市场地图·机会地图 / 时间线 / 漏斗图 / 用户口碑 / 优先级看板 / KPI 卡 / 来源卡。
+支持：能力雷达图 / 市场地图·机会地图 / 时间线 / 漏斗图 / 用户口碑 / 优先级看板 / 执行摘要条 / 来源卡。
 
-设计语言（按 2025-08-23 设计评审迭代）：
-  - 背景 #F7F7FA，主色 indigo #6366f1，强调浅紫 #CCCEFF
-  - 深侧栏 + 浅色内容区，顶部标签化研究口径
-  - 少边框、少阴影、大留白、强字体层级
-  - 执行摘要突出 KPI 大卡
+设计语言（2025-08-23 迭代）：
+  - 背景奶黄 #FFF9F0，主色暖橘 #F59E0B，强调浅黄 #FCD34D
+  - 少边框、大留白、强字体层级
+  - 执行摘要为全宽横向条，关键词与正文分色
 """
 import sys, re, json, html, argparse, datetime
 
-PALETTE = ["#6366f1", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#0ea5e9", "#ec4899", "#14b8a6", "#f97316"]
+PALETTE = ["#F59E0B", "#F97316", "#EF4444", "#8B5CF6", "#6366F1", "#0EA5E9", "#10B981", "#EC4899", "#14B8A6"]
 
 # 需要在 json.dumps 之后以原始 JS 注入的函数（占位 token -> 真实函数源码）
 SCATTER_TOOLTIP = "function(p){return p.data.name+'<br/>X：'+p.data.value[0]+'　Y：'+p.data.value[1];}"
@@ -73,6 +72,7 @@ def is_funnel(header, rows):
 
 
 def render_score_matrix(mid, header, rows):
+    """评分矩阵仅渲染能力雷达图，避免维度重复出现。"""
     dims = header[1:]
     objects = [r[0] for r in rows]
     matrix = []
@@ -92,46 +92,24 @@ def render_score_matrix(mid, header, rows):
         radar_data.append(d)
     radar_opt = {
         "backgroundColor": "transparent",
-        "textStyle": {"color": "#6c6c88"},
-        "tooltip": {"textStyle": {"color": "#2e2e38"}},
-        "legend": {"bottom": 0, "data": objects, "textStyle": {"color": "#2e2e38", "fontSize": 12},
+        "textStyle": {"color": "#7C6F5D"},
+        "tooltip": {"textStyle": {"color": "#2E2E38"}},
+        "legend": {"bottom": 0, "data": objects, "textStyle": {"color": "#2E2E38", "fontSize": 12},
                    "itemGap": 16, "icon": "roundRect"},
         "radar": {
             "indicator": indicators, "radius": "62%", "center": ["50%", "46%"],
-            "axisName": {"color": "#6c6c88", "fontSize": 12},
-            "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
-            "axisLine": {"lineStyle": {"color": "#e2e8f0"}},
-            "splitArea": {"areaStyle": {"color": ["#f7f7fa", "#ffffff"]}}
+            "axisName": {"color": "#8A7D6B", "fontSize": 12},
+            "splitLine": {"lineStyle": {"color": "#F3E6D0"}},
+            "axisLine": {"lineStyle": {"color": "#F3E6D0"}},
+            "splitArea": {"areaStyle": {"color": ["#FFF9F0", "#FFFFFF"]}}
         },
         "series": [{"type": "radar", "data": radar_data, "symbolSize": 4}]
-    }
-    heat = [[xi, yi, matrix[xi][yi]] for yi in range(len(dims)) for xi in range(len(objects))]
-    heat_opt = {
-        "backgroundColor": "transparent",
-        "tooltip": {"position": "top", "textStyle": {"color": "#2e2e38"}},
-        "grid": {"height": "64%", "top": "8%", "left": "3%", "right": "5%"},
-        "xAxis": {"type": "category", "data": objects, "axisLabel": {"color": "#2e2e38", "fontSize": 12},
-                  "axisLine": {"lineStyle": {"color": "#e2e8f0"}}, "axisTick": {"show": False},
-                  "splitArea": {"show": True, "areaStyle": {"color": ["#ffffff", "#f7f7fa"]}}},
-        "yAxis": {"type": "category", "data": dims, "axisLabel": {"color": "#6c6c88", "fontSize": 11},
-                  "axisLine": {"lineStyle": {"color": "#e2e8f0"}}, "axisTick": {"show": False},
-                  "splitArea": {"show": True, "areaStyle": {"color": ["#ffffff", "#f7f7fa"]}}},
-        "visualMap": {"min": 1, "max": 5, "calculable": True, "orient": "horizontal",
-                      "left": "center", "bottom": "0", "textStyle": {"color": "#6c6c88"},
-                      "inRange": {"color": ["#f7f7fa", "#ccceff", "#6366f1"]}},
-        "series": [{"type": "heatmap", "data": heat, "label": {"show": True, "color": "#2e2e38", "fontSize": 12},
-                    "itemStyle": {"borderColor": "#ffffff", "borderWidth": 2},
-                    "emphasis": {"itemStyle": {"shadowBlur": 10, "shadowColor": "rgba(99,102,241,.35)"}}}]
     }
     return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">能力雷达图</span>'
             '<span class="chart-legend">评分口径：5=领先，3=平均，1=基本不覆盖</span></div>'
             '<div id="radar_' + str(mid) + '" class="echart"></div></div>\n'
-            '<div class="chart-card"><div class="chart-header"><span class="chart-title">维度热力矩阵</span></div>'
-            '<div id="heat_' + str(mid) + '" class="echart"></div></div>\n'
             '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("radar_' + str(mid) + '"));'
-            'c.setOption(' + json.dumps(radar_opt, ensure_ascii=False) + ');REG.push(c);'
-            'var h=echarts.init(document.getElementById("heat_' + str(mid) + '"));'
-            'h.setOption(' + json.dumps(heat_opt, ensure_ascii=False) + ');REG.push(h);});</script>')
+            'c.setOption(' + json.dumps(radar_opt, ensure_ascii=False) + ');REG.push(c);});</script>')
 
 
 def render_scatter(mid, header, rows, is_opp):
@@ -144,23 +122,23 @@ def render_scatter(mid, header, rows, is_opp):
             continue
         data.append({"name": r[0], "value": [x, y, s]})
     title = "机会地图（空白区气泡）" if is_opp else "市场地图（定位散点）"
-    color = "#f59e0b" if is_opp else "#6366f1"
+    color = "#F97316" if is_opp else "#F59E0B"
     opt = {
         "backgroundColor": "transparent",
         "tooltip": {"trigger": "item", "formatter": "__SCATTER_TOOLTIP__"},
         "grid": {"left": "8%", "right": "8%", "top": "12%", "bottom": "14%"},
-        "xAxis": {"name": "X · 专业 ←→ 大众", "nameTextStyle": {"color": "#6c6c88"},
-                  "min": 0, "max": 10, "axisLabel": {"color": "#6c6c88"},
-                  "axisLine": {"lineStyle": {"color": "#e2e8f0"}},
-                  "splitLine": {"lineStyle": {"color": "#f7f7fa", "type": "dashed"}}},
-        "yAxis": {"name": "Y · 模型能力 ←→ 生态", "nameTextStyle": {"color": "#6c6c88"},
-                  "min": 0, "max": 10, "axisLabel": {"color": "#6c6c88"},
-                  "axisLine": {"lineStyle": {"color": "#e2e8f0"}},
-                  "splitLine": {"lineStyle": {"color": "#f7f7fa", "type": "dashed"}}},
+        "xAxis": {"name": "X · 专业 ←→ 大众", "nameTextStyle": {"color": "#8A7D6B"},
+                  "min": 0, "max": 10, "axisLabel": {"color": "#8A7D6B"},
+                  "axisLine": {"lineStyle": {"color": "#F3E6D0"}},
+                  "splitLine": {"lineStyle": {"color": "#FFF3D9", "type": "dashed"}}},
+        "yAxis": {"name": "Y · 模型能力 ←→ 生态", "nameTextStyle": {"color": "#8A7D6B"},
+                  "min": 0, "max": 10, "axisLabel": {"color": "#8A7D6B"},
+                  "axisLine": {"lineStyle": {"color": "#F3E6D0"}},
+                  "splitLine": {"lineStyle": {"color": "#FFF3D9", "type": "dashed"}}},
         "series": [{"type": "scatter", "data": data, "symbolSize": "function(d){return 16+d[2]*7;}",
-                    "itemStyle": {"color": color, "opacity": 0.75, "borderColor": "#ffffff", "borderWidth": 2},
+                    "itemStyle": {"color": color, "opacity": 0.75, "borderColor": "#FFFFFF", "borderWidth": 2},
                     "label": {"show": True, "formatter": "__SCATTER_LABEL__", "position": "top",
-                              "color": "#2e2e38", "fontSize": 12}}]
+                              "color": "#2E2E38", "fontSize": 12}}]
     }
     opt_json = json.dumps(opt, ensure_ascii=False)
     opt_json = opt_json.replace('"__SCATTER_TOOLTIP__"', SCATTER_TOOLTIP).replace('"__SCATTER_LABEL__"', SCATTER_LABEL)
@@ -182,7 +160,7 @@ def render_funnel(mid, header, rows):
     opt = {
         "backgroundColor": "transparent",
         "tooltip": {"trigger": "item", "formatter": "{b} : {c}"},
-        "color": ["#6366f1", "#8b5cf6", "#0ea5e9", "#22c55e", "#f59e0b", "#ef4444"],
+        "color": ["#F59E0B", "#F97316", "#FBBF24", "#FCD34D", "#EF4444", "#8B5CF6"],
         "series": [{"type": "funnel", "left": "10%", "top": 20, "bottom": 20,
                     "width": "80%", "min": 0, "max": max([s["value"] for s in stages]) if stages else 100,
                     "label": {"show": True, "position": "inside", "color": "#fff", "fontSize": 12,
@@ -201,18 +179,18 @@ def render_timeline(mid, items):
     vals = [v for _, v in items]
     opt = {
         "backgroundColor": "transparent",
-        "tooltip": {"trigger": "axis", "textStyle": {"color": "#2e2e38"}},
+        "tooltip": {"trigger": "axis", "textStyle": {"color": "#2E2E38"}},
         "grid": {"left": "8%", "right": "6%", "top": "14%", "bottom": "10%"},
-        "xAxis": {"type": "category", "data": names, "axisLabel": {"color": "#6c6c88"},
-                  "axisLine": {"lineStyle": {"color": "#e2e8f0"}}, "axisTick": {"show": False}},
+        "xAxis": {"type": "category", "data": names, "axisLabel": {"color": "#8A7D6B"},
+                  "axisLine": {"lineStyle": {"color": "#F3E6D0"}}, "axisTick": {"show": False}},
         "yAxis": {"type": "value", "show": False},
         "series": [{"type": "line", "data": vals, "smooth": True, "symbol": "circle", "symbolSize": 8,
-                    "lineStyle": {"color": "#6366f1", "width": 3},
-                    "itemStyle": {"color": "#6366f1", "borderColor": "#fff", "borderWidth": 2},
+                    "lineStyle": {"color": "#F59E0B", "width": 3},
+                    "itemStyle": {"color": "#F59E0B", "borderColor": "#fff", "borderWidth": 2},
                     "areaStyle": {"color": {"type": "linear", "x": 0, "y": 0, "x2": 0, "y2": 1,
-                                              "colorStops": [{"offset": 0, "color": "rgba(99,102,241,.25)"},
-                                                               {"offset": 1, "color": "rgba(99,102,241,.02)"}]}},
-                    "label": {"show": True, "position": "top", "color": "#2e2e38", "formatter": "{c}"}}]
+                                              "colorStops": [{"offset": 0, "color": "rgba(245,158,11,.25)"},
+                                                               {"offset": 1, "color": "rgba(245,158,11,.02)"}]}},
+                    "label": {"show": True, "position": "top", "color": "#2E2E38", "formatter": "{c}"}}]
     }
     return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">时间线</span></div>'
             '<div id="tl_' + str(mid) + '" class="echart" style="height:220px"></div></div>\n'
@@ -221,41 +199,45 @@ def render_timeline(mid, items):
 
 
 def parse_kpi(text):
-    """把摘要项解析成 KPI 卡或洞察卡。
+    """把摘要项解析成 KPI 条或洞察条。
     返回 (type, big, label, note)
     type: 'metric' | 'insight'
     """
     text = text.strip()
     # 1) 数字/符号开头：$2B+ / 50%+ / #1 / 200% / 1.2x
-    m = re.match(r'^([\$¥€]?\s*[\d\.,]+\s*[%x倍万亿KMB+\-]*|[\#]\s*\d+|\d+\s*[%x倍万亿KMB+\-]*)\s+(.+)$', text)
+    m = re.match(r'^[\$¥€]?\s*[\d\.,]+\s*[%x倍万亿KMB+\-]*|[\#]\s*\d+|\d+\s*[%x倍万亿KMB+\-]*\s+(.+)$', text)
     if m:
-        return ('metric', m.group(1).strip(), m.group(2).strip(), '')
-    # 2) 标签：内容 模式
-    m = re.match(r'^([^：]{1,8})[：:]\s*(.+)$', text)
+        # 重新精确匹配：数字部分 + 空格 + 正文
+        m2 = re.match(r'^([\$¥€]?\s*[\d\.,]+\s*[%x倍万亿KMB+\-]*|[\#]\s*\d+|\d+\s*[%x倍万亿KMB+\-]*)\s+(.+)$', text)
+        if m2:
+            return ('metric', m2.group(1).strip(), m2.group(2).strip(), '')
+    # 2) 标签：内容 模式（优先短标签；若无短标签则取首个全角/半角冒号前作为标签）
+    m = re.match(r'^([^：:]{1,8})[：:]\s*(.+)$', text)
+    if m:
+        return ('insight', '', m.group(1).strip(), m.group(2).strip())
+    m = re.match(r'^(.+?)[：:]\s*(.+)$', text)
     if m:
         return ('insight', '', m.group(1).strip(), m.group(2).strip())
     return ('insight', '', text, '')
 
 
 def render_summary(items):
-    cards = []
+    rows = []
     for s in items:
         t, big, label, note = parse_kpi(s)
         if t == 'metric':
-            cards.append('<div class="kpi-card">'
-                         '<div class="kpi-big">' + html.escape(big) + '</div>'
-                         '<div class="kpi-label">' + html.escape(label) + '</div>'
-                         + ('<div class="kpi-note">' + html.escape(note) + '</div>' if note else '')
-                         + '</div>')
+            rows.append('<div class="sum-row metric">'
+                        '<div class="sum-big">' + html.escape(big) + '</div>'
+                        '<div class="sum-body"><div class="sum-label">' + html.escape(label) + '</div>'
+                        + ('<div class="sum-note">' + html.escape(note) + '</div>' if note else '')
+                        + '</div></div>')
         else:
-            inner = '<div class="kpi-title">' + html.escape(label) + '</div>'
-            if note:
-                # 把顿号/逗号拆成 bullet
-                bullets = re.split(r'[、，,]', note)
-                lis = ''.join('<li>' + html.escape(b.strip()) + '</li>' for b in bullets if b.strip())
-                inner += '<ul>' + lis + '</ul>'
-            cards.append('<div class="kpi-card insight">' + inner + '</div>')
-    return '<div class="kpi-grid">' + "".join(cards) + '</div>'
+            body = html.escape(note) if note else html.escape(label)
+            kw = html.escape(label) if note else ''
+            rows.append('<div class="sum-row insight">'
+                        + ('<div class="sum-keyword">' + kw + '</div>' if kw else '')
+                        + '<div class="sum-body">' + body + '</div></div>')
+    return '<div class="sum-list">' + "".join(rows) + '</div>'
 
 
 def render_sentiment(items):
@@ -286,19 +268,19 @@ def render_priority(must, should, could):
 
 CSS = """
 :root{
-  --bg:#f7f7fa;
-  --card:#ffffff;
-  --ink:#2e2e38;
-  --muted:#6c6c88;
-  --line:#e2e8f0;
-  --brand:#6366f1;
-  --brand-light:#ccceff;
-  --brand-ghost:#f2f3ff;
-  --green:#22c55e;
-  --amber:#f59e0b;
-  --red:#ef4444;
-  --sidebar:#2e2e38;
-  --sidebar-text:#b8bbd4;
+  --bg:#FFF9F0;
+  --card:#FFFFFF;
+  --ink:#2E2E38;
+  --muted:#8A7D6B;
+  --line:#F3E6D0;
+  --brand:#F59E0B;
+  --brand-light:#FCD34D;
+  --brand-ghost:#FFF3D9;
+  --green:#10B981;
+  --amber:#F59E0B;
+  --red:#EF4444;
+  --sidebar:#2D2A24;
+  --sidebar-text:#CFC8BC;
 }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -330,16 +312,14 @@ section h3{font-size:16px;font-weight:600;color:var(--ink);margin:20px 0 10px;}
 section p{margin:8px 0;font-size:14px;color:var(--ink);line-height:1.75;}
 section ul,section ol{margin:10px 0;padding-left:22px;color:var(--ink);font-size:14px;line-height:1.75;}
 section li{margin:5px 0;}
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:20px 0 10px;}
-.kpi-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;min-height:120px;display:flex;flex-direction:column;justify-content:center;}
-.kpi-card:nth-child(1){background:linear-gradient(135deg,var(--brand-ghost),#fff);border-color:var(--brand-light);}
-.kpi-big{font-size:28px;font-weight:700;color:var(--brand);line-height:1.2;margin-bottom:6px;}
-.kpi-label{font-size:13px;color:var(--ink);font-weight:500;line-height:1.5;}
-.kpi-note{font-size:11px;color:var(--muted);margin-top:4px;}
-.kpi-card.insight{background:#fff;}
-.kpi-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px;}
-.kpi-card.insight ul{margin:0;padding-left:16px;font-size:13px;color:var(--muted);}
-.kpi-card.insight li{margin:3px 0;}
+.sum-list{display:flex;flex-direction:column;gap:14px;margin:20px 0 10px;}
+.sum-row{display:flex;align-items:flex-start;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;}
+.sum-row.metric{align-items:center;}
+.sum-big{font-size:30px;font-weight:700;color:var(--brand);line-height:1;min-width:90px;text-align:left;}
+.sum-keyword{font-size:14px;font-weight:600;color:var(--brand);min-width:120px;flex-shrink:0;line-height:1.6;}
+.sum-body{flex:1;font-size:14px;color:var(--ink);line-height:1.7;}
+.sum-label{font-size:14px;font-weight:600;color:var(--brand);}
+.sum-note{font-size:12px;color:var(--muted);margin-top:4px;}
 .chart-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 26px;margin:22px 0;}
 .chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
 .chart-title{font-size:16px;font-weight:600;color:var(--ink);}
@@ -362,15 +342,16 @@ section li{margin:5px 0;}
 .tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;margin:10px 0;}
 .tbl th,.tbl td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);}
 .tbl th{font-weight:600;color:var(--muted);font-size:12px;background:var(--bg);position:sticky;top:0;}
-.tbl tbody tr:hover{background:rgba(99,102,241,.03);}
+.tbl tbody tr:hover{background:rgba(245,158,11,.05);}
 .tbl tr:last-child td{border-bottom:none;}
 @media(max-width:900px){
   .sidebar{display:none;}
   .main{margin-left:0;padding:24px;max-width:none;}
-  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .sum-row{flex-direction:column;}
+  .sum-big{min-width:auto;}
 }
 @media(max-width:640px){
-  .kpi-grid,.pri-row{grid-template-columns:1fr;}
+  .pri-row{grid-template-columns:1fr;}
   .tags{display:none;}
 }
 """
@@ -543,7 +524,7 @@ def main():
             '<span><b>' + html.escape(k) + '</b>' + html.escape(v) + '</span>' for k, v in assumption.items()
         ) + '</div>'
 
-    today = datetime.datetime.now().strftime("%Y 年 %-m 月")
+    today = datetime.datetime.now().strftime("%Y年%-m月%-d日")
 
     html_doc = ('<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -559,7 +540,7 @@ def main():
         '<main class="main">'
         '<header class="top-header">'
         '<h1>' + html.escape(title) + '</h1>'
-        '<div class="top-sub"><span>' + today + '</span><span>AIPM·竞争瞭望台</span></div>'
+        '<div class="top-sub"><span>' + today + '</span><span>AIPM·瞭望台</span></div>'
         '<div class="tags">' + tag_html + '</div>'
         '</header>'
         + assumption_bar + "".join(body_parts) +
