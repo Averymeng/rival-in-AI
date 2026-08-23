@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 """AIPM·瞭望台 · 可视化渲染器
 约定写法（Markdown）→ 自包含 HTML（ECharts CDN）。
-支持：核心结论 KPI / 关键洞察 / 市场地图 / 能力雷达图 / 维度热力矩阵 /
-      功能点阵图 / 机会卡片 / 时间线 / 用户口碑 / 优先级看板 / 来源。
+支持：能力雷达图 + 维度热力矩阵 / 市场地图·机会地图 / 时间线 / 漏斗图 / 用户口碑 / 优先级看板 / KPI 卡 / 来源卡。
 
 设计语言（按 2025-08-23 设计评审迭代）：
-  - 信息密度收敛：每张图只讲一个问题，默认 Top-3/Top-4
-  - 细左侧导航 Rail + 大内容区，减少导航占用
-  - 浅灰背景 #F7F7FA，主色 indigo #6366f1，强调浅紫 #CCCEFF
+  - 背景 #F7F7FA，主色 indigo #6366f1，强调浅紫 #CCCEFF
+  - 深侧栏 + 浅色内容区，顶部标签化研究口径
   - 少边框、少阴影、大留白、强字体层级
+  - 执行摘要突出 KPI 大卡
 """
 import sys, re, json, html, argparse, datetime
 
@@ -18,13 +17,6 @@ PALETTE = ["#6366f1", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#0ea5e9", "#e
 # 需要在 json.dumps 之后以原始 JS 注入的函数（占位 token -> 真实函数源码）
 SCATTER_TOOLTIP = "function(p){return p.data.name+'<br/>X：'+p.data.value[0]+'　Y：'+p.data.value[1];}"
 SCATTER_LABEL = "function(p){return p.data.name;}"
-
-# 定性评级 → 数值（用于功能点阵图）
-QUALITY_MAP = {
-    "强": 3, "是": 3, "有": 3, "独立": 3, "好": 3, "高": 3, "快": 3,
-    "中": 2, "部分": 2, "有限": 2, "一般": 2, "平均": 2,
-    "弱": 1, "否": 1, "无": 1, "差": 1, "低": 1, "慢": 1,
-}
 
 
 def parse_tables(lines):
@@ -60,7 +52,7 @@ def is_score_matrix(header, rows):
 
 
 def is_scatter(header, rows):
-    # 市场/机会地图：必须含 X / Y 坐标轴列
+    # 市场/机会地图：必须含 X / Y 坐标轴列，避免与评分矩阵（维度×对象）混淆
     if len(header) < 4: return False
     if not ('X' in header and 'Y' in header): return False
     for r in rows:
@@ -80,21 +72,6 @@ def is_funnel(header, rows):
     return True
 
 
-def select_top_objects(matrix, objects, n=4):
-    """保留第一个对象（主体）+ 综合评分最高的 n-1 个对象。
-    matrix: list[list[float|None]]，与 objects 同序。
-    """
-    if len(objects) <= n:
-        return list(range(len(objects)))
-    avgs = []
-    for idx, vals in enumerate(matrix):
-        clean = [v for v in vals if v is not None]
-        avgs.append((sum(clean) / len(clean) if clean else 0, idx))
-    # 第一个固定为主体
-    rest = [x for _, x in sorted(avgs[1:], key=lambda x: -x[0])[:n-1]]
-    return [0] + sorted(rest)
-
-
 def render_score_matrix(mid, header, rows):
     dims = header[1:]
     objects = [r[0] for r in rows]
@@ -102,64 +79,55 @@ def render_score_matrix(mid, header, rows):
     for r in rows:
         vals = [float(v) if re.match(r'^\d+(\.\d+)?$', v) else None for v in r[1:]]
         matrix.append(vals)
-
-    # 雷达只保留主体 + Top-3，避免 8 条线重叠成糊
-    radar_idx = select_top_objects(matrix, objects, n=4)
-    radar_dims = dims
-    radar_objects = [objects[i] for i in radar_idx]
-    indicators = [{"name": d, "max": 5} for d in radar_dims]
+    indicators = [{"name": d, "max": 5} for d in dims]
     radar_data = []
-    for rank, oi in enumerate(radar_idx):
-        obj = objects[oi]
-        c = PALETTE[rank % len(PALETTE)]
-        vals = matrix[oi]
-        d = {"name": obj, "value": vals,
-             "lineStyle": {"color": c, "width": rank == 0 and 3 or 2.2},
+    for oi, obj in enumerate(objects):
+        c = PALETTE[oi % len(PALETTE)]
+        d = {"name": obj, "value": matrix[oi],
+             "lineStyle": {"color": c, "width": 2.5},
              "itemStyle": {"color": c}}
-        # 仅主体填充淡色，竞品仅描边，避免中心阴影反复叠加变深
-        if rank == 0:
+        # 只对主体（首个对象）填充淡色，竞品仅描边，避免中心阴影重复叠加变深
+        if oi == 0:
             d["areaStyle"] = {"color": c, "opacity": 0.12}
         radar_data.append(d)
-
     radar_opt = {
         "backgroundColor": "transparent",
         "textStyle": {"color": "#6c6c88"},
         "tooltip": {"textStyle": {"color": "#2e2e38"}},
-        "legend": {"bottom": 0, "data": radar_objects, "textStyle": {"color": "#2e2e38", "fontSize": 12},
+        "legend": {"bottom": 0, "data": objects, "textStyle": {"color": "#2e2e38", "fontSize": 12},
                    "itemGap": 16, "icon": "roundRect"},
         "radar": {
-            "indicator": indicators, "radius": "64%", "center": ["50%", "44%"],
-            "axisName": {"color": "#6c6c88", "fontSize": 11},
+            "indicator": indicators, "radius": "62%", "center": ["50%", "46%"],
+            "axisName": {"color": "#6c6c88", "fontSize": 12},
             "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
             "axisLine": {"lineStyle": {"color": "#e2e8f0"}},
             "splitArea": {"areaStyle": {"color": ["#f7f7fa", "#ffffff"]}}
         },
-        "series": [{"type": "radar", "data": radar_data, "symbolSize": 5}]
+        "series": [{"type": "radar", "data": radar_data, "symbolSize": 4}]
     }
-
-    # 热力矩阵保留全部对象，但用更淡的色阶和更干净的格子
     heat = [[xi, yi, matrix[xi][yi]] for yi in range(len(dims)) for xi in range(len(objects))]
     heat_opt = {
         "backgroundColor": "transparent",
         "tooltip": {"position": "top", "textStyle": {"color": "#2e2e38"}},
-        "grid": {"height": "68%", "top": "4%", "left": "2%", "right": "4%"},
-        "xAxis": {"type": "category", "data": objects, "axisLabel": {"color": "#2e2e38", "fontSize": 11},
-                  "axisLine": {"show": False}, "axisTick": {"show": False},
+        "grid": {"height": "64%", "top": "8%", "left": "3%", "right": "5%"},
+        "xAxis": {"type": "category", "data": objects, "axisLabel": {"color": "#2e2e38", "fontSize": 12},
+                  "axisLine": {"lineStyle": {"color": "#e2e8f0"}}, "axisTick": {"show": False},
                   "splitArea": {"show": True, "areaStyle": {"color": ["#ffffff", "#f7f7fa"]}}},
         "yAxis": {"type": "category", "data": dims, "axisLabel": {"color": "#6c6c88", "fontSize": 11},
-                  "axisLine": {"show": False}, "axisTick": {"show": False},
+                  "axisLine": {"lineStyle": {"color": "#e2e8f0"}}, "axisTick": {"show": False},
                   "splitArea": {"show": True, "areaStyle": {"color": ["#ffffff", "#f7f7fa"]}}},
-        "visualMap": {"min": 1, "max": 5, "calculable": False, "show": False,
+        "visualMap": {"min": 1, "max": 5, "calculable": True, "orient": "horizontal",
+                      "left": "center", "bottom": "0", "textStyle": {"color": "#6c6c88"},
                       "inRange": {"color": ["#f7f7fa", "#ccceff", "#6366f1"]}},
-        "series": [{"type": "heatmap", "data": heat, "label": {"show": True, "color": "#2e2e38", "fontSize": 11},
+        "series": [{"type": "heatmap", "data": heat, "label": {"show": True, "color": "#2e2e38", "fontSize": 12},
                     "itemStyle": {"borderColor": "#ffffff", "borderWidth": 2},
-                    "emphasis": {"itemStyle": {"shadowBlur": 8, "shadowColor": "rgba(99,102,241,.3)"}}}]
+                    "emphasis": {"itemStyle": {"shadowBlur": 10, "shadowColor": "rgba(99,102,241,.35)"}}}]
     }
-    return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">核心能力对比（Top 4）</span>'
+    return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">能力雷达图</span>'
             '<span class="chart-legend">评分口径：5=领先，3=平均，1=基本不覆盖</span></div>'
             '<div id="radar_' + str(mid) + '" class="echart"></div></div>\n'
             '<div class="chart-card"><div class="chart-header"><span class="chart-title">维度热力矩阵</span></div>'
-            '<div id="heat_' + str(mid) + '" class="echart" style="height:360px"></div></div>\n'
+            '<div id="heat_' + str(mid) + '" class="echart"></div></div>\n'
             '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("radar_' + str(mid) + '"));'
             'c.setOption(' + json.dumps(radar_opt, ensure_ascii=False) + ');REG.push(c);'
             'var h=echarts.init(document.getElementById("heat_' + str(mid) + '"));'
@@ -175,32 +143,28 @@ def render_scatter(mid, header, rows, is_opp):
         except Exception:
             continue
         data.append({"name": r[0], "value": [x, y, s]})
-    # 限制气泡数量，避免过密
-    data = sorted(data, key=lambda d: -d["value"][2])[:6]
-    title = "机会地图（空白区）" if is_opp else "市场格局地图"
+    title = "机会地图（空白区气泡）" if is_opp else "市场地图（定位散点）"
     color = "#f59e0b" if is_opp else "#6366f1"
     opt = {
         "backgroundColor": "transparent",
         "tooltip": {"trigger": "item", "formatter": "__SCATTER_TOOLTIP__"},
-        "grid": {"left": "10%", "right": "10%", "top": "10%", "bottom": "16%"},
-        "xAxis": {"name": "X · 专业 ←→ 大众", "nameTextStyle": {"color": "#9ca3af", "fontSize": 11},
-                  "min": 0, "max": 10, "axisLabel": {"show": False},
+        "grid": {"left": "8%", "right": "8%", "top": "12%", "bottom": "14%"},
+        "xAxis": {"name": "X · 专业 ←→ 大众", "nameTextStyle": {"color": "#6c6c88"},
+                  "min": 0, "max": 10, "axisLabel": {"color": "#6c6c88"},
                   "axisLine": {"lineStyle": {"color": "#e2e8f0"}},
                   "splitLine": {"lineStyle": {"color": "#f7f7fa", "type": "dashed"}}},
-        "yAxis": {"name": "Y · 模型能力 ←→ 生态", "nameTextStyle": {"color": "#9ca3af", "fontSize": 11},
-                  "min": 0, "max": 10, "axisLabel": {"show": False},
+        "yAxis": {"name": "Y · 模型能力 ←→ 生态", "nameTextStyle": {"color": "#6c6c88"},
+                  "min": 0, "max": 10, "axisLabel": {"color": "#6c6c88"},
                   "axisLine": {"lineStyle": {"color": "#e2e8f0"}},
                   "splitLine": {"lineStyle": {"color": "#f7f7fa", "type": "dashed"}}},
-        "series": [{"type": "scatter", "data": data,
-                    "symbolSize": "function(d){return 32+d[2]*12;}",
-                    "itemStyle": {"color": color, "opacity": 0.18, "borderColor": color, "borderWidth": 2},
+        "series": [{"type": "scatter", "data": data, "symbolSize": "function(d){return 16+d[2]*7;}",
+                    "itemStyle": {"color": color, "opacity": 0.75, "borderColor": "#ffffff", "borderWidth": 2},
                     "label": {"show": True, "formatter": "__SCATTER_LABEL__", "position": "top",
-                              "color": "#2e2e38", "fontSize": 12, "fontWeight": 600}}]
+                              "color": "#2e2e38", "fontSize": 12}}]
     }
     opt_json = json.dumps(opt, ensure_ascii=False)
     opt_json = opt_json.replace('"__SCATTER_TOOLTIP__"', SCATTER_TOOLTIP).replace('"__SCATTER_LABEL__"', SCATTER_LABEL)
-    return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">' + title + '</span>'
-            '<span class="chart-legend">气泡大小 = 综合影响力</span></div>'
+    return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">' + title + '</span></div>'
             '<div id="scatter_' + str(mid) + '" class="echart"></div></div>\n'
             '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("scatter_' + str(mid)
             + '"));c.setOption(' + opt_json + ');REG.push(c);});</script>')
@@ -246,7 +210,7 @@ def render_timeline(mid, items):
                     "lineStyle": {"color": "#6366f1", "width": 3},
                     "itemStyle": {"color": "#6366f1", "borderColor": "#fff", "borderWidth": 2},
                     "areaStyle": {"color": {"type": "linear", "x": 0, "y": 0, "x2": 0, "y2": 1,
-                                              "colorStops": [{"offset": 0, "color": "rgba(99,102,241,.22)"},
+                                              "colorStops": [{"offset": 0, "color": "rgba(99,102,241,.25)"},
                                                                {"offset": 1, "color": "rgba(99,102,241,.02)"}]}},
                     "label": {"show": True, "position": "top", "color": "#2e2e38", "formatter": "{c}"}}]
     }
@@ -256,107 +220,42 @@ def render_timeline(mid, items):
             + '"));c.setOption(' + json.dumps(opt, ensure_ascii=False) + ');REG.push(c);});</script>')
 
 
-def _quality_score(v):
-    """把「强(云端)」这类带备注的值也映射到 1-3。"""
-    v = str(v)
-    for k, s in [("强", 3), ("是", 3), ("高", 3), ("快", 3), ("中", 2), ("部分", 2), ("弱", 1), ("否", 1), ("无", 1)]:
-        if k in v:
-            return s
-    return 0
-
-
-def render_dot_matrix(header, rows):
-    """功能/特性定性表 → 点阵图。保留主体 + Top-3 竞品。"""
-    objects = header[1:]
-    features = [r[0] for r in rows]
-    scores = []
-    for r in rows:
-        row_scores = [_quality_score(v) for v in r[1:]]
-        scores.append(row_scores)
-
-    # 主体固定为第一个对象，其余按平均分取 Top-3
-    obj_avgs = []
-    for ci, obj in enumerate(objects):
-        col = [scores[ri][ci] for ri in range(len(features))]
-        col = [s for s in col if s > 0]
-        obj_avgs.append((sum(col) / len(col) if col else 0, ci))
-    chosen = [0] + [x for _, x in sorted(obj_avgs[1:], key=lambda x: -x[0])[:3]]
-    chosen = sorted(chosen)
-
-    rows_html = ""
-    for ri, feat in enumerate(features):
-        cells = '<td class="dm-feat">' + html.escape(feat) + '</td>'
-        for ci in chosen:
-            s = scores[ri][ci]
-            cls = "s3" if s == 3 else ("s2" if s == 2 else ("s1" if s == 1 else "s0"))
-            cells += '<td class="dm-cell"><span class="dm-dot ' + cls + '"></span></td>'
-        rows_html += '<tr>' + cells + '</tr>'
-
-    head_html = '<tr><th class="dm-feat"></th>' + "".join('<th>' + html.escape(objects[ci]) + '</th>' for ci in chosen) + '</tr>'
-    return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">核心功能对比（Top 4）</span>'
-            '<span class="chart-legend">● 强　● 中　● 弱</span></div>'
-            '<table class="dot-matrix">' + head_html + rows_html + '</table></div>')
-
-
-def render_opportunity_cards(rows):
-    """机会点表格 → 3 张 icon 卡片。"""
-    cards = ""
-    for i, r in enumerate(rows[:3]):
-        name = r[0] if r else ""
-        scale = r[3] if len(r) > 3 else ""
-        icon = name[0] if name else "?"
-        c = PALETTE[i % len(PALETTE)]
-        cards += ('<div class="opp-card">'
-                  '<div class="opp-icon" style="background:' + c + '">' + html.escape(icon) + '</div>'
-                  '<div class="opp-title">' + html.escape(name) + '</div>'
-                  '<div class="opp-meta">潜力 ' + html.escape(scale) + '/5</div></div>')
-    return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">机会点（Top 3）</span></div>'
-            '<div class="opp-row">' + cards + '</div></div>')
-
-
 def parse_kpi(text):
-    """把摘要项解析成 KPI 卡或洞察卡。"""
+    """把摘要项解析成 KPI 卡或洞察卡。
+    返回 (type, big, label, note)
+    type: 'metric' | 'insight'
+    """
     text = text.strip()
-    # 数字/符号开头：$2B+ / 50%+ / #1 / 200% / 1.2x
+    # 1) 数字/符号开头：$2B+ / 50%+ / #1 / 200% / 1.2x
     m = re.match(r'^([\$¥€]?\s*[\d\.,]+\s*[%x倍万亿KMB+\-]*|[\#]\s*\d+|\d+\s*[%x倍万亿KMB+\-]*)\s+(.+)$', text)
     if m:
         return ('metric', m.group(1).strip(), m.group(2).strip(), '')
-    # 标签：内容 模式
-    m = re.match(r'^([^：]{1,10})[：:]\s*(.+)$', text)
+    # 2) 标签：内容 模式
+    m = re.match(r'^([^：]{1,8})[：:]\s*(.+)$', text)
     if m:
         return ('insight', '', m.group(1).strip(), m.group(2).strip())
     return ('insight', '', text, '')
 
 
 def render_summary(items):
-    """核心结论：前 4 项为 KPI 大卡，其余为关键洞察面板。"""
-    kpi_items = items[:4]
-    insight_items = items[4:]
-    kpi_html = ""
-    for s in kpi_items:
+    cards = []
+    for s in items:
         t, big, label, note = parse_kpi(s)
         if t == 'metric':
-            kpi_html += ('<div class="kpi-card">'
+            cards.append('<div class="kpi-card">'
                          '<div class="kpi-big">' + html.escape(big) + '</div>'
-                         '<div class="kpi-label">' + html.escape(label) + '</div></div>')
+                         '<div class="kpi-label">' + html.escape(label) + '</div>'
+                         + ('<div class="kpi-note">' + html.escape(note) + '</div>' if note else '')
+                         + '</div>')
         else:
-            # 非数字也渲染成大标签卡
-            kpi_html += ('<div class="kpi-card insight-kpi">'
-                         '<div class="kpi-big">' + html.escape(label or s[:12]) + '</div>'
-                         '<div class="kpi-label">' + html.escape(note or '') + '</div></div>')
-    out = '<div class="kpi-grid">' + kpi_html + '</div>'
-    if insight_items:
-        lis = "".join('<li>' + html.escape(s.lstrip("-").strip()) + '</li>' for s in insight_items)
-        out += '<div class="insight-panel"><div class="insight-h">关键洞察</div><ul>' + lis + '</ul></div>'
-    return out
-
-
-def render_insights(items):
-    """关键洞察面板。"""
-    if not items:
-        return ""
-    lis = "".join('<li>' + html.escape(s.lstrip("-").strip()) + '</li>' for s in items)
-    return '<div class="insight-panel"><div class="insight-h">关键洞察</div><ul>' + lis + '</ul></div>'
+            inner = '<div class="kpi-title">' + html.escape(label) + '</div>'
+            if note:
+                # 把顿号/逗号拆成 bullet
+                bullets = re.split(r'[、，,]', note)
+                lis = ''.join('<li>' + html.escape(b.strip()) + '</li>' for b in bullets if b.strip())
+                inner += '<ul>' + lis + '</ul>'
+            cards.append('<div class="kpi-card insight">' + inner + '</div>')
+    return '<div class="kpi-grid">' + "".join(cards) + '</div>'
 
 
 def render_sentiment(items):
@@ -380,7 +279,7 @@ def render_priority(must, should, could):
     def col(title, items, cls):
         lis = "".join("<li>" + html.escape(x) + "</li>" for x in items)
         return '<div class="pri-col ' + cls + '"><div class="pri-h">' + title + '</div><ul>' + lis + '</ul></div>'
-    return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">优先级看板</span></div>'
+    return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">优先级看板（建议分级）</span></div>'
             '<div class="pri-row">' + col("Must 必做", must, "m") + col("Should 应做", should, "s")
             + col("Could 可做", could, "c") + '</div></div>')
 
@@ -391,7 +290,7 @@ CSS = """
   --card:#ffffff;
   --ink:#2e2e38;
   --muted:#6c6c88;
-  --line:#e8e8f0;
+  --line:#e2e8f0;
   --brand:#6366f1;
   --brand-light:#ccceff;
   --brand-ghost:#f2f3ff;
@@ -403,48 +302,54 @@ CSS = """
 }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:14px;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:14px;}
 .app{display:flex;min-height:100vh;}
-.sidebar{width:64px;background:var(--sidebar);color:var(--sidebar-text);position:fixed;left:0;top:0;bottom:0;overflow:auto;padding:20px 8px;z-index:20;display:flex;flex-direction:column;align-items:center;}
-.brand{font-size:12px;font-weight:700;color:#fff;letter-spacing:2px;writing-mode:vertical-rl;text-orientation:mixed;margin-bottom:24px;}
-.nav-list{list-style:none;margin:0;padding:0;width:100%;}
-.nav-list li{margin:6px 0;text-align:center;}
-.nav-list a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;color:var(--sidebar-text);text-decoration:none;font-size:13px;font-weight:600;transition:.15s;}
-.nav-list a:hover,.nav-list a.active{background:rgba(255,255,255,.1);color:#fff;}
-.main{margin-left:64px;flex:1;padding:40px 56px 100px;max-width:1200px;}
-.top-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:24px;}
-.top-header h1{margin:0;font-size:36px;font-weight:700;line-height:1.2;letter-spacing:.5px;color:var(--ink);}
-.top-meta{text-align:right;font-size:13px;color:var(--muted);line-height:1.6;}
-.top-meta .brand-line{font-weight:600;color:var(--ink);}
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
-.tag{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--muted);}
+.sidebar{width:260px;background:var(--sidebar);color:var(--sidebar-text);position:fixed;left:0;top:0;bottom:0;overflow:auto;padding:28px 22px;z-index:20;}
+.brand{font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:8px;}
+.brand span{font-weight:400;opacity:.7;}
+.brand-sub{font-size:12px;color:var(--sidebar-text);opacity:.7;margin-bottom:32px;}
+.nav-list{list-style:none;margin:0;padding:0;}
+.nav-list li{margin:6px 0;}
+.nav-list a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:var(--sidebar-text);text-decoration:none;font-size:13px;transition:.15s;}
+.nav-list a::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--sidebar-text);opacity:.4;}
+.nav-list a:hover,.nav-list a.active{background:rgba(255,255,255,.08);color:#fff;}
+.nav-list a.active::before{background:var(--brand-light);opacity:1;}
+.main{margin-left:260px;flex:1;padding:40px 48px 80px;max-width:1100px;}
+.top-header{margin-bottom:32px;}
+.top-header h1{margin:0;font-size:32px;font-weight:700;line-height:1.25;letter-spacing:.5px;color:var(--ink);}
+.top-sub{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px;color:var(--muted);}
+.tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.tag{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);}
 .tag b{color:var(--ink);font-weight:600;}
-section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 32px;margin-bottom:20px;width:100%;}
-section h2{margin:0 0 18px;font-size:20px;font-weight:600;line-height:1.4;color:var(--ink);}
-section h3{font-size:15px;font-weight:600;color:var(--ink);margin:18px 0 10px;}
+.assumption-bar{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:28px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px 24px;}
+.assumption-bar span{white-space:nowrap;}
+.assumption-bar b{color:var(--ink);font-weight:600;margin-right:4px;}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 32px;margin-bottom:24px;width:100%;}
+section h2{margin:0 0 18px;font-size:22px;font-weight:600;line-height:1.4;color:var(--ink);}
+section h3{font-size:16px;font-weight:600;color:var(--ink);margin:20px 0 10px;}
 section p{margin:8px 0;font-size:14px;color:var(--ink);line-height:1.75;}
 section ul,section ol{margin:10px 0;padding-left:22px;color:var(--ink);font-size:14px;line-height:1.75;}
 section li{margin:5px 0;}
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0 16px;}
-.kpi-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;min-height:110px;display:flex;flex-direction:column;justify-content:center;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:20px 0 10px;}
+.kpi-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;min-height:120px;display:flex;flex-direction:column;justify-content:center;}
 .kpi-card:nth-child(1){background:linear-gradient(135deg,var(--brand-ghost),#fff);border-color:var(--brand-light);}
-.kpi-big{font-size:30px;font-weight:700;color:var(--brand);line-height:1.15;margin-bottom:6px;}
-.kpi-card.insight-kpi .kpi-big{font-size:18px;line-height:1.3;}
-.kpi-label{font-size:12px;color:var(--ink);font-weight:500;line-height:1.5;}
-.insight-panel{background:var(--bg);border-left:3px solid var(--brand-light);border-radius:0 12px 12px 0;padding:14px 18px;margin:10px 0 6px;}
-.insight-h{font-size:13px;font-weight:600;color:var(--brand);margin-bottom:8px;}
-.insight-panel ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted);line-height:1.8;}
-.insight-panel li{margin:4px 0;}
-.chart-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 26px;margin:20px 0;}
+.kpi-big{font-size:28px;font-weight:700;color:var(--brand);line-height:1.2;margin-bottom:6px;}
+.kpi-label{font-size:13px;color:var(--ink);font-weight:500;line-height:1.5;}
+.kpi-note{font-size:11px;color:var(--muted);margin-top:4px;}
+.kpi-card.insight{background:#fff;}
+.kpi-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.kpi-card.insight ul{margin:0;padding-left:16px;font-size:13px;color:var(--muted);}
+.kpi-card.insight li{margin:3px 0;}
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 26px;margin:22px 0;}
 .chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
 .chart-title{font-size:16px;font-weight:600;color:var(--ink);}
 .chart-legend{font-size:11px;color:var(--muted);}
 .echart{width:100%;height:420px;}
-.pri-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.pri-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
 .pri-col{background:var(--bg);border-radius:14px;padding:16px;}
 .pri-col.m{border-left:4px solid var(--red);} .pri-col.s{border-left:4px solid var(--amber);} .pri-col.c{border-left:4px solid var(--green);}
 .pri-h{font-weight:700;font-size:14px;margin-bottom:10px;color:var(--ink);} .pri-col ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted);line-height:1.7;}
-.sent-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;margin-bottom:12px;background:var(--line);}
+.sent-bar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin-bottom:10px;background:var(--line);}
 .sent-pos{background:var(--green);} .sent-neg{background:var(--red);}
 .quote-list{display:flex;flex-direction:column;gap:10px;}
 .quote{font-size:13px;padding:12px 14px;border-radius:10px;background:var(--bg);line-height:1.6;}
@@ -459,28 +364,13 @@ section li{margin:5px 0;}
 .tbl th{font-weight:600;color:var(--muted);font-size:12px;background:var(--bg);position:sticky;top:0;}
 .tbl tbody tr:hover{background:rgba(99,102,241,.03);}
 .tbl tr:last-child td{border-bottom:none;}
-.dot-matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;margin:6px 0 0;}
-.dot-matrix th,.dot-matrix td{padding:10px 8px;text-align:center;border-bottom:1px solid var(--line);}
-.dot-matrix th{font-weight:600;color:var(--muted);font-size:12px;}
-.dot-matrix td.dm-feat{text-align:left;color:var(--ink);font-weight:500;}
-.dm-dot{display:inline-block;width:14px;height:14px;border-radius:50%;}
-.dm-dot.s3{background:var(--brand);}
-.dm-dot.s2{background:var(--brand-light);}
-.dm-dot.s1{background:#e2e8f0;}
-.dm-dot.s0{background:transparent;border:1px dashed #e2e8f0;}
-.opp-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-.opp-card{background:var(--bg);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;}
-.opp-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;}
-.opp-title{font-size:14px;font-weight:600;color:var(--ink);line-height:1.4;}
-.opp-meta{font-size:12px;color:var(--muted);}
 @media(max-width:900px){
   .sidebar{display:none;}
   .main{margin-left:0;padding:24px;max-width:none;}
   .kpi-grid{grid-template-columns:repeat(2,1fr);}
-  .opp-row,.pri-row{grid-template-columns:1fr;}
 }
 @media(max-width:640px){
-  .kpi-grid{grid-template-columns:1fr;}
+  .kpi-grid,.pri-row{grid-template-columns:1fr;}
   .tags{display:none;}
 }
 """
@@ -503,7 +393,7 @@ def main():
     table_at = {t[0]: t for t in tables}
 
     i = 0; mid = 0; sec_idx = 0
-    summary_items = []; insight_items = []; priority = {"must": [], "should": [], "could": []}
+    summary_items = []; priority = {"must": [], "should": [], "could": []}
     sentiment = []; timeline = []; evidence = []; special_sid = {}
     cur_section = ""
     open_section = False
@@ -530,13 +420,12 @@ def main():
             sid = "sec-" + str(sec_idx)
             close_prev = "</section>" if open_section else ""
             open_section = False
-            if htext in ("核心结论", "执行摘要"):
-                body_parts.append(close_prev + '<section id="' + sid + '"><h2>核心结论</h2><div class="summary-grid" id="sum"></div></section>')
-            elif htext == "关键洞察":
-                body_parts.append(close_prev + '<section id="' + sid + '"><h2>关键洞察</h2><div id="insights"></div></section>')
+            if htext == "执行摘要":
+                body_parts.append(close_prev + '<section id="' + sid + '"><h2>执行摘要</h2><div class="summary-grid" id="sum"></div></section>')
             elif htext == "来源":
                 body_parts.append(close_prev + '<section id="' + sid + '"><h2>来源</h2><div id="src"></div></section>')
             elif htext in ("用户口碑", "时间线"):
+                # 口碑/时间线由专用卡片渲染，用插槽占位，避免「空标题段 + 重复卡片」
                 body_parts.append(close_prev + '<div id="' + sid + '" class="slot"></div>')
                 special_sid[htext] = sid
             else:
@@ -561,18 +450,13 @@ def main():
 
         if i in table_at:
             _, header, rows = table_at[i]
-            # 机会点表格 → 卡片
-            if cur_section == "机会点":
-                body_parts.append(render_opportunity_cards(rows))
-            # 市场/机会地图
-            elif is_scatter(header, rows):
+            # 优先识别 4 列散点/气泡表（市场地图/机会地图），避免被 score_matrix 误吞
+            if is_scatter(header, rows):
                 mid += 1
                 body_parts.append(render_scatter(mid, header, rows, "机会" in cur_section))
             elif is_score_matrix(header, rows):
                 mid += 1
                 body_parts.append(render_score_matrix(mid, header, rows))
-            elif "功能" in cur_section or "矩阵" in cur_section:
-                body_parts.append(render_dot_matrix(header, rows))
             elif is_funnel(header, rows) or ("漏斗" in cur_section and len(header) >= 2):
                 mid += 1
                 body_parts.append(render_funnel(mid, header, rows))
@@ -597,17 +481,13 @@ def main():
             mm = re.match(r"-\s*(正面|负面)\s*[：:]\s*(.*)", line.strip())
             if mm: sentiment.append((mm.group(1), mm.group(2)))
             i += 1; continue
-        if cur_section in ("核心结论", "执行摘要") and line.strip().startswith("-"):
-            txt = line.strip().lstrip("-").strip()
-            if txt: summary_items.append(txt)
-            i += 1; continue
-        if cur_section == "关键洞察" and line.strip().startswith("-"):
-            txt = line.strip().lstrip("-").strip()
-            if txt: insight_items.append(txt)
-            i += 1; continue
         mm = re.match(r"^(Must|Should|Could)\s*[：:]\s*(.*)", line.strip())
         if mm:
             priority[mm.group(1).lower()].append(mm.group(2))
+            i += 1; continue
+        if cur_section == "执行摘要" and line.strip().startswith("-"):
+            txt = line.strip().lstrip("-").strip()
+            if txt: summary_items.append(txt)
             i += 1; continue
         if line.strip() and not line.lstrip().startswith("#"):
             body_parts.append("<p>" + html.escape(line.strip()) + "</p>")
@@ -616,11 +496,10 @@ def main():
     if open_section:
         body_parts.append("</section>")
 
-    # 注入核心结论、洞察、口碑、时间线、来源
+    # 处理执行摘要 KPI 卡
     if summary_items:
         body_parts = [p.replace('<div class="summary-grid" id="sum"></div>', render_summary(summary_items)) for p in body_parts]
-    if insight_items:
-        body_parts = [p.replace('<div id="insights"></div>', render_insights(insight_items)) for p in body_parts]
+
     if timeline:
         mid += 1
         tid = special_sid.get("时间线")
@@ -636,17 +515,17 @@ def main():
         cards = ""
         for nm, lk in evidence:
             if lk.startswith("http"):
+                # 只显示来源名作为可点击链接，不堆砌原始 URL
                 cards += '<div class="src-card"><a href="' + lk + '" target="_blank" rel="noopener">' + html.escape(nm) + '</a></div>'
             else:
                 cards += '<div class="src-card">' + html.escape(nm) + '：' + html.escape(lk) + '</div>'
         cards = '<div class="src-grid">' + cards + '</div>'
         body_parts = [p.replace('<div id="src"></div>', cards) for p in body_parts]
 
-    # 构建导航（Rail 显示首字）
+    # 构建导航
     nav_items = ""
     for sid, stitle in sections:
-        label = html.escape(stitle[:1])
-        nav_items += '<li><a href="#' + sid + '" title="' + html.escape(stitle) + '">' + label + '</a></li>'
+        nav_items += '<li><a href="#' + sid + '">' + html.escape(stitle) + '</a></li>'
 
     # 构建顶部标签
     tag_html = ""
@@ -657,6 +536,13 @@ def main():
     if not tag_html:
         tag_html = '<span class="tag"><b>模式</b>：默认</span>'
 
+    # 假设条
+    assumption_bar = ""
+    if assumption:
+        assumption_bar = '<div class="assumption-bar">' + "".join(
+            '<span><b>' + html.escape(k) + '</b>' + html.escape(v) + '</span>' for k, v in assumption.items()
+        ) + '</div>'
+
     today = datetime.datetime.now().strftime("%Y 年 %-m 月")
 
     html_doc = ('<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">'
@@ -666,16 +552,17 @@ def main():
         '<style>' + CSS + '</style></head><body>'
         '<div class="app">'
         '<aside class="sidebar">'
-        '<div class="brand">瞭望台</div>'
+        '<div class="brand">AIPM<span>·瞭望台</span></div>'
+        '<div class="brand-sub">AI PM 研究与报告系统</div>'
         '<ul class="nav-list">' + nav_items + '</ul>'
         '</aside>'
         '<main class="main">'
         '<header class="top-header">'
         '<h1>' + html.escape(title) + '</h1>'
-        '<div class="top-meta"><div class="brand-line">AIPM·竞品研究院</div><div>' + today + '</div></div>'
-        '</header>'
+        '<div class="top-sub"><span>' + today + '</span><span>AIPM·竞争瞭望台</span></div>'
         '<div class="tags">' + tag_html + '</div>'
-        + "".join(body_parts) +
+        '</header>'
+        + assumption_bar + "".join(body_parts) +
         '</main></div>'
         '<script>var REG=[];window.addEventListener("resize",function(){REG.forEach(function(c){c.resize();});});'
         'document.querySelectorAll(".nav-list a").forEach(function(a){'
