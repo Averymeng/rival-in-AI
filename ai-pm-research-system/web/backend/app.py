@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""AIPM·瞭望台 Web 后端（P0 骨架）。
+"""AIPM·瞭望台 Web 后端。
 
-阶段目标：能跑通首页 + 列出历史报告（读取现有 reports/output/*.html）。
-后续阶段（P1+）在此挂载 /api/research 研究闭环。
+提供：首页、历史报告列表、报告浏览，以及 /api/research 研究闭环
+（意图解析 → Tavily 检索 → DeepSeek 撰写 → 渲染 → 存档）。
 """
 import os
 from pathlib import Path
@@ -15,6 +15,41 @@ FRONTEND_DIR = BASE_DIR / "web" / "frontend"
 REPORTS_DIR = BASE_DIR / "reports" / "output"
 
 app = FastAPI(title="AIPM·瞭望台")
+
+
+@app.post("/api/research")
+def research(goal: dict):
+    """接收研究目标，跑完整研究闭环，返回报告访问信息。"""
+    goal_text = (goal or {}).get("goal", "").strip()
+    if not goal_text:
+        raise HTTPException(status_code=400, detail="缺少研究目标")
+    try:
+        from pipeline import run
+        info = run(goal_text)
+    except Exception as e:  # 研究链路任意环节失败都回显原因，不静默吞掉
+        raise HTTPException(status_code=500, detail="研究失败：" + str(e))
+    return {
+        "ok": True,
+        "name": info["name"],
+        "file": info["file"],
+        "title": info["title"],
+        "intent": info["intent"],
+        "objects": info["objects"],
+        "url": "/report/" + info["file"],
+    }
+
+
+def _title_of(name):
+    md = REPORTS_MD / (name + ".md")
+    if md.exists():
+        with open(md, encoding="utf-8") as f:
+            for ln in f:
+                if ln.startswith("# "):
+                    return ln[2:].strip()
+    return name
+
+
+REPORTS_MD = BASE_DIR / "reports"
 
 
 @app.get("/api/reports")
@@ -31,6 +66,7 @@ def list_reports():
         {
             "name": p.stem,
             "file": p.name,
+            "title": _title_of(p.stem),
             "updated": p.stat().st_mtime,
         }
         for p in files
