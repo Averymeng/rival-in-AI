@@ -6,14 +6,14 @@
       用户口碑 / 优先级看板 / 行动建议卡 / 执行摘要条 / SWOT / 来源行内链接。
 
 设计语言（2025-08-25 迭代 v2）：
-  - 背景奶黄 #FFF9F0，主色暖橘 #F59E0B，强调浅黄 #FCD34D
+  - 背景奶黄 #f8fafc，主色暖橘 #3b82f6，强调浅黄 #93c5fd
   - 严格对齐参考图：功能矩阵 / 金字塔 / AI 能力卡 / 竞争格局 / 市场地图 / 用户口碑 / 能力雷达
   - 每个章节独立成块，图表归属其章节，杜绝错位
   - 全文中禁止出现原始 Markdown 符号（- ** 等）
 """
 import sys, re, json, html, argparse, datetime
 
-PALETTE = ["#F59E0B", "#3B82F6", "#8B5CF6", "#10B981", "#F97316", "#0EA5E9", "#EC4899", "#14B8A6"]
+PALETTE = ["#3B82F6", "#8B5CF6", "#10B981", "#3b82f6", "#0EA5E9", "#EC4899", "#14B8A6", "#6366F1"]
 
 SCATTER_TOOLTIP = "function(p){return p.data.name+'<br/>专业能力：'+p.data.value[0]+'<br/>生态影响力：'+p.data.value[1]+'<br/>规模：'+p.data.value[2];}"
 SCATTER_LABEL = "function(p){return p.data.name;}"
@@ -84,13 +84,13 @@ AVATARS = [
 ]
 
 
-def avatar(idx, color="#F59E0B", size=56):
+def avatar(idx, color="#3b82f6", size=56):
     svg = AVATARS[idx % len(AVATARS)]
     return (f'<svg width="{size}" height="{size}" viewBox="0 0 64 64" fill="none" '
             f'stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{svg}</svg>')
 
 
-def icon(name, size=20, color="#F59E0B"):
+def icon(name, size=20, color="#3b82f6"):
     """返回统一尺寸的 inline SVG 图标，name 不存在时回退为圆点。"""
     path = ICON_PATHS.get(name, ICON_PATHS["bullet"])
     return (f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" '
@@ -209,7 +209,7 @@ def feature_icon(name):
 
 def product_color(name):
     if "即梦" in name:
-        return "#F59E0B"
+        return "#3b82f6"
     if "小云雀" in name:
         return "#3B82F6"
     return PALETTE[hash(name) % len(PALETTE)]
@@ -254,7 +254,7 @@ def render_feature_matrix(header, rows):
             continue
         fname = clean(r[0])
         fi = feature_icon(fname)
-        cells = '<td><span class="fm-row-icon">' + icon(fi, 18, "#F59E0B") + '</span>' + html.escape(fname) + '</td>'
+        cells = '<td><span class="fm-row-icon">' + icon(fi, 18, "#3b82f6") + '</span>' + html.escape(fname) + '</td>'
         for c in r[1:]:
             sup, note = parse_feature_cell(c)
             if sup is True:
@@ -272,7 +272,7 @@ def render_feature_matrix(header, rows):
     legend = ('<div class="fm-legend">'
               '<div class="fm-leg"><span class="fm-check yes">' + icon("check", 12, "#fff") + '</span><b>支持</b><span>已具备相关功能或明确支持</span></div>'
               '<div class="fm-leg"><span class="fm-check no">' + icon("x", 12, "#fff") + '</span><b>不支持/未明确</b><span>暂无相关功能或官方未明确说明</span></div>'
-              '<div class="fm-leg"><span class="fm-leg-icon">' + icon("lightbulb", 16, "#F59E0B") + '</span><b>总结</b><span>即梦功能全面，小云雀场景化能力突出</span></div>'
+              '<div class="fm-leg"><span class="fm-leg-icon">' + icon("lightbulb", 16, "#3b82f6") + '</span><b>总结</b><span>即梦功能全面，小云雀场景化能力突出</span></div>'
               '</div>')
 
     return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">功能矩阵</span></div>'
@@ -309,15 +309,15 @@ def render_score_matrix(mid, header, rows):
     radar_opt = {
         "backgroundColor": "transparent",
         "textStyle": {"color": "#7C6F5D"},
-        "tooltip": {"textStyle": {"color": "#2E2E38"}},
-        "legend": {"bottom": 0, "data": objects, "textStyle": {"color": "#2E2E38", "fontSize": 12},
+        "tooltip": {"textStyle": {"color": "#1e293b"}},
+        "legend": {"bottom": 0, "data": objects, "textStyle": {"color": "#1e293b", "fontSize": 12},
                    "itemGap": 16, "icon": "roundRect"},
         "radar": {
             "indicator": indicators, "radius": "58%", "center": ["46%", "48%"],
-            "axisName": {"color": "#8A7D6B", "fontSize": 12, "formatter": "function(v){return v;}"},
-            "splitLine": {"lineStyle": {"color": "#F3E6D0"}},
-            "axisLine": {"lineStyle": {"color": "#F3E6D0"}},
-            "splitArea": {"areaStyle": {"color": ["#FFF9F0", "#FFFFFF"]}}
+            "axisName": {"color": "#64748b", "fontSize": 12, "formatter": "function(v){return v;}"},
+            "splitLine": {"lineStyle": {"color": "#e2e8f0"}},
+            "axisLine": {"lineStyle": {"color": "#e2e8f0"}},
+            "splitArea": {"areaStyle": {"color": ["#f8fafc", "#FFFFFF"]}}
         },
         "series": [{"type": "radar", "data": radar_data, "symbolSize": 5}]
     }
@@ -340,7 +340,7 @@ def render_score_matrix(mid, header, rows):
     dim_legend = ""
     for d in dims:
         ico = RADAR_DIM_ICONS.get(d, "bullet")
-        dim_legend += ('<div class="radar-dim"><span class="radar-dim-icon">' + icon(ico, 16, "#F59E0B")
+        dim_legend += ('<div class="radar-dim"><span class="radar-dim-icon">' + icon(ico, 16, "#3b82f6")
                        + '</span><span>' + html.escape(d) + '</span></div>')
 
     chart = ('<div class="chart-card"><div class="chart-header"><span class="chart-title">多维能力图谱（综合评分）</span>'
@@ -368,7 +368,7 @@ def render_scatter(mid, header, rows, is_opp=False):
         except Exception:
             continue
         c = PALETTE[i % len(PALETTE)]
-        data.append({"name": r[0], "value": [x, y, s], "itemStyle": {"color": c}, "label": {"color": "#2E2E38"}})
+        data.append({"name": r[0], "value": [x, y, s], "itemStyle": {"color": c}, "label": {"color": "#1e293b"}})
         min_s = min(min_s, s)
         max_s = max(max_s, s)
 
@@ -377,14 +377,14 @@ def render_scatter(mid, header, rows, is_opp=False):
         "backgroundColor": "transparent",
         "tooltip": {"trigger": "item", "formatter": "__SCATTER_TOOLTIP__"},
         "grid": {"left": "10%", "right": "10%", "top": "12%", "bottom": "14%"},
-        "xAxis": {"name": "专业能力 (X)", "nameTextStyle": {"color": "#8A7D6B"},
-                  "min": 0, "max": 10, "axisLabel": {"color": "#8A7D6B"},
-                  "axisLine": {"lineStyle": {"color": "#F3E6D0"}},
-                  "splitLine": {"lineStyle": {"color": "#FFF3D9", "type": "dashed"}}},
-        "yAxis": {"name": "生态影响力 (Y)", "nameTextStyle": {"color": "#8A7D6B"},
-                  "min": 0, "max": 10, "axisLabel": {"color": "#8A7D6B"},
-                  "axisLine": {"lineStyle": {"color": "#F3E6D0"}},
-                  "splitLine": {"lineStyle": {"color": "#FFF3D9", "type": "dashed"}}},
+        "xAxis": {"name": "专业能力 (X)", "nameTextStyle": {"color": "#64748b"},
+                  "min": 0, "max": 10, "axisLabel": {"color": "#64748b"},
+                  "axisLine": {"lineStyle": {"color": "#e2e8f0"}},
+                  "splitLine": {"lineStyle": {"color": "#eff6ff", "type": "dashed"}}},
+        "yAxis": {"name": "生态影响力 (Y)", "nameTextStyle": {"color": "#64748b"},
+                  "min": 0, "max": 10, "axisLabel": {"color": "#64748b"},
+                  "axisLine": {"lineStyle": {"color": "#e2e8f0"}},
+                  "splitLine": {"lineStyle": {"color": "#eff6ff", "type": "dashed"}}},
         "series": [
             {"type": "scatter", "data": data,
              "symbolSize": "function(d){return 32 + d[2]*12;}",
@@ -431,7 +431,7 @@ def render_funnel(mid, header, rows):
     opt = {
         "backgroundColor": "transparent",
         "tooltip": {"trigger": "item", "formatter": "{b} : {c}"},
-        "color": ["#F59E0B", "#F97316", "#FBBF24", "#FCD34D", "#EF4444", "#8B5CF6"],
+        "color": ["#3b82f6", "#F97316", "#60a5fa", "#93c5fd", "#EF4444", "#8B5CF6"],
         "series": [{"type": "funnel", "left": "10%", "top": 20, "bottom": 20,
                     "width": "80%", "min": 0, "max": max([s["value"] for s in stages]) if stages else 100,
                     "label": {"show": True, "position": "inside", "color": "#fff", "fontSize": 12,
@@ -450,18 +450,18 @@ def render_timeline(mid, items):
     vals = [v for _, v in items]
     opt = {
         "backgroundColor": "transparent",
-        "tooltip": {"trigger": "axis", "textStyle": {"color": "#2E2E38"}},
+        "tooltip": {"trigger": "axis", "textStyle": {"color": "#1e293b"}},
         "grid": {"left": "8%", "right": "6%", "top": "14%", "bottom": "10%"},
-        "xAxis": {"type": "category", "data": names, "axisLabel": {"color": "#8A7D6B"},
-                  "axisLine": {"lineStyle": {"color": "#F3E6D0"}}, "axisTick": {"show": False}},
+        "xAxis": {"type": "category", "data": names, "axisLabel": {"color": "#64748b"},
+                  "axisLine": {"lineStyle": {"color": "#e2e8f0"}}, "axisTick": {"show": False}},
         "yAxis": {"type": "value", "show": False},
         "series": [{"type": "line", "data": vals, "smooth": True, "symbol": "circle", "symbolSize": 8,
-                    "lineStyle": {"color": "#F59E0B", "width": 3},
-                    "itemStyle": {"color": "#F59E0B", "borderColor": "#fff", "borderWidth": 2},
+                    "lineStyle": {"color": "#3b82f6", "width": 3},
+                    "itemStyle": {"color": "#3b82f6", "borderColor": "#fff", "borderWidth": 2},
                     "areaStyle": {"color": {"type": "linear", "x": 0, "y": 0, "x2": 0, "y2": 1,
-                                              "colorStops": [{"offset": 0, "color": "rgba(245,158,11,.25)"},
-                                                               {"offset": 1, "color": "rgba(245,158,11,.02)"}]}},
-                    "label": {"show": True, "position": "top", "color": "#2E2E38", "formatter": "{c}"}}]
+                                              "colorStops": [{"offset": 0, "color": "rgba(59,130,246,.25)"},
+                                                               {"offset": 1, "color": "rgba(59,130,246,.02)"}]}},
+                    "label": {"show": True, "position": "top", "color": "#1e293b", "formatter": "{c}"}}]
     }
     return ('<div class="chart-card"><div class="chart-header"><span class="chart-title">时间线</span></div>'
             '<div id="tl_' + str(mid) + '" class="echart" style="height:240px"></div></div>\n'
@@ -490,13 +490,13 @@ def render_competition_graph(mid, center, others, market_map=None):
                       + '<div>' + html.escape(o) + '</div><small>竞品</small></div>')
 
     # 优势框
-    advantages = ('<div class="comp-adv-left"><div class="comp-adv-title" style="color:#F59E0B">专业创作优势</div>'
+    advantages = ('<div class="comp-adv-left"><div class="comp-adv-title" style="color:#3b82f6">专业创作优势</div>'
                   '<ul><li>Seedream图像模型</li><li>全链路功能</li></ul></div>'
-                  '<div class="comp-adv-right"><div class="comp-adv-title" style="color:#3B82F6">轻量体验优势</div>'
+                  '<div class="comp-adv-right"><div class="comp-adv-title" style="color:#6366f1">轻量体验优势</div>'
                   '<ul><li>零门槛体验</li><li>短剧Agent</li></ul></div>')
 
     # 底部挑战
-    challenges = ('<div class="comp-challenges"><span class="comp-ch-title"><i>' + icon("zap", 16, "#F59E0B")
+    challenges = ('<div class="comp-challenges"><span class="comp-ch-title"><i>' + icon("zap", 16, "#3b82f6")
                   + '</i>共同挑战</span>'
                   + '<span class="comp-chip">算力成本高企</span>'
                   + '<span class="comp-chip">积分消耗争议</span>'
@@ -566,7 +566,7 @@ def render_ai_cards(items):
     for title, body in items:
         ico = AI_CARD_ICONS.get(title, "sparkle")
         cards += ('<div class="ai-card-v2"><div class="ai-card-accent"></div>'
-                  '<div class="ai-card-icon">' + icon(ico, 22, "#F59E0B") + '</div>'
+                  '<div class="ai-card-icon">' + icon(ico, 22, "#3b82f6") + '</div>'
                   '<div class="ai-card-body"><h4>' + html.escape(title)
                   + '</h4><div class="ai-card-line"></div><p>' + html.escape(body) + '</p></div></div>')
     return '<div class="ai-grid-v2">' + cards + '</div>'
@@ -654,7 +654,7 @@ def render_positioning_table(header, rows):
     ths = ""
     for i, h in enumerate(header):
         ico = header_icons[i] if i < len(header_icons) else "bullet"
-        c = product_color(h) if i > 0 else "#F59E0B"
+        c = product_color(h) if i > 0 else "#3b82f6"
         ths += ('<th><span class="th-icon">' + icon(ico, 20, c)
                 + '</span>' + html.escape(clean(h)) + '</th>')
     trs = ""
@@ -663,7 +663,7 @@ def render_positioning_table(header, rows):
             continue
         dim = clean(r[0]) if r else ""
         ico = DIMENSION_ICONS.get(dim, "bullet")
-        cells = ('<td><span class="row-icon">' + icon(ico, 18, "#F59E0B")
+        cells = ('<td><span class="row-icon">' + icon(ico, 18, "#3b82f6")
                  + '</span>' + html.escape(dim) + '</td>')
         cells += "".join('<td>' + html.escape(clean(c)) + '</td>' for c in r[1:])
         trs += '<tr>' + cells + '</tr>'
@@ -675,7 +675,7 @@ def render_positioning_note(text):
     text = html.escape(clean(text))
     text = re.sub(r'["""]([^"""]+)["""]', r'<b class="highlight">“\1”</b>', text)
     text = re.sub(r'"([^"]+)"', r'<b class="highlight">"\1"</b>', text)
-    return ('<div class="info-box"><span class="info-icon">' + icon("info", 20, "#F59E0B")
+    return ('<div class="info-box"><span class="info-icon">' + icon("info", 20, "#3b82f6")
             + '</span><div>' + text + '</div></div>')
 
 
@@ -692,7 +692,7 @@ def render_summary(items):
         ico = icons[i % len(icons)]
         rows.append(
             '<div class="exec-row">'
-            + '<div class="exec-icon-box">' + icon(ico, 24, "#F59E0B") + '</div>'
+            + '<div class="exec-icon-box">' + icon(ico, 24, "#3b82f6") + '</div>'
             + '<div class="exec-num">' + num + '</div>'
             + '<div class="exec-main">'
             + '<div class="exec-keyword">' + html.escape(label) + '</div>'
@@ -714,7 +714,7 @@ def render_sentiment(items):
         cls = "pos" if k == "正面" else "neg"
         thumb = icon("thumbs-up", 18, "#10B981") if cls == "pos" else icon("thumbs-down", 18, "#EF4444")
         cards += ('<div class="sent-row ' + cls + '">'
-                  + '<div class="sent-avatar">' + avatar(idx, "#8A7D6B", 56) + '</div>'
+                  + '<div class="sent-avatar">' + avatar(idx, "#64748b", 56) + '</div>'
                   + '<div class="sent-badge ' + cls + '">' + html.escape(k) + '</div>'
                   + '<div class="sent-prod">' + html.escape(prod) + '</div>'
                   + '<div class="sent-quote">' + html.escape(t) + '</div>'
@@ -755,47 +755,51 @@ def render_source_inline(rows):
 
 CSS = """
 :root{
-  --bg:#FFF9F0;
+  --bg:#f8fafc;
   --card:#FFFFFF;
-  --ink:#2E2E38;
-  --muted:#8A7D6B;
-  --line:#F3E6D0;
-  --brand:#F59E0B;
-  --brand-light:#FCD34D;
-  --brand-ghost:#FFF3D9;
+  --ink:#1e293b;
+  --muted:#64748b;
+  --line:#e2e8f0;
+  --brand:#3b82f6;
+  --brand-light:#93c5fd;
+  --brand-ghost:#eff6ff;
+  --brand-d:#2563eb;
   --green:#10B981;
-  --amber:#F59E0B;
-  --red:#EF4444;
-  --blue:#3B82F6;
-  --purple:#8B5CF6;
-  --sidebar:#2D2A24;
-  --sidebar-text:#CFC8BC;
+  --amber:#f59e0b;
+  --red:#ef4444;
+  --blue:#3b82f6;
+  --purple:#8b5cf6;
+  --sidebar:#FFFFFF;
+  --sidebar-text:#64748b;
+  --sidebar-active:#eff6ff;
+  --shadow:0 1px 3px rgba(15,23,42,.08),0 1px 2px rgba(15,23,42,.04);
 }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:14px;}
 .app{display:flex;min-height:100vh;}
 .sidebar{width:260px;background:var(--sidebar);color:var(--sidebar-text);position:fixed;left:0;top:0;bottom:0;overflow:auto;padding:28px 22px;z-index:20;}
-.brand{font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:8px;}
+.brand{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:1px;margin-bottom:8px;}
 .brand span{font-weight:400;opacity:.7;}
 .brand-sub{font-size:12px;color:var(--sidebar-text);opacity:.7;margin-bottom:32px;}
 .nav-list{list-style:none;margin:0;padding:0;}
 .nav-list li{margin:6px 0;}
 .nav-list a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:var(--sidebar-text);text-decoration:none;font-size:13px;transition:.15s;}
 .nav-list a::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--sidebar-text);opacity:.4;}
-.nav-list a:hover,.nav-list a.active{background:rgba(255,255,255,.08);color:#fff;}
-.nav-list a.active::before{background:var(--brand-light);opacity:1;}
+.nav-list a:hover{background:#f1f5f9;color:var(--ink);}
+.nav-list a.active{background:var(--sidebar-active);color:var(--brand-d);font-weight:600;}
+.nav-list a.active::before{background:var(--brand);opacity:1;}
 .main{margin-left:260px;flex:1;padding:40px 48px 80px;max-width:1100px;}
 .top-header{margin-bottom:32px;}
 .top-header h1{margin:0;font-size:32px;font-weight:700;line-height:1.25;letter-spacing:.5px;color:var(--ink);}
 .top-sub{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px;color:var(--muted);}
 .assumption-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
-.stat-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(245,158,11,.05);}
+.stat-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);}
 .stat-icon{flex-shrink:0;width:44px;height:44px;border-radius:12px;background:var(--brand-ghost);display:flex;align-items:center;justify-content:center;color:var(--brand);}
 .stat-icon svg{width:22px;height:22px;}
 .stat-label{font-size:12px;color:var(--muted);margin-bottom:4px;}
 .stat-value{font-size:15px;font-weight:600;color:var(--ink);line-height:1.4;}
-section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 32px;margin-bottom:24px;width:100%;}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 32px;margin-bottom:24px;width:100%;box-shadow:var(--shadow);}
 .sec-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
 .sec-icon{flex-shrink:0;width:42px;height:42px;border-radius:12px;background:var(--brand-ghost);display:flex;align-items:center;justify-content:center;color:var(--brand);}
 .sec-icon svg{width:22px;height:22px;}
@@ -818,14 +822,14 @@ section li{margin:5px 0;}
 
 /* 产品定位 */
 .positioning-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;}
-.positioning-table th{padding:16px 18px;text-align:left;background:#FFF8F0;font-weight:600;color:var(--ink);}
+.positioning-table th{padding:16px 18px;text-align:left;background:#eff6ff;font-weight:600;color:var(--ink);}
 .positioning-table th .th-icon{margin-right:8px;display:inline-flex;vertical-align:middle;}
 .positioning-table th .th-icon svg{width:20px;height:20px;}
 .positioning-table td{padding:16px 18px;border-bottom:1px solid var(--line);color:var(--ink);vertical-align:top;}
 .positioning-table tbody tr:last-child td{border-bottom:none;}
 .row-icon{color:var(--brand);margin-right:8px;display:inline-flex;vertical-align:middle;}
 .row-icon svg{width:18px;height:18px;}
-.info-box{display:flex;align-items:flex-start;gap:12px;background:#FFF8F0;border-left:4px solid var(--brand);border-radius:12px;padding:16px 18px;margin-top:16px;font-size:14px;color:var(--ink);line-height:1.75;}
+.info-box{display:flex;align-items:flex-start;gap:12px;background:#eff6ff;border-left:4px solid var(--brand);border-radius:12px;padding:16px 18px;margin-top:16px;font-size:14px;color:var(--ink);line-height:1.75;}
 .info-box .info-icon{flex-shrink:0;color:var(--brand);}
 .info-box .info-icon svg{width:20px;height:20px;}
 .info-box b.highlight{color:var(--brand);font-weight:700;}
@@ -839,7 +843,7 @@ section li{margin:5px 0;}
 
 /* 功能矩阵 */
 .feature-matrix{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;margin:10px 0;border-radius:14px;overflow:hidden;border:1px solid var(--line);}
-.feature-matrix th{padding:14px 16px;background:#FFF8F0;font-weight:600;color:var(--ink);text-align:left;border-bottom:1px solid var(--line);}
+.feature-matrix th{padding:14px 16px;background:#eff6ff;font-weight:600;color:var(--ink);text-align:left;border-bottom:1px solid var(--line);}
 .feature-matrix td{padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:middle;}
 .feature-matrix tbody tr:last-child td{border-bottom:none;}
 .feature-matrix td:nth-child(n+2){text-align:center;background:#FFFCF7;}
@@ -866,9 +870,9 @@ section li{margin:5px 0;}
 .pyramid-wrap{display:flex;flex-direction:column;align-items:center;padding:10px 0;}
 .pyr-band{position:relative;width:100%;display:flex;justify-content:center;margin:0;}
 .pyr-shape{position:absolute;left:0;right:0;top:0;bottom:0;z-index:0;}
-.pyr-band.t1 .pyr-shape{background:linear-gradient(180deg,#F59E0B,#F97316);clip-path:polygon(50% 0,100% 100%,0 100%);}
-.pyr-band.t2 .pyr-shape{background:linear-gradient(180deg,#FBBF24,#F59E0B);clip-path:polygon(25% 0,75% 0,100% 100%,0 100%);}
-.pyr-band.t3 .pyr-shape{background:linear-gradient(180deg,#FCD34D,#FBBF24);clip-path:polygon(15% 0,85% 0,100% 100%,0 100%);}
+.pyr-band.t1 .pyr-shape{background:linear-gradient(180deg,#3B82F6,#2563EB);clip-path:polygon(50% 0,100% 100%,0 100%);}
+.pyr-band.t2 .pyr-shape{background:linear-gradient(180deg,#60A5FA,#3B82F6);clip-path:polygon(25% 0,75% 0,100% 100%,0 100%);}
+.pyr-band.t3 .pyr-shape{background:linear-gradient(180deg,#93C5FD,#60A5FA);clip-path:polygon(15% 0,85% 0,100% 100%,0 100%);}
 .pyr-band.t1{height:110px;}
 .pyr-band.t2{height:100px;margin-top:-1px;}
 .pyr-band.t3{height:90px;margin-top:-1px;}
@@ -961,7 +965,7 @@ section li{margin:5px 0;}
 .radar-sum-main{flex:1;}
 .radar-sum-title{display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:700;color:var(--ink);}
 .radar-stars{color:var(--brand);font-size:12px;letter-spacing:1px;}
-.radar-stars .star{color:#F59E0B;}
+.radar-stars .star{color:#3b82f6;}
 .radar-stars .star.empty{color:#E5E7EB;}
 .radar-sum-desc{font-size:12px;color:var(--muted);margin-top:4px;}
 .radar-dim-title{font-size:14px;font-weight:700;color:var(--ink);margin:18px 0 12px;display:flex;align-items:center;gap:8px;}
@@ -993,7 +997,7 @@ section li{margin:5px 0;}
 .tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;margin:10px 0;}
 .tbl th,.tbl td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);}
 .tbl th{font-weight:600;color:var(--muted);font-size:12px;background:var(--bg);position:sticky;top:0;}
-.tbl tbody tr:hover{background:rgba(245,158,11,.05);}
+.tbl tbody tr:hover{background:rgba(59,130,246,.05);}
 .tbl tr:last-child td{border-bottom:none;}
 
 /* SWOT */
@@ -1001,7 +1005,7 @@ section li{margin:5px 0;}
 .swot-cell{border-radius:12px;padding:14px 16px;}
 .swot-cell h4{margin:0 0 6px;font-size:14px;}
 .swot-cell p{margin:0;font-size:13px;color:var(--ink);line-height:1.6;}
-.swot-cell.s{background:#FFF3D9;} .swot-cell.s h4{color:var(--brand);}
+.swot-cell.s{background:#eff6ff;} .swot-cell.s h4{color:var(--brand);}
 .swot-cell.w{background:#FDE8E8;} .swot-cell.w h4{color:var(--red);}
 .swot-cell.o{background:#E7F7EF;} .swot-cell.o h4{color:var(--green);}
 .swot-cell.t{background:#EFEAFB;} .swot-cell.t h4{color:var(--purple);}
@@ -1162,7 +1166,7 @@ def render_section(sec, mid_state, market_map, idx):
 
     sec_ico = SECTION_ICONS.get(title)
     if sec_ico:
-        header_html = ('<div class="sec-head"><div class="sec-icon">' + icon(sec_ico, 22, "#F59E0B")
+        header_html = ('<div class="sec-head"><div class="sec-icon">' + icon(sec_ico, 22, "#3b82f6")
                        + '</div><div><h2>' + html.escape(title) + '</h2>')
         sub = SECTION_SUBTITLES.get(title)
         if sub:
@@ -1234,7 +1238,7 @@ def render(input_path, output_path):
 
     def assumption_card(k, v):
         ico = ASSUMPTION_ICONS.get(k, "bullet")
-        return ('<div class="stat-card"><div class="stat-icon">' + icon(ico, 22, "#F59E0B")
+        return ('<div class="stat-card"><div class="stat-icon">' + icon(ico, 22, "#3b82f6")
                 + '</div><div><div class="stat-label">' + html.escape(k)
                 + '</div><div class="stat-value">' + html.escape(v) + '</div></div></div>')
 
