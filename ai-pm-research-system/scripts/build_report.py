@@ -19,6 +19,37 @@ SCATTER_TOOLTIP = "function(p){return p.data.name+'<br/>X：'+p.data.value[0]+'�
 SCATTER_LABEL = "function(p){return p.data.name;}"
 
 
+ICON_PATHS = {
+    "user": '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>',
+    "chart-bar": '<path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v6"/>',
+    "grid": '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>',
+    "target": '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    "network": '<circle cx="5" cy="7" r="2"/><circle cx="19" cy="7" r="2"/><circle cx="12" cy="17" r="2"/><path d="M5 9l7 6.5M19 9l-7 6.5"/>',
+    "stack": '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+    "crown": '<path d="M4 16l2.5-9 3.5 5 4-7 3.5 5 2.5-6v12H4z"/>',
+    "person": '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>',
+    "bar-chart": '<path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v6"/>',
+    "document": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+    "globe": '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+    "sparkle": '<path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/>',
+    "cloud": '<path d="M18 20a4 4 0 0 0 0-8h-1.3A6.5 6.5 0 0 0 4.3 12 4 4 0 0 0 6 20h12z"/>',
+    "paper-plane": '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/>',
+    "people": '<path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    "diamond": '<path d="M6 3h12l4.5 7.5L12 22 1.5 10.5z"/>',
+    "monitor": '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+    "tag": '<path d="M20.6 13.4l-7 7a2 2 0 0 1-2.8 0L2.7 12.9a2 2 0 0 1 0-2.8l7-7a2 2 0 0 1 2.8 0l8.1 8.1a2 2 0 0 1 0 2.8z"/><circle cx="14" cy="8" r="2"/>',
+    "info": '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+    "bullet": '<circle cx="12" cy="12" r="4"/>',
+}
+
+
+def icon(name, size=20, color="#F59E0B"):
+    """返回统一尺寸的 inline SVG 图标，name 不存在时回退为圆点。"""
+    path = ICON_PATHS.get(name, ICON_PATHS["bullet"])
+    return (f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" '
+            f'stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{path}</svg>')
+
+
 def clean(s):
     """去除行首项目符号与 Markdown 加粗/反引号标记，得到纯文本。"""
     s = s.strip()
@@ -340,17 +371,72 @@ def render_table(header, rows):
     return '<table class="tbl"><thead><tr>' + th + '</tr></thead><tbody>' + trs + '</tbody></table>'
 
 
+SECTION_ICONS = {
+    "执行摘要": "document",
+    "市场概览": "globe",
+    "产品定位": "target",
+}
+
+
+DIMENSION_ICONS = {
+    "官方定位": "paper-plane",
+    "核心用户": "people",
+    "核心价值": "diamond",
+    "产品形态": "monitor",
+    "差异化标签": "tag",
+}
+
+
+def render_positioning_table(header, rows):
+    """产品定位表格：表头带图标、行维度带图标。"""
+    header_icons = ["grid", "sparkle", "cloud"]
+    ths = ""
+    for i, h in enumerate(header):
+        ico = header_icons[i] if i < len(header_icons) else "bullet"
+        ths += ('<th><span class="th-icon">' + icon(ico, 20, "#F59E0B")
+                + '</span>' + html.escape(clean(h)) + '</th>')
+    trs = ""
+    for r in rows:
+        if not r:
+            continue
+        dim = clean(r[0]) if r else ""
+        ico = DIMENSION_ICONS.get(dim, "bullet")
+        cells = ('<td><span class="row-icon">' + icon(ico, 18, "#F59E0B")
+                 + '</span>' + html.escape(dim) + '</td>')
+        cells += "".join('<td>' + html.escape(clean(c)) + '</td>' for c in r[1:])
+        trs += '<tr>' + cells + '</tr>'
+    return '<table class="positioning-table"><thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table>'
+
+
+def render_positioning_note(text):
+    """产品定位下方的信息条，自动高亮引号内关键词。"""
+    text = html.escape(clean(text))
+    text = re.sub(r'[""]([^"""]+)["""]', r'<b class="highlight">“\1”</b>', text)
+    text = re.sub(r'"([^"]+)"', r'<b class="highlight">"\1"</b>', text)
+    return ('<div class="info-box"><span class="info-icon">' + icon("info", 20, "#F59E0B")
+            + '</span><div>' + text + '</div></div>')
+
+
 def render_summary(items):
+    """执行摘要：01-06 编号、左侧图标、橙色标题、正文。"""
+    icons = ["network", "stack", "crown", "person", "bar-chart", "target"]
     rows = []
-    for s in items:
+    for i, s in enumerate(items):
         s = clean(s)
         label, body = split_kv(s)
-        if label and body:
-            rows.append('<div class="sum-row insight"><div class="sum-keyword">' + html.escape(label)
-                        + '</div><div class="sum-body">' + html.escape(body) + '</div></div>')
-        else:
-            rows.append('<div class="sum-row insight"><div class="sum-body">' + html.escape(s) + '</div></div>')
-    return '<div class="sum-list">' + "".join(rows) + '</div>'
+        if not label:
+            label, body = body[:12], body
+        num = str(i + 1).zfill(2)
+        ico = icons[i % len(icons)]
+        rows.append(
+            '<div class="exec-row">'
+            + '<div class="exec-icon-box">' + icon(ico, 24, "#F59E0B") + '</div>'
+            + '<div class="exec-num">' + num + '</div>'
+            + '<div class="exec-main">'
+            + '<div class="exec-keyword">' + html.escape(label) + '</div>'
+            + '<div class="exec-body">' + html.escape(body) + '</div></div></div>'
+        )
+    return '<div class="exec-list">' + "".join(rows) + '</div>'
 
 
 def render_sentiment(items):
@@ -431,21 +517,42 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang 
 .tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
 .tag{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);}
 .tag b{color:var(--ink);font-weight:600;}
-.assumption-bar{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:28px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px 24px;}
-.assumption-bar span{white-space:nowrap;}
-.assumption-bar b{color:var(--ink);font-weight:600;margin-right:4px;}
+.assumption-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(245,158,11,.05);}
+.stat-icon{flex-shrink:0;width:44px;height:44px;border-radius:12px;background:var(--brand-ghost);display:flex;align-items:center;justify-content:center;color:var(--brand);}
+.stat-icon svg{width:22px;height:22px;}
+.stat-label{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.stat-value{font-size:15px;font-weight:600;color:var(--ink);line-height:1.4;}
 section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 32px;margin-bottom:24px;width:100%;}
-section h2{margin:0 0 18px;font-size:22px;font-weight:600;line-height:1.4;color:var(--ink);}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.sec-icon{flex-shrink:0;width:42px;height:42px;border-radius:12px;background:var(--brand-ghost);display:flex;align-items:center;justify-content:center;color:var(--brand);}
+.sec-icon svg{width:22px;height:22px;}
+section h2{margin:0;font-size:22px;font-weight:600;line-height:1.4;color:var(--ink);}
+.sec-sub{font-size:13px;color:var(--muted);margin-top:4px;}
 section h3{font-size:16px;font-weight:600;color:var(--ink);margin:20px 0 10px;}
 section p{margin:8px 0;font-size:14px;color:var(--ink);line-height:1.75;}
 section ul,section ol{margin:10px 0;padding-left:22px;color:var(--ink);font-size:14px;line-height:1.75;}
 section li{margin:5px 0;}
-.sum-list{display:flex;flex-direction:column;gap:14px;margin:20px 0 10px;}
-.sum-row{display:flex;align-items:flex-start;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;}
-.sum-row.metric{align-items:center;}
-.sum-big{font-size:30px;font-weight:700;color:var(--brand);line-height:1;min-width:90px;text-align:left;}
-.sum-keyword{font-size:14px;font-weight:600;color:var(--brand);min-width:120px;flex-shrink:0;line-height:1.6;}
-.sum-body{flex:1;font-size:14px;color:var(--ink);line-height:1.7;}
+.exec-list{display:flex;flex-direction:column;gap:14px;margin:20px 0 10px;}
+.exec-row{display:flex;align-items:flex-start;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 22px;}
+.exec-icon-box{flex-shrink:0;width:48px;height:48px;border-radius:14px;background:var(--brand-ghost);display:flex;align-items:center;justify-content:center;color:var(--brand);}
+.exec-icon-box svg{width:24px;height:24px;}
+.exec-num{flex-shrink:0;font-size:36px;font-weight:800;color:var(--brand);line-height:1;opacity:.22;min-width:44px;text-align:center;padding-top:4px;}
+.exec-main{flex:1;display:flex;flex-direction:column;gap:6px;}
+.exec-keyword{font-size:15px;font-weight:700;color:var(--brand);line-height:1.5;}
+.exec-body{font-size:14px;color:var(--ink);line-height:1.75;}
+.positioning-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;}
+.positioning-table th{padding:16px 18px;text-align:left;background:#FFF8F0;font-weight:600;color:var(--ink);}
+.positioning-table th .th-icon{color:var(--brand);margin-right:8px;display:inline-flex;vertical-align:middle;}
+.positioning-table th .th-icon svg{width:20px;height:20px;}
+.positioning-table td{padding:16px 18px;border-bottom:1px solid var(--line);color:var(--ink);vertical-align:top;}
+.positioning-table tbody tr:last-child td{border-bottom:none;}
+.row-icon{color:var(--brand);margin-right:8px;display:inline-flex;vertical-align:middle;}
+.row-icon svg{width:18px;height:18px;}
+.info-box{display:flex;align-items:flex-start;gap:12px;background:#FFF8F0;border-left:4px solid var(--brand);border-radius:12px;padding:16px 18px;margin-top:16px;font-size:14px;color:var(--ink);line-height:1.75;}
+.info-box .info-icon{flex-shrink:0;color:var(--brand);}
+.info-box .info-icon svg{width:20px;height:20px;}
+.info-box b.highlight{color:var(--brand);font-weight:700;}
 .chart-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 26px;margin:22px 0;}
 .chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
 .chart-title{font-size:16px;font-weight:600;color:var(--ink);}
@@ -501,8 +608,9 @@ section li{margin:5px 0;}
 @media(max-width:900px){
   .sidebar{display:none;}
   .main{margin-left:0;padding:24px;max-width:none;}
-  .sum-row{flex-direction:column;}
-  .sum-big{min-width:auto;}
+  .assumption-bar{grid-template-columns:1fr 1fr;}
+  .exec-row{flex-direction:column;}
+  .exec-num{min-width:auto;text-align:left;}
 }
 @media(max-width:640px){
   .pri-row{grid-template-columns:1fr;}
@@ -539,6 +647,7 @@ def render_section(sec, mid_state, market_map, idx):
     tables = parse_tables(body)
     table_at = {t[0]: t for t in tables}
     parts = []
+    positioning_note = []
     sentiment = []; timeline = []; priority = {"must": [], "should": [], "could": []}
     ai_cards = []; growth = []
     i = 0; n = len(body)
@@ -558,6 +667,8 @@ def render_section(sec, mid_state, market_map, idx):
                 parts.append(render_funnel(mid_state[0], header, rows))
             elif kind == 'source':
                 parts.append(render_source_inline(rows))
+            elif title == '产品定位':
+                parts.append(render_positioning_table(header, rows))
             elif title == 'SWOT':
                 parts.append(render_swot(header, rows))
             else:
@@ -597,7 +708,10 @@ def render_section(sec, mid_state, market_map, idx):
             continue
 
         if line.strip() and not line.lstrip().startswith('#'):
-            parts.append('<p>' + html.escape(clean(line)) + '</p>')
+            if title == '产品定位':
+                positioning_note.append(clean(line))
+            else:
+                parts.append('<p>' + html.escape(clean(line)) + '</p>')
         i += 1
 
     # 章节专属组装
@@ -633,8 +747,22 @@ def render_section(sec, mid_state, market_map, idx):
             mid_state[0] += 1
             parts.append(render_competition_graph(mid_state[0], center, others))
 
-    return ('<section id="' + section_id(idx) + '"><h2>' + html.escape(title) + '</h2>'
-            + "".join(parts) + '</section>')
+    if title == '产品定位' and positioning_note:
+        parts.append(render_positioning_note(' '.join(positioning_note)))
+
+    section_subtitles = {"执行摘要": "核心结论与关键洞察"}
+    sec_ico = SECTION_ICONS.get(title)
+    if sec_ico:
+        header = ('<div class="sec-head"><div class="sec-icon">' + icon(sec_ico, 22, "#F59E0B")
+                  + '</div><div><h2>' + html.escape(title) + '</h2>')
+        sub = section_subtitles.get(title)
+        if sub:
+            header += '<div class="sec-sub">' + html.escape(sub) + '</div>'
+        header += '</div></div>'
+    else:
+        header = '<h2>' + html.escape(title) + '</h2>'
+
+    return '<section id="' + section_id(idx) + '">' + header + "".join(parts) + '</section>'
 
 
 def section_id(idx):
@@ -686,20 +814,31 @@ def render(input_path, output_path):
             continue
         body_parts.append(render_section(s, mid_state, market_map, sec_idx))
 
-    # 顶部标签
-    tag_html = ""
-    for k, v in assumption.items():
-        if k == '备注':
-            continue
-        tag_html += '<span class="tag"><b>' + html.escape(k) + '</b>：' + html.escape(v) + '</span>'
-    if not tag_html:
-        tag_html = '<span class="tag"><b>模式</b>：默认</span>'
+    # 顶部假设卡
+    ASSUMPTION_ICONS = {
+        "分析对象": "user",
+        "研究意图": "chart-bar",
+        "选用维度": "grid",
+        "研究深度": "target",
+    }
+    ASSUMPTION_ORDER = ["分析对象", "研究意图", "选用维度", "研究深度"]
+
+    def assumption_card(k, v):
+        ico = ASSUMPTION_ICONS.get(k, "bullet")
+        return ('<div class="stat-card"><div class="stat-icon">' + icon(ico, 22, "#F59E0B")
+                + '</div><div><div class="stat-label">' + html.escape(k)
+                + '</div><div class="stat-value">' + html.escape(v) + '</div></div></div>')
 
     assumption_bar = ""
     if assumption:
-        assumption_bar = '<div class="assumption-bar">' + "".join(
-            '<span><b>' + html.escape(k) + '</b>' + html.escape(v) + '</span>' for k, v in assumption.items()
-        ) + '</div>'
+        ordered = []
+        for k in ASSUMPTION_ORDER:
+            if k in assumption:
+                ordered.append((k, assumption[k]))
+        for k, v in assumption.items():
+            if k not in ASSUMPTION_ORDER:
+                ordered.append((k, v))
+        assumption_bar = '<div class="assumption-bar">' + "".join(assumption_card(k, v) for k, v in ordered) + '</div>'
 
     today = datetime.datetime.now().strftime("%Y年%-m月%-d日")
 
@@ -718,7 +857,6 @@ def render(input_path, output_path):
         '<header class="top-header">'
         '<h1>' + html.escape(title) + '</h1>'
         '<div class="top-sub"><span>' + today + '</span><span>AIPM·瞭望台</span></div>'
-        '<div class="tags">' + tag_html + '</div>'
         '</header>'
         + assumption_bar + "".join(body_parts) +
         '</main></div>'
