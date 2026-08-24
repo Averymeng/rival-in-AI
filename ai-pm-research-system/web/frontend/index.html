@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIPM·瞭望台</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">AIPM<span>·瞭望台</span></div>
+  <div class="brand-sub">AI 竞品研究与报告生成系统</div>
+</header>
+
+<section class="hero">
+  <h1>把数小时调研，压缩成一份带证据的报告</h1>
+  <p class="lead">输入一个研究目标（产品分析 / 竞品对比 / 市场扫描 / 产品选型 / 机会探索），实时联网检索，产出结构化、可视化、可溯源的研究报告。</p>
+  <form id="goal-form" class="search">
+    <input id="goal-input" placeholder="例如：分析一下 Cursor，或对比 Cursor 与 Dify" autocomplete="off">
+    <button type="submit">生成报告</button>
+  </form>
+  <p id="status" class="status"></p>
+</section>
+
+<section class="panel">
+  <h2>历史报告</h2>
+  <div id="report-list" class="cards">加载中…</div>
+</section>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -357,12 +357,9 @@ section li{margin:5px 0;}
 """
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("input")
-    ap.add_argument("--output", required=True)
-    args = ap.parse_args()
-    with open(args.input, encoding="utf-8") as f:
+def render(input_path, output_path):
+    """把约定写法 Markdown 渲染为自包含 ECharts HTML（可被 import 调用）。"""
+    with open(input_path, encoding="utf-8") as f:
         text = f.read()
     lines = text.split("\n")
 
@@ -551,9 +548,19 @@ def main():
         'this.classList.add("active");});});'
         '</script>'
         '</body></html>')
-    with open(args.output, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(html_doc)
-    print("OK -> " + args.output + " (" + str(len(html_doc)) + " bytes)")
+    return output_path
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("input")
+    ap.add_argument("--output", required=True)
+    args = ap.parse_args()
+    out = render(args.input, args.output)
+    size = len(open(out, encoding="utf-8").read())
+    print("OK -> " + out + " (" + str(size) + " bytes)")
 
 
 if __name__ == "__main__":
