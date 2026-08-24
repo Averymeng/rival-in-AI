@@ -60,7 +60,7 @@ def get_static(filename: str):
 
 @app.get("/")
 def index():
-    return fastapi_respond_html(FRONTEND_DIR / "index.html")
+    return FileResponse(str(FRONTEND_DIR / "index.html"), media_type="text/html")
 
 
 if __name__ == "__main__":
