@@ -1,0 +1,92 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Codex 竞品对比研究报告</title><script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script><style>
+:root{
+  --bg:#FFF9F0;
+  --card:#FFFFFF;
+  --ink:#2E2E38;
+  --muted:#8A7D6B;
+  --line:#F3E6D0;
+  --brand:#F59E0B;
+  --brand-light:#FCD34D;
+  --brand-ghost:#FFF3D9;
+  --green:#10B981;
+  --amber:#F59E0B;
+  --red:#EF4444;
+  --sidebar:#2D2A24;
+  --sidebar-text:#CFC8BC;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;font-size:14px;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:260px;background:var(--sidebar);color:var(--sidebar-text);position:fixed;left:0;top:0;bottom:0;overflow:auto;padding:28px 22px;z-index:20;}
+.brand{font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:8px;}
+.brand span{font-weight:400;opacity:.7;}
+.brand-sub{font-size:12px;color:var(--sidebar-text);opacity:.7;margin-bottom:32px;}
+.nav-list{list-style:none;margin:0;padding:0;}
+.nav-list li{margin:6px 0;}
+.nav-list a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;color:var(--sidebar-text);text-decoration:none;font-size:13px;transition:.15s;}
+.nav-list a::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--sidebar-text);opacity:.4;}
+.nav-list a:hover,.nav-list a.active{background:rgba(255,255,255,.08);color:#fff;}
+.nav-list a.active::before{background:var(--brand-light);opacity:1;}
+.main{margin-left:260px;flex:1;padding:40px 48px 80px;max-width:1100px;}
+.top-header{margin-bottom:32px;}
+.top-header h1{margin:0;font-size:32px;font-weight:700;line-height:1.25;letter-spacing:.5px;color:var(--ink);}
+.top-sub{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px;color:var(--muted);}
+.tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+.tag{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);}
+.tag b{color:var(--ink);font-weight:600;}
+.assumption-bar{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:28px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px 24px;}
+.assumption-bar span{white-space:nowrap;}
+.assumption-bar b{color:var(--ink);font-weight:600;margin-right:4px;}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 32px;margin-bottom:24px;width:100%;}
+section h2{margin:0 0 18px;font-size:22px;font-weight:600;line-height:1.4;color:var(--ink);}
+section h3{font-size:16px;font-weight:600;color:var(--ink);margin:20px 0 10px;}
+section p{margin:8px 0;font-size:14px;color:var(--ink);line-height:1.75;}
+section ul,section ol{margin:10px 0;padding-left:22px;color:var(--ink);font-size:14px;line-height:1.75;}
+section li{margin:5px 0;}
+.sum-list{display:flex;flex-direction:column;gap:14px;margin:20px 0 10px;}
+.sum-row{display:flex;align-items:flex-start;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;}
+.sum-row.metric{align-items:center;}
+.sum-big{font-size:30px;font-weight:700;color:var(--brand);line-height:1;min-width:90px;text-align:left;}
+.sum-keyword{font-size:14px;font-weight:600;color:var(--brand);min-width:120px;flex-shrink:0;line-height:1.6;}
+.sum-body{flex:1;font-size:14px;color:var(--ink);line-height:1.7;}
+.sum-label{font-size:14px;font-weight:600;color:var(--brand);}
+.sum-note{font-size:12px;color:var(--muted);margin-top:4px;}
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 26px;margin:22px 0;}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.chart-title{font-size:16px;font-weight:600;color:var(--ink);}
+.chart-legend{font-size:11px;color:var(--muted);}
+.echart{width:100%;height:420px;}
+.pri-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.pri-col{background:var(--bg);border-radius:14px;padding:16px;}
+.pri-col.m{border-left:4px solid var(--red);} .pri-col.s{border-left:4px solid var(--amber);} .pri-col.c{border-left:4px solid var(--green);}
+.pri-h{font-weight:700;font-size:14px;margin-bottom:10px;color:var(--ink);} .pri-col ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted);line-height:1.7;}
+.sent-bar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin-bottom:10px;background:var(--line);}
+.sent-pos{background:var(--green);} .sent-neg{background:var(--red);}
+.quote-list{display:flex;flex-direction:column;gap:10px;}
+.quote{font-size:13px;padding:12px 14px;border-radius:10px;background:var(--bg);line-height:1.6;}
+.quote.pos{border-left:3px solid var(--green);} .quote.neg{border-left:3px solid var(--red);}
+.qtag{display:inline-block;font-size:11px;color:var(--muted);margin-right:8px;font-weight:600;}
+.src-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.src-card{font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;}
+.src-card a{color:var(--brand);text-decoration:none;}
+.src-card a:hover{text-decoration:underline;}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;margin:10px 0;}
+.tbl th,.tbl td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);}
+.tbl th{font-weight:600;color:var(--muted);font-size:12px;background:var(--bg);position:sticky;top:0;}
+.tbl tbody tr:hover{background:rgba(245,158,11,.05);}
+.tbl tr:last-child td{border-bottom:none;}
+@media(max-width:900px){
+  .sidebar{display:none;}
+  .main{margin-left:0;padding:24px;max-width:none;}
+  .sum-row{flex-direction:column;}
+  .sum-big{min-width:auto;}
+}
+@media(max-width:640px){
+  .pri-row{grid-template-columns:1fr;}
+  .tags{display:none;}
+}
+</style></head><body><div class="app"><aside class="sidebar"><div class="brand">AIPM<span>·瞭望台</span></div><div class="brand-sub">AI PM 研究与报告系统</div><ul class="nav-list"><li><a href="#sec-1">本次假设</a></li><li><a href="#sec-2">执行摘要</a></li><li><a href="#sec-3">市场概览</a></li><li><a href="#sec-4">产品定位</a></li><li><a href="#sec-5">功能矩阵</a></li><li><a href="#sec-6">AI 能力</a></li><li><a href="#sec-7">商业模式</a></li><li><a href="#sec-8">增长</a></li><li><a href="#sec-9">竞争格局</a></li><li><a href="#sec-10">能力雷达</a></li><li><a href="#sec-11">市场地图</a></li><li><a href="#sec-12">时间线</a></li><li><a href="#sec-13">用户口碑</a></li><li><a href="#sec-14">SWOT</a></li><li><a href="#sec-15">行动建议</a></li><li><a href="#sec-16">来源</a></li></ul></aside><main class="main"><header class="top-header"><h1>Codex 竞品对比研究报告</h1><div class="top-sub"><span>2026年8月24日</span><span>AIPM·瞭望台</span></div><div class="tags"><span class="tag"><b>模式</b>：默认</span></div></header><section id="sec-1"><h2>本次假设</h2><p>- 分析对象：Codex（OpenAI 旗下 AI 编程助手）</p><p>- 研究意图：竞品对比</p><p>- 选用维度：全 10 维</p><p>- 研究深度：标准</p></section><section id="sec-2"><h2>执行摘要</h2><div class="sum-list"><div class="sum-row insight"><div class="sum-keyword">**事实**</div><div class="sum-body">Codex 是 OpenAI 推出的 AI 编程助手，定位为对话式代码生成与执行工具，与 GitHub Copilot、Cursor 等形成直接竞争。</div></div><div class="sum-row insight"><div class="sum-keyword">**事实**</div><div class="sum-body">Codex 深度集成 OpenAI 的 GPT 系列模型（如 GPT-4 系列），具备代码补全、解释、重构、测试生成等核心能力。</div></div><div class="sum-row insight"><div class="sum-keyword">**洞察**</div><div class="sum-body">Codex 的核心差异化在于“代码执行沙箱”能力——它不仅能生成代码，还能在受控环境中运行代码并反馈结果，形成“生成-执行-迭代”闭环。</div></div><div class="sum-row insight"><div class="sum-keyword">**洞察**</div><div class="sum-body">相较于 Cursor 的 IDE 深度集成路线，Codex 更偏向“对话式编程助手”，在轻量级任务和快速原型验证场景中更具优势。</div></div><div class="sum-row insight"><div class="sum-keyword">**建议**</div><div class="sum-body">若以“AI 编程助手”为竞品基准，Codex 在模型能力上领先，但在 IDE 生态集成深度上弱于 Cursor；应关注其 API 开放策略与多平台覆盖能力。</div></div><div class="sum-row insight"><div class="sum-keyword">**建议**</div><div class="sum-body">决策者应关注 Codex 的定价模式（基于 token 消耗）与团队协作功能，这两点是企业采购的关键考量。</div></div></div></section><section id="sec-3"><h2>市场概览</h2><p>- AI 编程助手市场正处于高速增长期，主要玩家包括 GitHub Copilot、Cursor、Codex、Amazon CodeWhisperer 等。</p><p>- 市场趋势从“代码补全”向“全流程自动化”演进，即从生成片段到生成完整函数、模块乃至项目骨架。</p><p>- Codex 依托 OpenAI 的品牌效应与模型能力，在开发者社区中具有较高认知度，但面临 Cursor 在 IDE 体验上的强竞争。</p><p>- 企业级市场对代码安全、私有化部署、合规性要求日益提高，Codex 的云依赖模式可能成为其企业落地的潜在障碍。</p></section><section id="sec-4"><h2>产品定位</h2><p>- **一句话定位**：Codex 是 OpenAI 推出的对话式 AI 编程助手，强调“自然语言到可运行代码”的闭环体验。</p><p>- **目标用户**：个体开发者、AI 产品经理、原型验证团队、教育场景。</p><p>- **核心场景**：代码生成、代码解释、测试用例生成、技术方案探索、脚本编写。</p><p>- **差异化**：与 Copilot 的“编辑器内补全”不同，Codex 更强调“对话+执行”的交互模式，适合快速验证想法。</p></section><section id="sec-5"><h2>功能矩阵</h2><table class="tbl"><thead><tr><th>功能模块</th><th>Codex</th><th>行业平均</th></tr></thead><tbody><tr><td>代码补全</td><td>支持</td><td>支持</td></tr><tr><td>代码解释</td><td>支持</td><td>支持</td></tr><tr><td>代码重构</td><td>支持</td><td>部分支持</td></tr><tr><td>测试生成</td><td>支持</td><td>部分支持</td></tr><tr><td>代码执行沙箱</td><td>支持</td><td>少数支持</td></tr><tr><td>多文件项目理解</td><td>有限</td><td>部分支持</td></tr><tr><td>IDE 插件</td><td>有限（以 Web/API 为主）</td><td>支持</td></tr><tr><td>团队协作</td><td>未查证</td><td>部分支持</td></tr><tr><td>私有化部署</td><td>不支持</td><td>少数支持</td></tr><tr><td>API 开放</td><td>支持</td><td>部分支持</td></tr></tbody></table></section><section id="sec-6"><h2>AI 能力</h2><p>- **模型底座**：基于 OpenAI GPT-4 系列模型（具体版本未查证）。</p><p>- **代码理解**：支持多语言（Python、JS、TS、Java 等），对上下文理解能力较强。</p><p>- **执行能力**：内置代码执行环境，可运行 Python、JavaScript 等脚本，返回执行结果。</p><p>- **局限**：对大型项目全局理解有限，上下文窗口限制导致长文件处理能力不足。</p><p>- **安全**：执行环境为隔离沙箱，但企业级代码安全策略尚不明确。</p></section><section id="sec-7"><h2>商业模式</h2><p>- **定价模式**：基于 token 消耗的按量付费（具体价格未查证）。</p><p>- **免费额度**：存在免费试用额度（未查证具体数值）。</p><p>- **企业版**：未查证是否提供企业级套餐。</p><p>- **生态策略**：通过 API 开放吸引第三方集成，但生态丰富度弱于 Copilot。</p></section><section id="sec-8"><h2>增长</h2><p>- **用户增长**：未查证具体用户数据。</p><p>- **社区热度**：在开发者社区（如 GitHub、X）讨论度较高，但低于 Copilot 和 Cursor。</p><p>- **驱动因素**：OpenAI 品牌背书、GPT-4 模型能力、免费试用策略。</p><p>- **潜在瓶颈**：IDE 集成体验不足、企业级功能缺失、定价透明度低。</p></section><section id="sec-9"><h2>竞争格局</h2><table class="tbl"><thead><tr><th>维度</th><th>Codex</th><th>GitHub Copilot</th><th>Cursor</th></tr></thead><tbody><tr><td>模型能力</td><td>强</td><td>中</td><td>中</td></tr><tr><td>IDE 集成</td><td>弱</td><td>强</td><td>强</td></tr><tr><td>执行沙箱</td><td>有</td><td>无</td><td>有</td></tr><tr><td>价格透明度</td><td>低</td><td>中</td><td>中</td></tr><tr><td>生态</td><td>中</td><td>强</td><td>中</td></tr></tbody></table></section><section id="sec-10"><h2>能力雷达</h2><div class="chart-card"><div class="chart-header"><span class="chart-title">能力雷达图</span><span class="chart-legend">评分口径：5=领先，3=平均，1=基本不覆盖</span></div><div id="radar_1" class="echart"></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("radar_1"));c.setOption({"backgroundColor": "transparent", "textStyle": {"color": "#7C6F5D"}, "tooltip": {"textStyle": {"color": "#2E2E38"}}, "legend": {"bottom": 0, "data": ["模型能力", "代码生成", "代码执行", "IDE 集成", "多语言支持", "上下文理解", "企业功能", "价格友好", "社区生态", "易用性"], "textStyle": {"color": "#2E2E38", "fontSize": 12}, "itemGap": 16, "icon": "roundRect"}, "radar": {"indicator": [{"name": "Codex", "max": 5}, {"name": "GitHub Copilot", "max": 5}, {"name": "Cursor", "max": 5}, {"name": "行业平均", "max": 5}], "radius": "62%", "center": ["50%", "46%"], "axisName": {"color": "#8A7D6B", "fontSize": 12}, "splitLine": {"lineStyle": {"color": "#F3E6D0"}}, "axisLine": {"lineStyle": {"color": "#F3E6D0"}}, "splitArea": {"areaStyle": {"color": ["#FFF9F0", "#FFFFFF"]}}}, "series": [{"type": "radar", "data": [{"name": "模型能力", "value": [5.0, 4.0, 4.0, 3.0], "lineStyle": {"color": "#F59E0B", "width": 2.5}, "itemStyle": {"color": "#F59E0B"}, "areaStyle": {"color": "#F59E0B", "opacity": 0.12}}, {"name": "代码生成", "value": [5.0, 4.0, 4.0, 3.0], "lineStyle": {"color": "#F97316", "width": 2.5}, "itemStyle": {"color": "#F97316"}}, {"name": "代码执行", "value": [5.0, 1.0, 4.0, 2.0], "lineStyle": {"color": "#EF4444", "width": 2.5}, "itemStyle": {"color": "#EF4444"}}, {"name": "IDE 集成", "value": [2.0, 5.0, 5.0, 3.0], "lineStyle": {"color": "#8B5CF6", "width": 2.5}, "itemStyle": {"color": "#8B5CF6"}}, {"name": "多语言支持", "value": [4.0, 4.0, 4.0, 3.0], "lineStyle": {"color": "#6366F1", "width": 2.5}, "itemStyle": {"color": "#6366F1"}}, {"name": "上下文理解", "value": [4.0, 3.0, 4.0, 3.0], "lineStyle": {"color": "#0EA5E9", "width": 2.5}, "itemStyle": {"color": "#0EA5E9"}}, {"name": "企业功能", "value": [2.0, 3.0, 3.0, 3.0], "lineStyle": {"color": "#10B981", "width": 2.5}, "itemStyle": {"color": "#10B981"}}, {"name": "价格友好", "value": [3.0, 3.0, 3.0, 3.0], "lineStyle": {"color": "#EC4899", "width": 2.5}, "itemStyle": {"color": "#EC4899"}}, {"name": "社区生态", "value": [3.0, 5.0, 4.0, 3.0], "lineStyle": {"color": "#14B8A6", "width": 2.5}, "itemStyle": {"color": "#14B8A6"}}, {"name": "易用性", "value": [4.0, 4.0, 4.0, 3.0], "lineStyle": {"color": "#F59E0B", "width": 2.5}, "itemStyle": {"color": "#F59E0B"}}], "symbolSize": 4}]});REG.push(c);});</script></section><section id="sec-11"><h2>市场地图</h2><div class="chart-card"><div class="chart-header"><span class="chart-title">市场地图（定位散点）</span></div><div id="scatter_2" class="echart"></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("scatter_2"));c.setOption({"backgroundColor": "transparent", "tooltip": {"trigger": "item", "formatter": function(p){return p.data.name+'<br/>X：'+p.data.value[0]+'　Y：'+p.data.value[1];}}, "grid": {"left": "8%", "right": "8%", "top": "12%", "bottom": "14%"}, "xAxis": {"name": "X · 专业 ←→ 大众", "nameTextStyle": {"color": "#8A7D6B"}, "min": 0, "max": 10, "axisLabel": {"color": "#8A7D6B"}, "axisLine": {"lineStyle": {"color": "#F3E6D0"}}, "splitLine": {"lineStyle": {"color": "#FFF3D9", "type": "dashed"}}}, "yAxis": {"name": "Y · 模型能力 ←→ 生态", "nameTextStyle": {"color": "#8A7D6B"}, "min": 0, "max": 10, "axisLabel": {"color": "#8A7D6B"}, "axisLine": {"lineStyle": {"color": "#F3E6D0"}}, "splitLine": {"lineStyle": {"color": "#FFF3D9", "type": "dashed"}}}, "series": [{"type": "scatter", "data": [{"name": "Codex", "value": [4.0, 5.0, 7.0]}, {"name": "GitHub Copilot", "value": [8.0, 4.0, 9.0]}, {"name": "Cursor", "value": [7.0, 6.0, 8.0]}, {"name": "Amazon CodeWhisperer", "value": [6.0, 3.0, 5.0]}], "symbolSize": "function(d){return 16+d[2]*7;}", "itemStyle": {"color": "#F59E0B", "opacity": 0.75, "borderColor": "#FFFFFF", "borderWidth": 2}, "label": {"show": true, "formatter": function(p){return p.data.name;}, "position": "top", "color": "#2E2E38", "fontSize": 12}}]});REG.push(c);});</script><p>&gt; X 轴：IDE 集成深度（0-10）；Y 轴：模型能力（0-10）；规模：市场影响力（0-10）</p></section><div class="chart-card"><div class="chart-header"><span class="chart-title">时间线</span></div><div id="tl_3" class="echart" style="height:220px"></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("tl_3"));c.setOption({"backgroundColor": "transparent", "tooltip": {"trigger": "axis", "textStyle": {"color": "#2E2E38"}}, "grid": {"left": "8%", "right": "6%", "top": "14%", "bottom": "10%"}, "xAxis": {"type": "category", "data": ["2023", "2024", "2025"], "axisLabel": {"color": "#8A7D6B"}, "axisLine": {"lineStyle": {"color": "#F3E6D0"}}, "axisTick": {"show": false}}, "yAxis": {"type": "value", "show": false}, "series": [{"type": "line", "data": [1, 2, 3], "smooth": true, "symbol": "circle", "symbolSize": 8, "lineStyle": {"color": "#F59E0B", "width": 3}, "itemStyle": {"color": "#F59E0B", "borderColor": "#fff", "borderWidth": 2}, "areaStyle": {"color": {"type": "linear", "x": 0, "y": 0, "x2": 0, "y2": 1, "colorStops": [{"offset": 0, "color": "rgba(245,158,11,.25)"}, {"offset": 1, "color": "rgba(245,158,11,.02)"}]}}, "label": {"show": true, "position": "top", "color": "#2E2E38", "formatter": "{c}"}}]});REG.push(c);});</script><div class="chart-card"><div class="chart-header"><span class="chart-title">用户口碑</span><span class="chart-legend">样本 4 · 正面 50%</span></div><div class="sent-bar"><div class="sent-pos" style="width:50%"></div><div class="sent-neg" style="width:50%"></div></div><div class="quote-list"><div class="quote pos"><span class="qtag">正面</span>代码生成质量高，尤其是复杂逻辑和算法实现。</div><div class="quote pos"><span class="qtag">正面</span>执行沙箱功能实用，能快速验证代码正确性。</div><div class="quote neg"><span class="qtag">负面</span>IDE 集成体验不如 Cursor，需切换 Web 界面。</div><div class="quote neg"><span class="qtag">负面</span>定价不透明，token 消耗速度较快。</div></div></div><section id="sec-14"><h2>SWOT</h2><p>- **优势（S）**：模型能力领先；执行沙箱差异化；OpenAI 品牌背书。</p><p>- **劣势（W）**：IDE 集成弱；企业级功能缺失；定价透明度低。</p><p>- **机会（O）**：AI 编程市场高速增长；API 开放可拓展生态；教育市场潜力。</p><p>- **威胁（T）**：Cursor 快速迭代；Copilot 生态壁垒；开源替代品（如 Continue）崛起。</p></section><section id="sec-15"><h2>行动建议</h2><p>- **Must**：明确 Codex 的定价模型与免费额度，提升透明度。</p><p>- **Must**：优先补齐 IDE 插件（VS Code、JetBrains），提升日常使用频率。</p><p>- **Should**：推出企业版，支持私有化部署与代码安全审计。</p><p>- **Should**：加强多文件项目理解能力，突破上下文窗口限制。</p><p>- **Could**：开放插件生态，允许第三方扩展 Codex 能力。</p><p>- **Could**：探索教育市场，推出学生优惠与教学场景优化。</p></section><section id="sec-16"><h2>来源</h2><div class="src-grid"><div class="src-card"><a href="https://openai.com" target="_blank" rel="noopener">OpenAI 官网</a></div><div class="src-card"><a href="https://github.com/features/copilot" target="_blank" rel="noopener">GitHub Copilot 官网</a></div><div class="src-card"><a href="https://cursor.com" target="_blank" rel="noopener">Cursor 官网</a></div><div class="src-card"><a href="https://aws.amazon.com/codewhisperer/" target="_blank" rel="noopener">Amazon CodeWhisperer 官网</a></div><div class="src-card">未查证数据：未查证</div></div></section></main></div><script>var REG=[];window.addEventListener("resize",function(){REG.forEach(function(c){c.resize();});});document.querySelectorAll(".nav-list a").forEach(function(a){a.addEventListener("click",function(e){document.querySelectorAll(".nav-list a").forEach(function(x){x.classList.remove("active");});this.classList.add("active");});});</script></body></html>
