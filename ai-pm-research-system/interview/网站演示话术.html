@@ -27,6 +27,19 @@
   .tip b{color:#7c2d12;}
   .foot{margin-top:24px;font-size:12px;color:var(--muted);line-height:1.8;}
   .foot code{background:#e2e8f0;padding:1px 6px;border-radius:5px;color:#334155;}
+  .part{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:14px;}
+  .part h2{margin:0 0 4px;font-size:18px;color:var(--brand);}
+  .part .lead{font-size:13.5px;color:#334155;margin:0 0 14px;}
+  .diagram{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;}
+  .diagram svg{width:100%;height:auto;display:block;}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin:6px 2px 0;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block;}
+  .map{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;}
+  .map th,.map td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left;}
+  .map th{background:#f1f5f9;color:#334155;white-space:nowrap;}
+  .map td.ch{font-weight:600;color:var(--brand);white-space:nowrap;}
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;margin-right:4px;}
 </style>
 </head>
 <body>
@@ -82,6 +95,109 @@
     <span class="act">返回首页，查看「历史报告」卡片列表</span>
     <div class="script"><b>口播：</b>"每次生成的报告都会留在首页的历史列表里，下次进来直接点开，不用重新跑一遍。这就是一个用户视角的完整体验：输入一句话，得到一份带来源、可反复查看的报告。"</div>
   </div></div>
+
+  <div class="part">
+    <h2>报告内容架构 & 它如何帮 AIPM 工作</h2>
+    <p class="lead">顺着这份报告从上往下滑，其实对应一个 AI PM 从「立项 → 跟踪 → 规划 → 选型 → 汇报」的完整工作流。下面这张链路图先给全局，再给逐板块对照。</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 1020 560" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,PingFang SC,sans-serif">
+        <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#475569"/></marker></defs>
+
+        <!-- Col A: 研究目标 -->
+        <rect x="20" y="232" width="150" height="96" rx="12" fill="#0F766E"/>
+        <text x="95" y="264" fill="#fff" font-size="13" text-anchor="middle" font-weight="600">一个研究目标</text>
+        <text x="95" y="284" fill="#cffafe" font-size="11" text-anchor="middle">（如"分析可灵"）</text>
+        <text x="95" y="302" fill="#cffafe" font-size="11" text-anchor="middle">自然语言输入</text>
+        <line x1="170" y1="280" x2="246" y2="280" stroke="#475569" stroke-width="2" marker-end="url(#ar)"/>
+
+        <!-- Col B: 报告内容架构 -->
+        <rect x="250" y="24" width="520" height="512" rx="14" fill="#fff" stroke="#0F766E" stroke-width="2"/>
+        <text x="510" y="52" text-anchor="middle" font-size="14.5" font-weight="700" fill="#0F766E">报告内容架构（12 板块 · 按工作逻辑分层）</text>
+
+        <!-- rows: pill + chapter -->
+        <!-- 1 执行摘要 决策 -->
+        <rect x="262" y="70" width="56" height="24" rx="6" fill="#0F766E"/><text x="290" y="86" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">决策</text>
+        <text x="330" y="87" font-size="13" fill="#1f2933">执行摘要</text>
+        <!-- 2 市场概览 认知 -->
+        <rect x="262" y="108" width="56" height="24" rx="6" fill="#3B82F6"/><text x="290" y="124" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">认知</text>
+        <text x="330" y="125" font-size="13" fill="#1f2933">市场概览</text>
+        <!-- 3 产品定位 认知 -->
+        <rect x="262" y="146" width="56" height="24" rx="6" fill="#3B82F6"/><text x="290" y="162" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">认知</text>
+        <text x="330" y="163" font-size="13" fill="#1f2933">产品定位</text>
+        <!-- 4 功能矩阵 对标 -->
+        <rect x="262" y="184" width="56" height="24" rx="6" fill="#F59E0B"/><text x="290" y="200" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">对标</text>
+        <text x="330" y="201" font-size="13" fill="#1f2933">功能矩阵</text>
+        <!-- 5 AI能力 对标 -->
+        <rect x="262" y="222" width="56" height="24" rx="6" fill="#F59E0B"/><text x="290" y="238" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">对标</text>
+        <text x="330" y="239" font-size="13" fill="#1f2933">AI 能力</text>
+        <!-- 6 商业模式 对标 -->
+        <rect x="262" y="260" width="56" height="24" rx="6" fill="#F59E0B"/><text x="290" y="276" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">对标</text>
+        <text x="330" y="277" font-size="13" fill="#1f2933">商业模式</text>
+        <!-- 7 增长 对标 -->
+        <rect x="262" y="298" width="56" height="24" rx="6" fill="#F59E0B"/><text x="290" y="314" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">对标</text>
+        <text x="330" y="315" font-size="13" fill="#1f2933">增长</text>
+        <!-- 8 竞争格局 认知 -->
+        <rect x="262" y="336" width="56" height="24" rx="6" fill="#3B82F6"/><text x="290" y="352" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">认知</text>
+        <text x="330" y="353" font-size="13" fill="#1f2933">竞争格局</text>
+        <!-- 9 SWOT 行动 -->
+        <rect x="262" y="374" width="56" height="24" rx="6" fill="#8B5CF6"/><text x="290" y="390" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">行动</text>
+        <text x="330" y="391" font-size="13" fill="#1f2933">SWOT</text>
+        <!-- 10 机会点 行动 -->
+        <rect x="262" y="412" width="56" height="24" rx="6" fill="#8B5CF6"/><text x="290" y="428" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">行动</text>
+        <text x="330" y="429" font-size="13" fill="#1f2933">机会点</text>
+        <!-- 11 行动建议 行动 -->
+        <rect x="262" y="450" width="56" height="24" rx="6" fill="#8B5CF6"/><text x="290" y="466" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">行动</text>
+        <text x="330" y="467" font-size="13" fill="#1f2933">行动建议</text>
+        <!-- 12 来源 可信 -->
+        <rect x="262" y="488" width="56" height="24" rx="6" fill="#475569"/><text x="290" y="504" fill="#fff" font-size="11" text-anchor="middle" font-weight="600">可信</text>
+        <text x="330" y="505" font-size="13" fill="#1f2933">来源</text>
+
+        <line x1="770" y1="280" x2="798" y2="280" stroke="#475569" stroke-width="2" marker-end="url(#ar)"/>
+        <text x="784" y="270" font-size="11" fill="#64748b" text-anchor="middle">支撑</text>
+
+        <!-- Col C: AIPM 工作流 -->
+        <rect x="802" y="58" width="198" height="448" rx="14" fill="#fff" stroke="#3B82F6" stroke-width="2"/>
+        <text x="901" y="86" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1d4ed8">AIPM 工作流 / 产出</text>
+        <text x="901" y="120" font-size="12.5" fill="#334155" text-anchor="middle">立项 / 赛道判断</text>
+        <text x="901" y="166" font-size="12.5" fill="#334155" text-anchor="middle">竞品跟踪 / 卡位</text>
+        <text x="901" y="212" font-size="12.5" fill="#334155" text-anchor="middle">功能规划 / 查漏补缺</text>
+        <text x="901" y="258" font-size="12.5" fill="#334155" text-anchor="middle">能力 / 技术选型</text>
+        <text x="901" y="304" font-size="12.5" fill="#334155" text-anchor="middle">定价 / 变现参考</text>
+        <text x="901" y="350" font-size="12.5" fill="#334155" text-anchor="middle">增长打法借鉴</text>
+        <text x="901" y="396" font-size="12.5" fill="#334155" text-anchor="middle">找差异化 / 机会点</text>
+        <text x="901" y="442" font-size="12.5" fill="#334155" text-anchor="middle">向上汇报 / 评审 / 风险</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i style="background:#0F766E"></i>决策层（拿来决策/汇报）</span>
+      <span><i style="background:#3B82F6"></i>认知层（看清市场与对手）</span>
+      <span><i style="background:#F59E0B"></i>对标层（能力/价格/增长对比）</span>
+      <span><i style="background:#8B5CF6"></i>行动层（战略与落地）</span>
+      <span><i style="background:#475569"></i>可信层（来源可追溯）</span>
+    </div>
+
+    <h3 style="margin:18px 0 8px;font-size:15px;">逐板块对照：报告内容 → AIPM 工作场景</h3>
+    <table class="map">
+      <tr><th>报告板块</th><th>对应 AIPM 工作场景</th><th>它具体帮你做什么</th></tr>
+      <tr><td class="ch">执行摘要</td><td>向上汇报 / 快速决策</td><td>10 秒抓住核心判断，直接拿去给老板过目</td></tr>
+      <tr><td class="ch">市场概览</td><td>赛道判断 / 立项</td><td>看清竞争梯队与自身位置，决定要不要进这条赛道</td></tr>
+      <tr><td class="ch">产品定位</td><td>竞品理解 / 卡位</td><td>搞清对手盯谁、调性如何，避免自己定位错位</td></tr>
+      <tr><td class="ch">功能矩阵</td><td>功能规划</td><td>一眼看谁覆盖全、谁有缺口，写 PRD 时直接查漏补缺</td></tr>
+      <tr><td class="ch">AI 能力</td><td>技术选型</td><td>雷达叠加多维能力，对标"该追还是该弃"</td></tr>
+      <tr><td class="ch">商业模式</td><td>定价参考</td><td>会员/订阅/按量结构，给自己定价找锚点</td></tr>
+      <tr><td class="ch">增长</td><td>增长借鉴</td><td>关键 KPI 与打法，复用别人验证过的增长动作</td></tr>
+      <tr><td class="ch">竞争格局</td><td>竞品跟踪 / 卡位</td><td>中心辐射图看清"主体 vs 竞品"关系，长期跟踪</td></tr>
+      <tr><td class="ch">SWOT</td><td>战略研判</td><td>2×2 象限做优劣势与威胁的快速战略读</td></tr>
+      <tr><td class="ch">机会点</td><td>找差异化</td><td>气泡图标出空白区，发现可切入的新方向</td></tr>
+      <tr><td class="ch">行动建议</td><td>落地优先级</td><td>Must/Should/Could 直接给出执行先后顺序</td></tr>
+      <tr><td class="ch">来源</td><td>可信溯源</td><td>每条结论可追到出处，汇报时经得起追问</td></tr>
+    </table>
+
+    <div class="script" style="margin-top:14px;"><b>口播（边指图边说）：</b>
+顺着这份报告往下看，其实对应一个 AI PM 完整的工作流：最上面的执行摘要，是我拿来向上汇报、10 秒做决策的；市场概览和竞争格局，帮我校准赛道位置和竞品卡位；功能矩阵让我做功能规划时直接查漏补缺；AI 能力对标帮我做技术选型；商业模式给我定价参考；增长让我学别人的打法；SWOT 和机会点帮我做战略研判、找差异化空白；最后的行动建议直接给我落地优先级；来源让我每句话都敢引用。
+所以这份报告不是一份"分析报告"，而是把我从立项到汇报的整条工作流都串起来了——我打开它，等于把竞品调研这件事一次性干完，不用再自己东拼西凑。</div>
+  </div>
 
   <div class="foot">
     纯演示路径，无产品设计内容。本地服务：<code>http://localhost:8787/</code> ｜ 若服务不可用，直接打开 <code>作品展示导览.html</code> 进入第 5 步查看成品报告。配套：<code>面试手册.html</code>、<code>系统架构链路图.html</code>。
