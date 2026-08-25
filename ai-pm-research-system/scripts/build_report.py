@@ -792,16 +792,15 @@ body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);font
 .content{max-width:1200px;margin:0 auto;}
 
 /* masthead / Research Header */
-.masthead{display:flex;flex-direction:column;gap:14px;padding-bottom:26px;margin-bottom:36px;border-bottom:1px solid var(--border);}
+.masthead{display:flex;flex-direction:column;gap:18px;padding-bottom:28px;margin-bottom:36px;border-bottom:1px solid var(--border);}
 .masthead .kicker{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;}
 .k-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;}
-.masthead h1{margin:0;font-size:36px;font-weight:700;line-height:1.2;color:var(--ink);letter-spacing:-.5px;}
-.masthead .meta{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
-.chip{font-size:12.5px;color:var(--ink-2);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:5px 14px;}
-.chip b{color:var(--ink);font-weight:600;}
-.credibility{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--teal);background:#ECFDF5;border:1px solid #BBF7D0;border-radius:999px;padding:5px 14px;}
-.credibility .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);}
-.date{font-size:12px;color:var(--muted);letter-spacing:.5px;}
+.masthead h1{margin:0;font-size:48px;font-weight:700;line-height:1.15;color:var(--ink);letter-spacing:-.8px;}
+.info-tags{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;}
+.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 20px rgba(0,0,0,.04);padding:16px 20px;min-width:0;}
+.info-card .ic-k{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:8px;letter-spacing:.3px;}
+.info-card .ic-v{font-size:16px;color:var(--ink);font-weight:600;line-height:1.45;word-break:break-word;}
+.info-card.trust .ic-v{color:var(--teal);}
 
 /* assumptions brief */
 .brief{display:flex;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:36px;box-shadow:var(--shadow-sm);}
@@ -1272,16 +1271,24 @@ def render(input_path, output_path):
                 ordered.append((ak, av))
         items = ""
         for k, v in ordered:
+            if k in ("分析对象", "研究意图", "对比对象"):
+                continue
             items += ('<div class="b-item"><div class="b-k">' + html.escape(ASSUMPTION_LABEL.get(k, k))
                       + '</div><div class="b-v">' + html.escape(v) + '</div></div>')
         brief_html = '<div class="brief">' + items + '</div>'
 
-    scope_chips = ""
-    for k in ("分析对象", "研究意图", "对比对象"):
-        if k in assumption:
-            scope_chips += '<span class="chip"><b>' + html.escape(k) + '：</b>' + html.escape(assumption[k]) + '</span>'
-
     today = datetime.datetime.now().strftime("%Y年%-m月%-d日")
+
+    # 顶部信息标签卡片（分析对象 / 研究意图 / 对比对象 / 数据可信等级 / 日期）
+    info_cards = ""
+    for k in ("分析对象", "研究意图", "对比对象"):
+        if assumption.get(k):
+            info_cards += ('<div class="info-card"><div class="ic-k">' + html.escape(k)
+                           + '</div><div class="ic-v">' + html.escape(assumption[k]) + '</div></div>')
+    info_cards += ('<div class="info-card trust"><div class="ic-k">数据可信等级</div>'
+                   '<div class="ic-v">高（公开来源检索）</div></div>')
+    info_cards += ('<div class="info-card"><div class="ic-k">日期</div>'
+                   '<div class="ic-v">' + today + '</div></div>')
 
     html_doc = ('<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -1297,11 +1304,7 @@ def render(input_path, output_path):
         '<header class="masthead">'
         '<div class="kicker"><span class="k-dot"></span>AI PM · 竞品研究报告</div>'
         '<h1>' + html.escape(title) + '</h1>'
-        '<div class="meta">'
-        + (('<div class="scope">' + scope_chips + '</div>') if scope_chips else '')
-        + '<span class="credibility"><span class="dot"></span>数据可信等级 · 高（公开来源检索）</span>'
-        + '<div class="date">' + today + '</div>'
-        '</div>'
+        '<div class="info-tags">' + info_cards + '</div>'
         '</header>'
         + brief_html + '<div class="content">' + "".join(body_parts) + '</div>'
         + '<footer class="ev-footer"><span class="ef-brand">AIPM·瞭望台</span><span class="ef-sep"></span><span>本报告由 AI 实时检索公开来源生成，结论可溯源</span><span class="ef-sep"></span><span>更新于 ' + today + '</span></footer>'
