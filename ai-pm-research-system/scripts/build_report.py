@@ -1243,13 +1243,17 @@ def render(input_path, output_path):
             continue
         if s["title"] in ('本次假设', '研究简报'):
             for ln in s["body"]:
-                if ln.strip().startswith('-') or ln.strip().startswith('·'):
-                    bl = clean(ln)
-                    if '：' in bl or ':' in bl:
-                        k, v = re.split(r'[：:]', bl, maxsplit=1)
+                bl = clean(ln)
+                if not bl:
+                    continue
+                bl = re.sub(r'^[-·•]\s*', '', bl)  # 去掉可能的列表前缀
+                for seg in re.split(r'[｜|]', bl):
+                    seg = seg.strip()
+                    if '：' in seg or ':' in seg:
+                        k, v = re.split(r'[：:]', seg, maxsplit=1)
                         assumption[k.strip()] = v.strip()
-                    elif bl:
-                        assumption.setdefault('备注', bl)
+                    elif seg:
+                        assumption.setdefault('备注', seg)
             continue
         sec_idx += 1
         nav_items += ('<li><a href="#' + section_id(sec_idx) + '"><span class="n">'
