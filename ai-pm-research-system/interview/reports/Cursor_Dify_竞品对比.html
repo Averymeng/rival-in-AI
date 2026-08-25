@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cursor vs Dify 竞品对比</title><script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script><style>
+:root{
+  --canvas:#F4F3EF;
+  --card:#FFFFFF;
+  --ink:#1B1B1F;
+  --muted:#6B6862;
+  --line:#E6E3DD;
+  --line-soft:#F1EFEA;
+  --accent:#0F766E;
+  --accent-soft:#E7F3F0;
+  --accent-ink:#0B5650;
+  --serif:"Songti SC","STSong","Noto Serif SC",Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  --shadow:0 1px 2px rgba(27,27,31,.04),0 4px 16px rgba(27,27,31,.05);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;font-family:var(--sans);background:var(--canvas);color:var(--ink);line-height:1.75;font-size:14px;-webkit-font-smoothing:antialiased;}
+.app{display:flex;min-height:100vh;}
+.side{width:236px;background:var(--card);border-right:1px solid var(--line);position:fixed;left:0;top:0;bottom:0;overflow:auto;padding:30px 22px;z-index:20;}
+.brand{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--ink);letter-spacing:1px;line-height:1.2;}
+.brand small{display:block;font-family:var(--sans);font-size:11px;font-weight:400;color:var(--muted);letter-spacing:2px;margin-top:6px;text-transform:uppercase;}
+.nav{list-style:none;margin:26px 0 0;padding:0;}
+.nav li{margin:2px 0;}
+.nav a{display:flex;align-items:baseline;gap:10px;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:13px;transition:.15s;}
+.nav a .n{font-family:var(--serif);font-size:11px;color:var(--accent);opacity:.65;min-width:18px;}
+.nav a:hover{background:var(--line-soft);color:var(--ink);}
+.nav a.active{background:var(--accent-soft);color:var(--accent-ink);font-weight:600;}
+.nav a.active .n{opacity:1;}
+.main{margin-left:236px;flex:1;padding:42px 54px 90px;max-width:1120px;}
+.masthead{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:34px;}
+.masthead .kicker{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px;}
+.masthead h1{margin:0;font-family:var(--serif);font-size:34px;font-weight:700;line-height:1.25;color:var(--ink);}
+.masthead .scope{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.masthead .chip{font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px;}
+.masthead .chip b{color:var(--ink);font-weight:600;}
+.masthead .date{margin-top:12px;font-size:12px;color:var(--muted);letter-spacing:1px;}
+
+/* 假设条 */
+.brief{display:flex;flex-wrap:wrap;gap:0;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:30px;box-shadow:var(--shadow);}
+.brief .b-item{flex:1;min-width:160px;padding:14px 20px;border-right:1px solid var(--line);}
+.brief .b-item:last-child{border-right:none;}
+.brief .b-k{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:5px;}
+.brief .b-v{font-size:14px;color:var(--ink);font-weight:500;}
+
+/* 章节 */
+section{margin-bottom:42px;scroll-margin-top:20px;}
+.sec-head{display:flex;align-items:flex-start;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:22px;}
+.sec-no{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--accent);line-height:1;opacity:.85;min-width:42px;}
+.sec-eyebrow{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px;}
+.sec-head h2{margin:0;font-family:var(--serif);font-size:24px;font-weight:700;color:var(--ink);}
+.sec-sub{font-size:13px;color:var(--muted);margin-top:3px;}
+section p{margin:8px 0;font-size:14px;line-height:1.8;color:var(--ink);}
+.lead{font-size:15px;line-height:1.85;color:#34322E;}
+
+/* 执行摘要 */
+.findings{display:flex;flex-direction:column;gap:0;}
+.finding{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line-soft);}
+.finding:last-child{border-bottom:none;}
+.find-num{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--accent);min-width:30px;opacity:.8;padding-top:1px;}
+.find-body{display:flex;flex-direction:column;gap:4px;}
+.find-kw{font-size:14px;font-weight:700;color:var(--accent-ink);}
+.find-text{font-size:14px;color:var(--ink);line-height:1.8;}
+
+/* 产品定位 */
+.callout{display:flex;gap:14px;background:var(--accent-soft);border-radius:10px;padding:16px 18px;margin-top:18px;font-size:14px;color:var(--ink);line-height:1.8;}
+.callout-bar{width:4px;background:var(--accent);border-radius:2px;flex-shrink:0;}
+.callout b{color:var(--accent-ink);}
+
+/* 能力矩阵 */
+.matrix-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px;box-shadow:var(--shadow);}
+.feature-matrix{width:100%;border-collapse:collapse;font-size:13px;}
+.feature-matrix th{padding:14px 12px;text-align:center;font-weight:600;color:var(--ink);border-bottom:1px solid var(--line);}
+.feature-matrix th.fm-feat{text-align:left;}
+.fm-ph{padding:4px 10px;border-radius:20px;font-weight:700;white-space:nowrap;}
+.feature-matrix td{padding:11px 12px;text-align:center;border-bottom:1px solid var(--line-soft);}
+.feature-matrix tbody tr:last-child td{border-bottom:none;}
+.feature-matrix td.fm-feat{text-align:left;color:var(--ink);font-weight:500;}
+.fm-fi{display:inline-flex;vertical-align:middle;margin-right:7px;color:var(--accent);}
+.fm-fi svg{width:16px;height:16px;}
+.fm-dot{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;vertical-align:middle;}
+.fm-dot.yes{background:var(--accent);}
+.fm-dot.partial{background:#D97706;}
+.fm-dot.no{background:#B4543C;}
+.fm-dot.na{background:var(--line);color:var(--muted);font-size:12px;}
+.fm-dot svg{width:12px;height:12px;}
+.fm-note{display:block;font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
+.fm-cov-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding:14px 12px 6px;}
+.fm-cov-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:1px;}
+.fm-cov{display:flex;align-items:center;gap:8px;font-size:12px;}
+.fm-cov-name{font-weight:600;}
+.fm-cov-bar{width:80px;height:6px;background:var(--line-soft);border-radius:3px;overflow:hidden;}
+.fm-cov-bar i{display:block;height:100%;border-radius:3px;}
+.fm-cov-pct{color:var(--muted);}
+.fm-legend{display:flex;gap:20px;flex-wrap:wrap;padding:6px 12px 12px;font-size:12px;color:var(--muted);}
+.fm-legend .lg{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+.lg.yes{background:var(--accent);} .lg.partial{background:#D97706;} .lg.no{background:#B4543C;}
+
+/* 图表卡 */
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:18px 0;box-shadow:var(--shadow);}
+.chart-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line-soft);padding-bottom:10px;}
+.chart-title{font-size:16px;font-weight:700;color:var(--ink);font-family:var(--serif);}
+.chart-note{font-size:11px;color:var(--muted);background:var(--line-soft);padding:3px 10px;border-radius:20px;}
+.echart{width:100%;height:430px;}
+
+/* AI 能力卡 */
+.ai-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.ai-card{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;align-items:flex-start;position:relative;}
+.ai-card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;background:var(--accent);border-radius:2px;}
+.ai-idx{font-family:var(--serif);font-size:15px;color:var(--accent);font-weight:700;opacity:.7;padding-top:2px;}
+.ai-icon{color:var(--accent);margin-top:2px;}
+.ai-body h4{margin:0 0 6px;font-size:15px;font-weight:700;color:var(--ink);}
+.ai-body p{margin:0;font-size:13px;color:var(--muted);line-height:1.7;}
+
+/* 商业模式 */
+.biz-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:8px 0;}
+.biz-col{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 0 14px;overflow:hidden;box-shadow:var(--shadow);}
+.biz-ph{display:flex;align-items:center;gap:8px;padding:14px 16px;font-weight:700;font-size:15px;border-bottom:1px solid var(--line);border-top:3px solid;}
+.biz-dot{width:9px;height:9px;border-radius:50%;}
+.plan{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line-soft);}
+.plan:last-child{border-bottom:none;}
+.plan-tag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.plan-val{font-size:13px;color:var(--ink);font-weight:500;text-align:right;}
+.biz-extra{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);}
+.biz-extra-title{font-size:12px;font-weight:600;letter-spacing:1px;color:var(--muted);margin-bottom:8px;}
+.biz-table{width:100%;border-collapse:collapse;font-size:13px;}
+.biz-table th{padding:9px 12px;text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);}
+.biz-table td{padding:9px 12px;border-bottom:1px solid var(--line-soft);color:var(--ink);vertical-align:top;}
+.biz-table td.bk{font-weight:600;color:var(--ink);}
+.biz-table tr:last-child td{border-bottom:none;}
+
+/* 增长 KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:8px 0;}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 18px;box-shadow:var(--shadow);}
+.kpi-num{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--accent);line-height:1.1;}
+.kpi-label{font-size:12px;font-weight:600;color:var(--ink);margin:8px 0 4px;}
+.kpi-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* 竞争辐射 */
+.comp-stage{position:relative;width:400px;height:400px;margin:10px auto;max-width:100%;}
+.comp-svg{position:absolute;inset:0;}
+.comp-core{position:absolute;transform:translate(-50%,-50%);background:var(--accent);color:#fff;border-radius:50%;width:104px;height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:14px;box-shadow:0 6px 18px rgba(15,118,110,.3);z-index:3;}
+.comp-core small{font-size:9px;font-weight:400;opacity:.85;margin-top:2px;}
+.comp-sat{position:absolute;transform:translate(-50%,-50%);background:#fff;border:2px solid;width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:600;box-shadow:0 3px 10px rgba(27,27,31,.06);z-index:2;padding:4px;}
+
+/* SWOT */
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.sw-cell{border-radius:12px;padding:16px 18px;border-left:4px solid;}
+.sw-cell.s{background:#E7F3F0;border-color:var(--accent);}
+.sw-cell.w{background:#F7EDE9;border-color:#B4543C;}
+.sw-cell.o{background:#EAF1F7;border-color:#2563EB;}
+.sw-cell.t{background:#F6EFF7;border-color:#7C3AED;}
+.sw-h{font-size:14px;font-weight:700;margin-bottom:8px;color:var(--ink);}
+.sw-line{font-size:13px;color:#34322E;line-height:1.7;margin:4px 0;padding-left:12px;position:relative;}
+.sw-line::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.4;}
+
+/* 雷达 */
+.radar-wrap{display:flex;gap:24px;align-items:stretch;}
+.radar-wrap .echart{flex:1;min-width:0;height:440px;}
+.radar-side{width:220px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;gap:8px;}
+.rk-title{font-size:12px;font-weight:600;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
+.rk-row{display:flex;align-items:center;gap:8px;font-size:12px;margin:5px 0;}
+.rk-name{font-weight:600;min-width:64px;}
+.rk-bar{flex:1;height:8px;background:var(--line-soft);border-radius:4px;overflow:hidden;}
+.rk-bar i{display:block;height:100%;border-radius:4px;}
+.rk-val{font-weight:700;color:var(--ink);min-width:28px;text-align:right;}
+.rd-dims{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);}
+.rd-dim{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.rd-dim svg{width:13px;height:13px;}
+
+/* 金字塔 */
+.pyramid{display:flex;flex-direction:column;gap:4px;align-items:center;}
+.pyr-band{width:100%;display:flex;justify-content:center;}
+.pyr-band.t1{width:100%;}
+.pyr-band.t2{width:82%;}
+.pyr-band.t3{width:64%;}
+.pyr-txt{display:flex;flex-direction:column;gap:2px;width:100%;padding:16px 22px;color:#fff;border-radius:10px;}
+.pyr-band.t1 .pyr-txt{background:linear-gradient(90deg,#0F766E,#139B8F);}
+.pyr-band.t2 .pyr-txt{background:linear-gradient(90deg,#139B8F,#3DA89C);}
+.pyr-band.t3 .pyr-txt{background:linear-gradient(90deg,#5FB6AC,#86C7BE);}
+.pyr-label{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.pyr-label span{font-size:12px;font-weight:400;opacity:.85;background:rgba(255,255,255,.2);padding:1px 8px;border-radius:10px;}
+.pyr-names{font-size:14px;font-weight:600;margin-top:2px;}
+.pyr-desc{font-size:12px;opacity:.9;line-height:1.5;}
+
+/* 市场地图图例 */
+.mp-legs{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;}
+.mp-leg{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);}
+.mp-leg i{width:11px;height:11px;border-radius:50%;}
+
+/* 时间线 */
+.timeline{position:relative;padding-left:6px;}
+.tl-year{font-family:var(--serif);font-size:15px;font-weight:700;color:var(--accent);margin:14px 0 6px;}
+.tl-year:first-child{margin-top:0;}
+.tl-item{display:flex;gap:14px;align-items:baseline;padding:7px 0 7px 18px;position:relative;border-left:2px solid var(--line);margin-left:4px;}
+.tl-dot{position:absolute;left:-7px;top:14px;width:11px;height:11px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 1px var(--line);}
+.tl-date{font-size:13px;font-weight:700;color:var(--accent-ink);min-width:110px;flex-shrink:0;font-family:var(--serif);}
+.tl-text{font-size:13px;color:var(--ink);line-height:1.6;}
+
+/* 用户口碑 */
+.sent-bar{display:flex;height:30px;border-radius:8px;overflow:hidden;background:var(--line-soft);}
+.sent-pos{background:var(--accent);}
+.sent-neg{background:#B4543C;}
+.sent-legend{display:flex;align-items:center;gap:16px;margin-top:8px;font-size:12px;color:var(--muted);}
+.sent-legend .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+.dot.pos{background:var(--accent);} .dot.neg{background:#B4543C;}
+.sent-pw{margin-left:auto;font-weight:700;color:var(--ink);}
+.voice-list{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+.voice{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;align-items:flex-start;}
+.voice.pos{border-left:3px solid var(--accent);}
+.voice.neg{border-left:3px solid #B4543C;}
+.voice-mono{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;}
+.voice-main{flex:1;}
+.voice-meta{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+.voice-badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px;}
+.voice-badge.pos{background:var(--accent-soft);color:var(--accent-ink);}
+.voice-badge.neg{background:#F7EDE9;color:#B4543C;}
+.voice-prod{font-size:12px;color:var(--muted);background:var(--line-soft);padding:2px 9px;border-radius:10px;}
+.voice-quote{font-size:13px;color:var(--ink);line-height:1.65;}
+
+/* 优先级 */
+.pri-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.pri-col{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 0 14px;overflow:hidden;box-shadow:var(--shadow);}
+.pri-h{border-top:3px solid;padding:13px 16px;font-size:14px;font-weight:700;margin-bottom:6px;}
+.pri-col ul{margin:0;padding:0 16px;list-style:none;}
+.pri-col li{font-size:13px;color:var(--ink);line-height:1.65;padding:9px 0 9px 16px;position:relative;border-bottom:1px solid var(--line-soft);}
+.pri-col li:last-child{border-bottom:none;}
+.pri-col li::before{content:"";position:absolute;left:0;top:16px;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;}
+
+/* 来源 */
+.ref-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px 20px;}
+.ref{display:flex;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:13px;}
+.ref-no{font-family:var(--serif);color:var(--accent);font-weight:700;min-width:18px;}
+.ref a{color:var(--accent-ink);text-decoration:none;font-weight:500;}
+.ref a:hover{text-decoration:underline;}
+.ref-dom{color:var(--muted);font-size:11px;margin-left:auto;}
+
+/* 通用表 */
+.tbl-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th,.tbl td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line-soft);}
+.tbl th{font-weight:600;color:var(--muted);font-size:12px;background:var(--line-soft);position:sticky;top:0;}
+.tbl tbody tr:hover{background:var(--accent-soft);}
+.tbl tr:last-child td{border-bottom:none;}
+.pos-table th,.pos-table td{padding:13px 16px;}
+.pos-dim{font-weight:600;color:var(--ink);white-space:nowrap;}
+.pos-ph{padding:4px 12px;border-radius:20px;font-weight:700;white-space:nowrap;}
+.pos-di{display:inline-flex;vertical-align:middle;margin-right:8px;color:var(--accent);}
+
+@media(max-width:920px){
+  .side{display:none;}
+  .main{margin-left:0;padding:28px 20px 70px;max-width:none;}
+  .ai-grid{grid-template-columns:1fr;}
+  .radar-wrap{flex-direction:column;}
+  .radar-side{width:100%;}
+  .comp-stage{width:340px;height:340px;}
+}
+@media(max-width:640px){
+  .pri-row{grid-template-columns:1fr;}
+  .swot-grid{grid-template-columns:1fr;}
+  .brief .b-item{flex-basis:50%;border-right:none;border-bottom:1px solid var(--line);}
+  .masthead h1{font-size:26px;}
+  .sec-no{font-size:24px;min-width:34px;}
+}
+</style></head><body><div class="app"><aside class="side"><div class="brand">瞭望台<small>AIPM Watchtower</small></div><ul class="nav"><li><a href="#sec-1"><span class="n">01</span>执行摘要</a></li><li><a href="#sec-2"><span class="n">02</span>综合能力</a></li><li><a href="#sec-3"><span class="n">03</span>市场地图与定位</a></li><li><a href="#sec-4"><span class="n">04</span>产品定位</a></li><li><a href="#sec-5"><span class="n">05</span>功能矩阵</a></li><li><a href="#sec-6"><span class="n">06</span>AI 能力</a></li><li><a href="#sec-7"><span class="n">07</span>商业模式</a></li><li><a href="#sec-8"><span class="n">08</span>增长</a></li><li><a href="#sec-9"><span class="n">09</span>竞争格局</a></li><li><a href="#sec-10"><span class="n">10</span>用户口碑</a></li><li><a href="#sec-11"><span class="n">11</span>SWOT</a></li><li><a href="#sec-12"><span class="n">12</span>风险与短板</a></li><li><a href="#sec-13"><span class="n">13</span>时间线</a></li><li><a href="#sec-14"><span class="n">14</span>来源</a></li></ul></aside><main class="main"><header class="masthead"><div class="kicker">AI PM · 竞品研究报告</div><h1>Cursor vs Dify 竞品对比</h1><div class="scope"><span class="chip"><b>分析对象：</b>Cursor（Anysphere）、Dify（LangGenius）</span><span class="chip"><b>研究意图：</b>竞品对比（对比模式——仅就这二者正面对比，竞争格局节补充语境，不引入外部竞品主体）</span></div><div class="date">2026年8月25日</div></header><div class="brief"><div class="b-item"><div class="b-k">分析对象</div><div class="b-v">Cursor（Anysphere）、Dify（LangGenius）</div></div><div class="b-item"><div class="b-k">研究意图</div><div class="b-v">竞品对比（对比模式——仅就这二者正面对比，竞争格局节补充语境，不引入外部竞品主体）</div></div><div class="b-item"><div class="b-k">选用维度</div><div class="b-v">全 10 维（机会点不展示，因本意图非「机会探索 / 产品分析 / 选型」）</div></div><div class="b-item"><div class="b-k">研究深度</div><div class="b-v">标准</div></div><div class="b-item"><div class="b-k">输出形式</div><div class="b-v">可视化报告</div></div><div class="b-item"><div class="b-k">说明</div><div class="b-v">二者并非同一层直接对手——Cursor 是 AI 原生编码编辑器（IDE 层），Dify 是 LLM 应用开发 / LLMOps 平台（应用搭建层）。本报告把它们放在「AI for Builders」同一图谱里比较两种不同打法。</div></div></div><section id="sec-1"><div class="sec-head"><div class="sec-no">01</div><div><div class="sec-eyebrow">EXECUTIVE SUMMARY</div><h2>执行摘要</h2><div class="sec-sub">核心结论与关键洞察</div></div></div><div class="findings"><div class="finding"><span class="find-num">01</span><div class="find-body"><span class="find-kw"></span><span class="find-text">Cursor 与 Dify 代表了「AI 原生开发工具」的两条路线：Cursor 吃下个体开发者工作流（IDE 层），Dify 吃下企业 AI 应用搭建（LLMOps 层），定位互补大于正面冲突。</span></div></div><div class="finding"><span class="find-num">02</span><div class="find-body"><span class="find-kw">Cursor 是增长怪兽</span><span class="find-text">ARR 约 $20 亿（2026.02）、付费用户 100 万+、近 70% Fortune 1000 在用，2026 年拟以约 $500 亿估值融资；护城河来自工作流入口 + 自研 Composer 编码模型。</span></div></div><div class="finding"><span class="find-num">03</span><div class="find-body"><span class="find-kw">Dify 走开源 + 企业双轮</span><span class="find-text">GitHub 150K+ stars（史上 Top 60 开源）、280+ 企业客户、140 万+ 设备部署，但 2025 营收仅约 $310 万，仍处于高社区热度、低货币化阶段。</span></div></div><div class="finding"><span class="find-num">04</span><div class="find-body"><span class="find-kw">关键差异点</span><span class="find-text">Cursor 闭源 + 自有模型，靠使用量与席位变现；Dify 开源 + 模型无关，靠 Cloud/Enterprise 订阅与私有化变现。</span></div></div><div class="finding"><span class="find-num">05</span><div class="find-body"><span class="find-kw">共同风险</span><span class="find-text">二者都重度依赖第三方大模型（OpenAI / Anthropic / Google 等），毛利与议价权受上游牵制；Cursor 已用自研模型改善毛利，Dify 暂未自研底座。</span></div></div></div></section><section id="sec-2"><div class="sec-head"><div class="sec-no">02</div><div><div class="sec-eyebrow">综合能力</div><h2>综合能力</h2></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">多维能力图谱</span><span class="chart-note">5=领先 · 3=平均 · 1=基本不覆盖</span></div><div class="radar-wrap"><div id="radar_1" class="echart"></div><div class="radar-side"><div class="rk-title">综合评分</div><div class="rk-row"><span class="rk-name" style="color:#0F766E">市场与定位</span><span class="rk-bar"><i style="width:100%;background:#0F766E"></i></span><span class="rk-val">4.5</span></div><div class="rk-row"><span class="rk-name" style="color:#4F46E5">产品与核心功能</span><span class="rk-bar"><i style="width:100%;background:#4F46E5"></i></span><span class="rk-val">4.5</span></div><div class="rk-row"><span class="rk-name" style="color:#7C3AED">技术与生态</span><span class="rk-bar"><i style="width:100%;background:#7C3AED"></i></span><span class="rk-val">4.5</span></div><div class="rk-row"><span class="rk-name" style="color:#CA8A04">增长与运营</span><span class="rk-bar"><i style="width:100%;background:#CA8A04"></i></span><span class="rk-val">4.5</span></div><div class="rk-row"><span class="rk-name" style="color:#D97706">AI 能力</span><span class="rk-bar"><i style="width:89%;background:#D97706"></i></span><span class="rk-val">4.0</span></div><div class="rk-row"><span class="rk-name" style="color:#0891B2">用户体验</span><span class="rk-bar"><i style="width:89%;background:#0891B2"></i></span><span class="rk-val">4.0</span></div><div class="rk-row"><span class="rk-name" style="color:#DB2777">数据壁垒</span><span class="rk-bar"><i style="width:78%;background:#DB2777"></i></span><span class="rk-val">3.5</span></div><div class="rk-row"><span class="rk-name" style="color:#475569">商业模式与定价</span><span class="rk-bar"><i style="width:78%;background:#475569"></i></span><span class="rk-val">3.5</span></div></div></div><div class="rd-dims"><span class="rd-dim"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></i>Cursor</span><span class="rd-dim"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></i>Dify</span></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("radar_1"));c.setOption({"backgroundColor": "transparent", "tooltip": {"trigger": "item"}, "legend": {"bottom": 0, "data": ["市场与定位", "产品与核心功能", "AI 能力", "数据壁垒", "技术与生态", "商业模式与定价", "用户体验", "增长与运营"], "textStyle": {"color": "#475569", "fontSize": 12}, "itemGap": 16, "icon": "roundRect"}, "radar": {"indicator": [{"name": "Cursor", "max": 5}, {"name": "Dify", "max": 5}], "radius": "62%", "center": ["50%", "46%"], "axisName": {"color": "#6B6862", "fontSize": 11}, "splitLine": {"lineStyle": {"color": "#E6E3DD"}}, "axisLine": {"lineStyle": {"color": "#E6E3DD"}}, "splitArea": {"areaStyle": {"color": ["#FFFFFF", "#FAF9F6"]}}}, "series": [{"type": "radar", "data": [{"name": "市场与定位", "value": [5.0, 4.0], "lineStyle": {"color": "#0F766E", "width": 2.4}, "itemStyle": {"color": "#0F766E"}, "areaStyle": {"color": "#0F766E", "opacity": 0.1}}, {"name": "产品与核心功能", "value": [5.0, 4.0], "lineStyle": {"color": "#4F46E5", "width": 2.4}, "itemStyle": {"color": "#4F46E5"}}, {"name": "AI 能力", "value": [5.0, 3.0], "lineStyle": {"color": "#D97706", "width": 2.4}, "itemStyle": {"color": "#D97706"}}, {"name": "数据壁垒", "value": [4.0, 3.0], "lineStyle": {"color": "#DB2777", "width": 2.4}, "itemStyle": {"color": "#DB2777"}}, {"name": "技术与生态", "value": [4.0, 5.0], "lineStyle": {"color": "#7C3AED", "width": 2.4}, "itemStyle": {"color": "#7C3AED"}}, {"name": "商业模式与定价", "value": [4.0, 3.0], "lineStyle": {"color": "#475569", "width": 2.4}, "itemStyle": {"color": "#475569"}}, {"name": "用户体验", "value": [4.0, 4.0], "lineStyle": {"color": "#0891B2", "width": 2.4}, "itemStyle": {"color": "#0891B2"}}, {"name": "增长与运营", "value": [5.0, 4.0], "lineStyle": {"color": "#CA8A04", "width": 2.4}, "itemStyle": {"color": "#CA8A04"}}], "symbolSize": 4}]});REG.push(c);});</script></section><section id="sec-3"><div class="sec-head"><div class="sec-no">03</div><div><div class="sec-eyebrow">市场地图与定位</div><h2>市场地图与定位</h2></div></div><p>&gt; 横轴 X = 目标用户（1 个体开发者 ↔ 10 企业 / 业务团队）；纵轴 Y = 价值链位置（1 编码 / IDE 工具 ↔ 10 应用搭建 / LLMOps 平台）。气泡大小为相对体量。</p><div class="chart-card"><div class="chart-head"><span class="chart-title">市场地图</span><span class="chart-note">气泡面积 = 市场规模 / 影响力</span></div><div id="scatter_2" class="echart"></div><div class="mp-legs"><span class="mp-leg"><i style="background:#0F766E"></i>Cursor</span><span class="mp-leg"><i style="background:#4F46E5"></i>Dify</span><span class="mp-leg"><i style="background:#D97706"></i>GitHub Copilot</span><span class="mp-leg"><i style="background:#DB2777"></i>Claude Code</span><span class="mp-leg"><i style="background:#7C3AED"></i>LangChain</span><span class="mp-leg"><i style="background:#475569"></i>Coze</span></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("scatter_2"));c.setOption({"backgroundColor": "transparent", "tooltip": {"trigger": "item", "formatter": function(p){return p.data.name+'<br/>专业能力：'+p.data.value[0]+'<br/>功能深度：'+p.data.value[1]+'<br/>规模：'+p.data.value[2];}}, "grid": {"left": "9%", "right": "9%", "top": "10%", "bottom": "12%"}, "xAxis": {"name": "专业能力 (X)", "nameLocation": "middle", "nameGap": 28, "nameTextStyle": {"color": "#6B6862"}, "min": 0, "max": 10, "axisLabel": {"color": "#6B6862"}, "axisLine": {"lineStyle": {"color": "#E6E3DD"}}, "splitLine": {"lineStyle": {"color": "#F1EFEA", "type": "dashed"}}}, "yAxis": {"name": "功能深度 (Y)", "nameTextStyle": {"color": "#6B6862"}, "min": 0, "max": 10, "axisLabel": {"color": "#6B6862"}, "axisLine": {"lineStyle": {"color": "#E6E3DD"}}, "splitLine": {"lineStyle": {"color": "#F1EFEA", "type": "dashed"}}}, "series": [{"type": "scatter", "data": [{"name": "Cursor", "value": [3.0, 2.0, 5.0], "itemStyle": {"color": "#0F766E"}, "label": {"color": "#fff"}}, {"name": "Dify", "value": [7.0, 8.0, 3.0], "itemStyle": {"color": "#4F46E5"}, "label": {"color": "#fff"}}, {"name": "GitHub Copilot", "value": [3.0, 2.0, 5.0], "itemStyle": {"color": "#D97706"}, "label": {"color": "#fff"}}, {"name": "Claude Code", "value": [2.0, 2.0, 4.0], "itemStyle": {"color": "#DB2777"}, "label": {"color": "#fff"}}, {"name": "LangChain", "value": [6.0, 7.0, 3.0], "itemStyle": {"color": "#7C3AED"}, "label": {"color": "#fff"}}, {"name": "Coze", "value": [8.0, 7.0, 3.0], "itemStyle": {"color": "#475569"}, "label": {"color": "#fff"}}], "symbolSize": "function(d){return 34 + d[2]*11;}", "itemStyle": {"opacity": 0.18, "borderWidth": 0}, "z": 1, "silent": true, "label": {"show": false}}, {"type": "scatter", "data": [{"name": "Cursor", "value": [3.0, 2.0, 5.0], "itemStyle": {"color": "#0F766E"}, "label": {"color": "#fff"}}, {"name": "Dify", "value": [7.0, 8.0, 3.0], "itemStyle": {"color": "#4F46E5"}, "label": {"color": "#fff"}}, {"name": "GitHub Copilot", "value": [3.0, 2.0, 5.0], "itemStyle": {"color": "#D97706"}, "label": {"color": "#fff"}}, {"name": "Claude Code", "value": [2.0, 2.0, 4.0], "itemStyle": {"color": "#DB2777"}, "label": {"color": "#fff"}}, {"name": "LangChain", "value": [6.0, 7.0, 3.0], "itemStyle": {"color": "#7C3AED"}, "label": {"color": "#fff"}}, {"name": "Coze", "value": [8.0, 7.0, 3.0], "itemStyle": {"color": "#475569"}, "label": {"color": "#fff"}}], "symbolSize": "function(d){return 22 + d[2]*7;}", "itemStyle": {"opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": function(p){return p.data.name;}, "position": "inside", "color": "#fff", "fontSize": 11, "fontWeight": "bold"}, "z": 2}]});REG.push(c);});</script></section><section id="sec-4"><div class="sec-head"><div class="sec-no">04</div><div><div class="sec-eyebrow">POSITIONING</div><h2>产品定位</h2><div class="sec-sub">差异化定位对照</div></div></div><p>Cursor（Anysphere，2022 创立）：AI 原生代码编辑器，基于 VS Code 衍生，把 AI 嵌进开发的每一层——Tab 补全、Chat、Agent、多智能体并行（Cursor 2.0/3.0 的 agent-first 编排面）、云端 Agent、Bugbot 代码审查。定位从「辅助编辑器」演进为「自主编码编排面」。</p><p>Dify（LangGenius，2023 创立）：LLM 应用开发平台，可视化 Workflow、RAG 知识管线、Agent、插件市场，支持 Cloud / 自托管 / VPC 三种部署。定位是「AI 时代的操作系统」——让公民开发者也能把 AI 工作流落到生产。</p><div class="callout"><span class="callout-bar"></span><div>&gt; 洞察：Cursor 占据「写代码」这一高频刚需入口；Dify 占据「搭 AI 应用」这一企业落地入口。二者用户群有交集（都用 AI 的 builders），但交付物不同：前者产出代码，后者产出可运行的 AI 应用 / API。</div></div></section><section id="sec-5"><div class="sec-head"><div class="sec-no">05</div><div><div class="sec-eyebrow">CAPABILITY MATRIX</div><h2>功能矩阵</h2><div class="sec-sub">核心能力覆盖情况</div></div></div><div class="matrix-card"><table class="feature-matrix"><thead><tr><th class="fm-feat">功能模块</th><th style="color:#7C3AED"><span class="fm-ph" style="background:#7C3AED1a;color:#7C3AED">Cursor</span></th><th style="color:#4F46E5"><span class="fm-ph" style="background:#4F46E51a;color:#4F46E5">Dify</span></th></tr></thead><tbody><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>核心形态</td><td><span class="fm-dot na">–</span><span class="fm-note">AI 代码编辑器 / Agent 编排面</span></td><td><span class="fm-dot na">–</span><span class="fm-note">可视化 LLM 应用平台</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>代码补全 / 多文件编辑</td><td><span class="fm-dot na">–</span><span class="fm-note">✓（Tab + Agent</span></td><td><span class="fm-dot na">–</span><span class="fm-note">—</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>自主多智能体并行</td><td><span class="fm-dot na">–</span><span class="fm-note">✓（2.0/3.0 fleets</span></td><td><span class="fm-dot na">–</span><span class="fm-note">✓（Agent 节点</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>工作流编排</td><td><span class="fm-dot na">–</span><span class="fm-note">有限（Agent 内</span></td><td><span class="fm-dot na">–</span><span class="fm-note">✓（可视化 Workflow Studio</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>RAG / 知识库</td><td><span class="fm-dot na">–</span><span class="fm-note">—</span></td><td><span class="fm-dot na">–</span><span class="fm-note">✓（知识管线 + 向量库</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>模型自研</td><td><span class="fm-dot na">–</span><span class="fm-note">✓（Composer / Composer 2</span></td><td><span class="fm-dot na">–</span><span class="fm-note">—（模型无关，接入多家</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>开源</td><td><span class="fm-dot no"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span><span class="fm-note">基于 VS Code 开源，产品闭源</span></td><td><span class="fm-dot yes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="fm-note">Apache-2.0 衍生，source-available</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>私有化 / 自托管</td><td><span class="fm-dot na">–</span><span class="fm-note">有限（企业版</span></td><td><span class="fm-dot na">–</span><span class="fm-note">✓（Docker / K8s / VPC</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>跨 IDE</td><td><span class="fm-dot na">–</span><span class="fm-note">✓（ACP 接入 JetBrains 等</span></td><td><span class="fm-dot na">–</span><span class="fm-note">独立 Web 平台</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>企业治理</td><td><span class="fm-dot na">–</span><span class="fm-note">✓（SSO/RBAC/审计/SCIM</span></td><td><span class="fm-dot na">–</span><span class="fm-note">✓（SSO/SOC2/ISO27001/多工作空间</span></td></tr></tbody></table><div class="fm-cov-wrap"><span class="fm-cov-title">功能覆盖率</span><div class="fm-cov"><span class="fm-cov-name" style="color:#7C3AED">Cursor</span><span class="fm-cov-bar"><i style="width:0%;background:#7C3AED"></i></span><span class="fm-cov-pct">0%</span></div><div class="fm-cov"><span class="fm-cov-name" style="color:#4F46E5">Dify</span><span class="fm-cov-bar"><i style="width:10%;background:#4F46E5"></i></span><span class="fm-cov-pct">10%</span></div></div><div class="fm-legend"><span><i class="lg yes"></i>支持</span><span><i class="lg partial"></i>部分 / 有限</span><span><i class="lg no"></i>不支持 / 未明确</span></div></div></section><section id="sec-6"><div class="sec-head"><div class="sec-no">06</div><div><div class="sec-eyebrow">AI CAPABILITIES</div><h2>AI 能力</h2><div class="sec-sub">底层技术与智能化能力</div></div></div><div class="ai-grid"><div class="ai-card"><span class="ai-idx">01</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>Cursor</h4><p>自研 Composer / Composer 2 前沿编码模型（纯编程数据训练、长上下文、低延迟多步 agentic coding），并与 OpenAI、Anthropic、Google、xAI 有多年的模型合作；为补全 / 编辑等低延迟场景自研 MoE 专用模型。AI 能力的「深度」与「自有度」显著更高。</p></div></div><div class="ai-card"><span class="ai-idx">02</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>Dify</h4><p>不训练底座模型，核心是编排与工程能力——把多家 LLM（OpenAI、Anthropic、Gemini、xAI、DeepSeek、通义等）、工具、知识库、MCP 编排成可运行的 Agent / Workflow。AI 能力体现在「整合与交付」而非「模型本身」。</p></div></div></div></section><section id="sec-7"><div class="sec-head"><div class="sec-no">07</div><div><div class="sec-eyebrow">BUSINESS MODEL</div><h2>商业模式</h2><div class="sec-sub">定价结构与变现路径</div></div></div><div class="biz-wrap"><div class="biz-col"><div class="biz-ph" style="border-color:#7C3AED"><span class="biz-dot" style="background:#7C3AED"></span>Cursor</div></div><div class="biz-col"><div class="biz-ph" style="border-color:#4F46E5"><span class="biz-dot" style="background:#4F46E5"></span>Dify</div></div></div><div class="biz-extra"><div class="biz-extra-title">变现结构对照</div><table class="biz-table"><thead><tr><th>维度</th><th>Cursor</th><th>Dify</th></tr></thead><tbody><tr><td class="bk">免费</td><td>定制（共享用量池 / SCIM / SSO / 审计日志 / AI 代码追踪 API）</td><td>定制（多工作空间 / SSO / SOC2 Type II + ISO 27001）</td></tr><tr><td class="bk">个人 / 入门</td><td>定制（共享用量池 / SCIM / SSO / 审计日志 / AI 代码追踪 API）</td><td>定制（多工作空间 / SSO / SOC2 Type II + ISO 27001）</td></tr><tr><td class="bk">团队</td><td>定制（共享用量池 / SCIM / SSO / 审计日志 / AI 代码追踪 API）</td><td>定制（多工作空间 / SSO / SOC2 Type II + ISO 27001）</td></tr><tr><td class="bk">企业</td><td>定制（共享用量池 / SCIM / SSO / 审计日志 / AI 代码追踪 API）</td><td>定制（多工作空间 / SSO / SOC2 Type II + ISO 27001）</td></tr></tbody></table></div><p>Cursor 以席位 + 用量 + 自研模型降本驱动，企业已占营收约 60%；历史上因调用第三方模型曾为负毛利，自研 Composer 后转正。</p><p>Dify 以开源引流 → Cloud 订阅 → 企业私有化的金字塔变现，货币化仍早期（2025 营收约 $310 万 vs Cursor 约 $20 亿 ARR）。</p></section><section id="sec-8"><div class="sec-head"><div class="sec-no">08</div><div><div class="sec-eyebrow">GROWTH &amp; TRACTION</div><h2>增长</h2><div class="sec-sub">用户规模与增长动能</div></div></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>指标</th><th>Cursor</th><th>Dify</th></tr></thead><tbody><tr><td>创立</td><td>2022（Anysphere，MIT 团队）</td><td>2023（LangGenius，张路宇等）</td></tr><tr><td>最新估值</td><td>约 $500 亿（2026.04 拟融资，未最终 close）</td><td>约 $1.8 亿（2026.02，$30M 轮）</td></tr><tr><td>累计融资</td><td>约 $33.8 亿（含拟议轮）</td><td>约 $3750 万</td></tr><tr><td>营收 / ARR</td><td>约 $20 亿 ARR（2026.02；报道后续冲更高）</td><td>约 $310 万（2025）</td></tr><tr><td>付费用户</td><td>100 万+ 付费 / 200 万+ 总用户</td><td>—（140 万+ 设备部署、2000+ 团队）</td></tr><tr><td>企业客户</td><td>5 万+ 团队、近 70% Fortune 1000</td><td>280+ 企业（马士基 / 诺华 / 安克等）</td></tr><tr><td>开源社区</td><td>闭源</td><td>GitHub 150K+ stars（史上 Top 60）</td></tr></tbody></table></div><p>&gt; 事实：Cursor 的融资节奏（A $4 亿估值 → D $293 亿估值，18 个月内 5 轮）与增速（0 → $20 亿 ARR 约三年）被多家机构称为「史上最快 SaaS」；Dify 在开源影响力上极强，但商业转化刚起步。</p></section><section id="sec-9"><div class="sec-head"><div class="sec-no">09</div><div><div class="sec-eyebrow">COMPETITIVE LANDSCAPE</div><h2>竞争格局</h2><div class="sec-sub">主要竞品对标关系</div></div></div><p>Cursor 的对手：GitHub Copilot（470 万付费、Fortune 100 约 90% 渗透、约 37% 市场份额）、Claude Code、OpenAI Codex、Windsurf（Codeium，约 80% 能力 75% 价格）、Devin（Cognition）。</p><p>Dify 的对手：LangChain（灵活但需编码）、Coze / 扣子（字节，发布渠道多、偏个人）、FastGPT（便宜、RAG 优化好）、以及海外的 Langflow / Flowise 等。</p><p>二者共同面临上游模型厂（OpenAI、Anthropic）既是供应商又是潜在竞品的压力。</p><div class="chart-card"><div class="chart-head"><span class="chart-title">竞争辐射关系</span><span class="chart-note">中心 = 主体 · 外环 = 主要竞品</span></div><div class="comp-stage"><svg class="comp-svg" viewBox="0 0 400 400" width="400" height="400"><line x1="200" y1="200" x2="336.8" y2="279.0" stroke="#D8D4CC" stroke-width="1.5"/><line x1="200" y1="200" x2="200.0" y2="358.0" stroke="#D8D4CC" stroke-width="1.5"/><line x1="200" y1="200" x2="63.2" y2="279.0" stroke="#D8D4CC" stroke-width="1.5"/><line x1="200" y1="200" x2="63.2" y2="121.0" stroke="#D8D4CC" stroke-width="1.5"/><circle cx="200" cy="200" r="6" fill="#0F766E"/></svg><div class="comp-core" style="left:200.0px;top:42.0px">Cursor<small>本报告主体</small></div><div class="comp-core" style="left:336.8px;top:121.0px">Dify<small>本报告主体</small></div><div class="comp-sat" style="left:336.8px;top:279.0px;border-color:#DB2777;color:#DB2777">GitHub Copilot</div><div class="comp-sat" style="left:200.0px;top:358.0px;border-color:#CA8A04;color:#CA8A04">Claude Code</div><div class="comp-sat" style="left:63.2px;top:279.0px;border-color:#7C3AED;color:#7C3AED">LangChain</div><div class="comp-sat" style="left:63.2px;top:121.0px;border-color:#D97706;color:#D97706">Coze</div></div></div></section><section id="sec-10"><div class="sec-head"><div class="sec-no">10</div><div><div class="sec-eyebrow">USER VOICE</div><h2>用户口碑</h2><div class="sec-sub">来自真实用户的声音</div></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">用户口碑</span><span class="chart-note">样本 4 条</span></div><div class="sent-bar"><i class="sent-pos" style="width:50%"></i><i class="sent-neg" style="width:50%"></i></div><div class="sent-legend"><span><i class="dot pos"></i>正面 2</span><span><i class="dot neg"></i>负面 / 建议 2</span><span class="sent-pw">好评率 50%</span></div><div class="voice-list"><div class="voice pos"><div class="voice-mono" style="background:#0F766E20;color:#0F766E">正</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge pos">正面</span></div><div class="voice-quote">Cursor）：「最快的编码工具」「agent-first 后多文件改动效率极高」——社区与媒体。</div></div></div><div class="voice neg"><div class="voice-mono" style="background:#B4543C20;color:#B4543C">负</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge neg">负面</span></div><div class="voice-quote">Cursor）：Composer 2 发布后社区有「效果一般」「疑似基于 Kimi 2.5」的质疑；Ultra $200/月偏贵；高度依赖第三方模型时偶有质量波动。</div></div></div><div class="voice pos"><div class="voice-mono" style="background:#0F766E20;color:#0F766E">正</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge pos">正面</span></div><div class="voice-quote">Dify）：「真正帮我们跨过原型、把 AI 工作流落到业务」——马士基 AI 总监；开源 + no-code 上手快、公民开发友好。</div></div></div><div class="voice neg"><div class="voice-mono" style="background:#B4543C20;color:#B4543C">负</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge neg">负面</span></div><div class="voice-quote">Dify）：初期概念与配置偏复杂；自托管运维有门槛；商业化早期，企业级 SLA / 支持仍在建设。</div></div></div></div></div></section><section id="sec-11"><div class="sec-head"><div class="sec-no">11</div><div><div class="sec-eyebrow">SWOT ANALYSIS</div><h2>SWOT</h2><div class="sec-sub">优势 / 劣势 / 机会 / 威胁</div></div></div><div class="swot"><div class="swot-grid"><div class="sw-cell s"><div class="sw-h">优势 S</div><div class="sw-line">工作流入口、自研编码模型、增速与品牌、企业渗透。</div><div class="sw-line">最大开源 LLMOps 社区、模型无关、私有化与合规完备、公民开发友好。</div></div><div class="sw-cell w"><div class="sw-h">劣势 W</div><div class="sw-line">闭源生态窄、重度依赖上游模型、个人版仍可能负毛利。</div><div class="sw-line">货币化早期、无自研模型、企业交付重服务。</div></div><div class="sw-cell o"><div class="sw-h">机会 O</div><div class="sw-line">从编辑器走向「跨 IDE 的 Agent 编排层」、PR / 代码审查（Graphite）、自动化（Automations）。</div><div class="sw-line">Agentic Workflow 升级、企业 AI 落地刚需、中文 / 亚太市场先发。</div></div><div class="sw-cell t"><div class="sw-h">威胁 T</div><div class="sw-line">Copilot / Claude Code / Codex 背靠大厂模型，价格与渠道碾压。</div><div class="sw-line">Coze / FastGPT 等低价竞品、云厂与模型厂下场做平台。</div></div></div></div></section><section id="sec-12"><div class="sec-head"><div class="sec-no">12</div><div><div class="sec-eyebrow">风险与短板</div><h2>风险与短板</h2></div></div><p>Cursor：估值高（拟 $500 亿，约 25x 营收倍数，靠预期支撑）；SpaceX 拟收购等外部变量；Composer 2 口碑波动；上游模型依赖。</p><p>Dify：营收规模与估值严重不匹配（高 star、低收入）；若模型厂或云厂免费提供更强的同类平台，开源引流优势被稀释；企业交付依赖人服，毛利承压。</p></section><section id="sec-13"><div class="sec-head"><div class="sec-no">13</div><div><div class="sec-eyebrow">TIMELINE</div><h2>时间线</h2><div class="sec-sub">关键节点编年</div></div></div><div class="timeline"><div class="tl-year">2022</div><div class="tl-item"><span class="tl-dot"></span><span class="tl-date">2022</span><span class="tl-text">Anysphere（Cursor）创立。</span></div><div class="tl-year">2023</div><div class="tl-item"><span class="tl-dot"></span><span class="tl-date">2023</span><span class="tl-text">Dify 创立；Cursor 获 OpenAI 800 万美元种子轮。</span></div><div class="tl-year">2024</div><div class="tl-item"><span class="tl-dot"></span><span class="tl-date">2024-08</span><span class="tl-text">Cursor A 轮 $6000 万 @ $4 亿。</span></div><div class="tl-item"><span class="tl-dot"></span><span class="tl-date">2024-12</span><span class="tl-text">Cursor B 轮 $1.05 亿 @ $25 亿。</span></div><div class="tl-year">2025</div><div class="tl-item"><span class="tl-dot"></span><span class="tl-date">2025-01</span><span class="tl-text">Dify 早期融资轮（$6M 等）。</span></div><div class="tl-item"><span class="tl-dot"></span><span class="tl-date">2025-06</span><span class="tl-text">Cursor C 轮 @ $99 亿。</span></div><div class="tl-item"><span class="tl-dot"></span><span class="tl-date">2025-11</span><span class="tl-text">Cursor D 轮 $23 亿 @ $293 亿，发布自研 Composer。</span></div><div class="tl-year">2026</div><div class="tl-item"><span class="tl-dot"></span><span class="tl-date">2026-02</span><span class="tl-text">Dify $30M 轮 @ $1.8 亿（HSG 领投）。</span></div><div class="tl-item"><span class="tl-dot"></span><span class="tl-date">2026-04</span><span class="tl-text">Cursor 拟以约 $500 亿估值融资（Bloomberg / TechCrunch 报道，未最终 close）；Cursor 3.0 agent-first 发布。</span></div></div></section><section id="sec-14"><div class="sec-head"><div class="sec-no">14</div><div><div class="sec-eyebrow">SOURCES</div><h2>来源</h2><div class="sec-sub">数据来源与参考</div></div></div><div class="ref-list"><div class="ref"><span class="ref-no">1</span><a href="https://cursor.com/pricing" target="_blank" rel="noopener">Cursor 官方定价</a><span class="ref-dom">cursor.com</span></div><div class="ref"><span class="ref-no">2</span><a href="https://sacra.com/c/cursor/" target="_blank" rel="noopener">Cursor 产品 / 融资（Sacra）</a><span class="ref-dom">sacra.com</span></div><div class="ref"><span class="ref-no">3</span><a href="https://www.todaysstartupnews.com/startups/cursor-is-raising-2-billion-at-a-50-billion-valuation-three-years-ago-it-did-not-exist" target="_blank" rel="noopener">Cursor 拟融资报道（TechCrunch 转引）</a><span class="ref-dom">www.todaysstartupnews.com</span></div><div class="ref"><span class="ref-no">4</span><a href="https://dify.ai/about-us" target="_blank" rel="noopener">Dify 官方关于页</a><span class="ref-dom">dify.ai</span></div><div class="ref"><span class="ref-no">5</span><a href="https://dify.ai/pricing" target="_blank" rel="noopener">Dify 官方定价</a><span class="ref-dom">dify.ai</span></div><div class="ref"><span class="ref-no">6</span><a href="https://pitchbook.com/profiles/company/539409-43" target="_blank" rel="noopener">Dify 公司档案（PitchBook）</a><span class="ref-dom">pitchbook.com</span></div></div><p>&gt; 可靠性说明：Cursor 的估值 / ARR 多为媒体与二级研究机构（Sacra、Bloomberg 转引）报道，部分为拟议或尚未最终 close 的数字，引用时以「报道 / 拟」标注；Dify 的营收（$310 万，2025）来自 Latka 等第三方估算，仅供参考。本报告的 1–5 评分为主观分析判断（洞察），非厂商披露数据。</p></section></main></div><script>var REG=[];window.addEventListener("load",function(){REG.forEach(function(c){c.resize();});});window.addEventListener("resize",function(){REG.forEach(function(c){c.resize();});});var navs=document.querySelectorAll(".nav a");navs.forEach(function(a){a.addEventListener("click",function(){navs.forEach(function(x){x.classList.remove("active");});this.classList.add("active");});});var secs=[].slice.call(document.querySelectorAll("section"));window.addEventListener("scroll",function(){var pos=window.scrollY+120;secs.forEach(function(s){if(s.offsetTop<=pos){navs.forEach(function(x){x.classList.remove("active");});var a=document.querySelector('.nav a[href="#'+s.id+'"]');if(a)a.classList.add("active");}});});</script></body></html>

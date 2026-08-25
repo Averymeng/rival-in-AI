@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIPM·瞭望台 · 面试作品展示手册</title>
+<style>
+  :root{--ink:#1f2933;--muted:#64748b;--line:#e2e8f0;--brand:#0F766E;--brand2:#3B82F6;--amber:#F59E0B;--bg:#f8fafc;--card:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;}
+  .topbar{background:#0c2b28;color:#fff;padding:26px 20px;}
+  .topbar .wrap{max-width:960px;margin:0 auto;}
+  .topbar h1{margin:0;font-size:23px;}
+  .topbar p{margin:6px 0 0;color:#9fe7df;font-size:13px;}
+  .layout{max-width:960px;margin:0 auto;padding:22px 20px 70px;display:grid;grid-template-columns:200px 1fr;gap:26px;}
+  nav{position:sticky;top:14px;align-self:start;font-size:13px;height:max-content;}
+  nav a{display:block;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:8px;}
+  nav a:hover{background:#e2e8f0;color:var(--ink);}
+  main{min-width:0;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:18px;scroll-margin-top:14px;}
+  section>h2{margin:0 0 12px;font-size:18px;color:var(--brand);border-left:4px solid var(--brand);padding-left:10px;}
+  h3{font-size:15px;margin:16px 0 8px;}
+  p{margin:8px 0;font-size:14px;color:#334155;}
+  ul,ol{margin:8px 0;padding-left:22px;font-size:14px;color:#334155;}
+  li{margin:4px 0;}
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:#eff6ff;color:#1d4ed8;margin-left:6px;}
+  .script{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.85;white-space:pre-wrap;margin:10px 0;}
+  .script b{color:#7dd3fc;}
+  .step{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin:10px 0;}
+  .step .n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .step .b{flex:1;}
+  .step .b .t{font-weight:600;font-size:14px;}
+  .step .b .time{font-size:12px;color:var(--amber);font-weight:600;}
+  .check{list-style:none;padding-left:0;}
+  .check li{position:relative;padding-left:26px;font-size:14px;}
+  .check li:before{content:"☐";position:absolute;left:0;color:var(--brand);font-size:16px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  th{background:#f1f5f9;color:#334155;}
+  .warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:10px 14px;font-size:13px;margin:10px 0;}
+  .warn b{color:#7c2d12;}
+  .links a{color:var(--brand2);text-decoration:none;font-weight:600;}
+  .links a:hover{text-decoration:underline;}
+  @media(max-width:760px){.layout{grid-template-columns:1fr;}nav{display:none;}}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <h1>AIPM·瞭望台 · 实习面试作品展示手册</h1>
+  <p>配套：面试手册.html（本页）· 系统架构链路图.html · 作品展示导览.html · reports/ 9 份报告</p>
+</div></div>
+
+<div class="layout">
+  <nav>
+    <a href="#s0">0 · 快速读懂</a>
+    <a href="#s1">1 · 自我介绍</a>
+    <a href="#s2">2 · 检查清单</a>
+    <a href="#s3">3 · 展示 5 步</a>
+    <a href="#s4">4 · 材料清单</a>
+    <a href="#s5">5 · 高频题</a>
+    <a href="#s6">6 · 表达边界</a>
+    <a href="#s7">7 · 翻车兜底</a>
+    <a href="#s8">8 · 链接速查</a>
+  </nav>
+
+  <main>
+    <section id="s0">
+      <h2>0 · 30 秒快速读懂</h2>
+      <ol>
+        <li>背熟 §1 的一句话定位 + 30 秒自我介绍（开场直接说）。</li>
+        <li>面试前按 §2 清单检查环境与材料。</li>
+        <li>展示按 §3 的 5 步走（开场 → Live Demo → 拆报告 → 讲链路 → 反问）。</li>
+        <li>被追问查 §5 高频题标准回答。</li>
+        <li>翻车看 §7 备选方案；链接在 §8。</li>
+      </ol>
+      <div class="warn"><b>原则：</b>诚实、讲清边界、突出 PM 决策与技术取舍。本项目是<b>原型（本地验证）</b>，对外表达严格遵循 <code>项目总纲.md</code> 第 10 节边界。</div>
+    </section>
+
+    <section id="s1">
+      <h2>1 · 一句话定位 + 30 秒自我介绍（必背）</h2>
+      <p><b>一句话：</b>AIPM·瞭望台是一个面向 AI 产品经理的智能竞品研究系统——输入研究目标，联网检索、结构化分析、自动产出带证据来源的可视化报告，把"数小时跨源调研"压缩成"一次提交 + 一份报告"。</p>
+      <div class="script"><b>30 秒自我介绍（照念，可调）：</b>
+我做过一个叫「AIPM·瞭望台」的项目，定位是给 AI 产品经理用的竞品研究工具。它解决的核心痛点是：做竞品分析时，信息散在官网、定价页、社区、新闻里，人工搜集和交叉验证很慢，而且容易凭印象下结论。
+我的做法是把它做成一条有纪律的研究流水线：用户输入"分析可灵"或"对比 Cursor 与 Dify"，系统先做意图解析，再用搜索 API 实时联网检索，然后用大模型按固定分析框架撰写结构化报告，最后用我写的渲染器把约定写法的 Markdown 转成带雷达图、市场地图、SWOT 这些可视化的网页。
+最关键的设计是"证据纪律"——每条结论都绑定来源、区分事实/洞察/建议，来源缺失就标"未查证"，从机制上抑制大模型幻觉。目前它是一个跑通闭环的原型，已经有 9 份真实检索样本报告。我在这个项目里既做产品设计（10 维度框架、双模式、报告结构），也写后端和渲染器。</div>
+    </section>
+
+    <section id="s2">
+      <h2>2 · 面试前检查清单（提前 1 小时）</h2>
+      <h3>环境</h3>
+      <ul class="check">
+        <li>电脑连稳网（Live Demo 联网检索需要网络）。</li>
+        <li>本地服务已启动，浏览器开 <code>http://localhost:8787/</code> 验证能打开。</li>
+        <li>屏幕共享设"共享整个屏幕 / 浏览器窗口 + 终端"，避免只共享 PPT 导致切窗口翻车。</li>
+        <li>关闭无关通知；提前开好首页、作品展示导览、架构图标签。</li>
+      </ul>
+      <h3>材料（本文件夹，确认在）</h3>
+      <ul class="check">
+        <li><code>面试手册.html</code> — 本手册可视化版，可投屏/截图。</li>
+        <li><code>系统架构链路图.html</code> — 技术链路图，讲实现时用。</li>
+        <li><code>作品展示导览.html</code> — 9 份报告预览画廊，拆报告时用。</li>
+        <li><code>reports/</code> — 9 份自包含报告 HTML（离线兜底）。</li>
+        <li>简历（项目表述见 §6，已按边界写好）。</li>
+      </ul>
+      <h3>心态</h3>
+      <ul class="check">
+        <li>记住：这是原型，不是上线产品。被问"多少用户/提升多少"按 §5、§6 诚实答。</li>
+        <li>准备 1 个最熟案例（推荐「即梦 vs 小云雀」或「可灵」），讲深讲透。</li>
+      </ul>
+    </section>
+
+    <section id="s3">
+      <h2>3 · 线上展示 5 步（含话术与时长）</h2>
+      <p style="color:var(--muted)">总时长建议 10–12 分钟，留 3–5 分钟给追问。</p>
+
+      <div class="step"><div class="n">1</div><div class="b">
+        <div class="t">开场定位 <span class="time">约 1 分钟</span></div>
+        <p>说 §1 的 30 秒自我介绍，投屏首页 <code>http://localhost:8787/</code>。</p>
+        <div class="script">这就是这个系统的网页端，首页就是一个输入框——用户填研究目标就能生成报告。我先不展开技术，先给您跑一条真实的，您直观感受一下它产出什么。</div>
+      </div></div>
+
+      <div class="step"><div class="n">2</div><div class="b">
+        <div class="t">Live Demo 现场生成 <span class="time">约 3–5 分钟</span></div>
+        <p>首页输入「<b>分析一下可灵</b>」→ 触发"竞品分析模式"（先深析再对比 5 竞品，最显完整能力）。</p>
+        <div class="script">我输入"分析可灵"，系统先解析意图：识别这是单对象、做产品分析、再自动对比预置的 5 个竞品。然后实时联网检索官网、定价页、社区，大模型按 10 个维度撰写，最后渲染成可视化网页。稍等十几秒……
+（报告出来后）您看，顶部有"本次假设"告诉您这次运行口径，每页都按业务语义用不同图表——市场概览是金字塔、能力对比是雷达、竞争格局是辐射图。重点是每条结论右下角有来源角标，点来源能跳到底部来源清单，这就是证据可追溯。</div>
+        <p class="warn"><b>注意：</b>检索慢/超时不要僵等，直接说"我提前也跑好一份同样的"，切到步骤 3 画廊；联网失败走 §7。</p>
+      </div></div>
+
+      <div class="step"><div class="n">3</div><div class="b">
+        <div class="t">拆解成品报告 <span class="time">约 3 分钟</span></div>
+        <p>打开 <code>作品展示导览.html</code>，点开「即梦 vs 小云雀」或「可灵」。</p>
+        <div class="script">我想强调的不是一个花哨图表库，而是每个板块的呈现形式都匹配它的业务语义：
+· 执行摘要→核心判断+编号发现卡，让老板 10 秒抓重点；
+· 市场概览→金字塔，因为竞争是分层的；
+· 功能矩阵→覆盖矩阵+覆盖率，一眼看谁覆盖全；
+· 能力对比→雷达图，要叠加多维能力；
+· 竞争格局→中心辐射图，表达"主体 vs 竞品"关系；
+· 行动建议→Must/Should/Could 看板，对应优先级。
+这套形式是重构时我定的——之前所有板块套同一模板、不聚焦，我按各板块要回答的问题重选了可视化类型。</div>
+      </div></div>
+
+      <div class="step"><div class="n">4</div><div class="b">
+        <div class="t">讲技术链路与取舍 <span class="time">约 3 分钟</span></div>
+        <p>打开 <code>系统架构链路图.html</code>。</p>
+        <div class="script">技术上是这样一条流水线：用户输入→意图解析→双模式分流→Tavily 检索→DeepSeek 撰写→固定 10 维框架→约定写法 Markdown→build_report.py 渲染成 ECharts HTML→网站展示。几个关键取舍：
+· 自研渲染器而非现成 BI：约定写法 Markdown，写作者只管内容、不管图表，改视觉只动一个脚本，也是我作为 PM 能独立迭代 UI 的原因；
+· 用 Tavily 检索而非模型直答：把结论锚定真实来源，是证据纪律的工程落点；
+· 明确不做 RAG/向量库/多智能体：MVP 要单条可验证闭环，加这些是为显得高级而引入复杂度，我会主动砍掉。</div>
+      </div></div>
+
+      <div class="step"><div class="n">5</div><div class="b">
+        <div class="t">反问与收尾 <span class="time">约 1 分钟</span></div>
+        <div class="script">我这边讲完了。这个项目我最大收获是：做 AI 产品不能只追"能生成"，更要设计"可信"的机制——证据纪律就是我围绕幻觉问题给出的产品答案。
+也想请教：贵团队做 AI 相关产品时，怎么处理"生成结果可不可信、能不能溯源"这个问题？（把话筒递回去，也展示你有产品思考）</div>
+      </div></div>
+    </section>
+
+    <section id="s4">
+      <h2>4 · 准备材料清单（已为你生成）</h2>
+      <table>
+        <tr><th>材料</th><th>文件</th><th>用途</th></tr>
+        <tr><td>面试手册（可视化）</td><td><code>面试手册.html</code></td><td>投屏/截图，随身查话术</td></tr>
+        <tr><td>系统架构链路图</td><td><code>系统架构链路图.html</code></td><td>讲技术实现时投屏</td></tr>
+        <tr><td>报告预览画廊</td><td><code>作品展示导览.html</code></td><td>拆报告时打开，含 9 份卡片</td></tr>
+        <tr><td>9 份成品报告</td><td><code>reports/*.html</code></td><td>离线兜底，任意单份直接开</td></tr>
+        <tr><td>项目文档</td><td><code>../项目总纲.md</code> 等</td><td>面试官深究时引用</td></tr>
+      </table>
+      <p>所有 HTML 均自包含（ECharts 走 CDN 需联网；报告内容本身在本地）。离线演示优先用 <code>作品展示导览.html</code> + 本地 <code>reports/</code>，最稳。</p>
+    </section>
+
+    <section id="s5">
+      <h2>5 · 高频面试题 & 标准回答</h2>
+      <h3>Q1：真实上线了吗？有用户吗？</h3>
+      <div class="script">目前是跑通闭环的原型，本地和局域网验证过，还没公网部署。用户侧用公开样本验证，没有真实用户留存数据。对外只写"原型/离线验证"，不夸大成上线系统。</div>
+      <h3>Q2：为什么不用 RAG / 向量库？</h3>
+      <div class="script">MVP 核心是"单条可验证研究闭环"。RAG 解决知识库持久化与召回，而我当前要的是每次实时拿到最新公开信息。过早上 RAG 反而要维护索引、处理时效，是为复杂而复杂。PRD 里明确列为后置项。</div>
+      <h3>Q3：为什么选 DeepSeek + Tavily？</h3>
+      <div class="script">DeepSeek 负责分析/撰写，性价比高、长文本与中文表达稳；Tavily 是专为 LLM 设计的搜索 API，返回结构化干净结果，比通用搜索更适合喂模型。检索锚定事实，模型负责结构化表达，正好支撑证据纪律。</div>
+      <h3>Q4：怎么防幻觉？</h3>
+      <div class="script">三层：① 检索先行——结论尽量来自真实来源；② 证据纪律——每结论绑定来源，分事实/洞察/建议，缺失标"未查证"，绝不填假数字/份额/融资；③ 渲染层把来源角标和清单做出来，让可溯源在界面可见。</div>
+      <h3>Q5：你作为 PM 到底做了什么、写了什么代码？</h3>
+      <div class="script">产品侧：定义 10 维度框架、双模式、报告 11 章节、证据纪律规范、各板块可视化选型。技术侧：写了报告渲染器 build_report.py（约定写法→ECharts），也参与后端研究闭环胶水代码。既设计者，也是实现者之一。</div>
+      <h3>Q6：最大技术难点？</h3>
+      <div class="script">渲染器早期两个 bug：一是产品名含"X/Y"字母（PIXVERSE、Runway）被误判成散点图坐标列，导致评分矩阵渲染错乱——把判定从"字符串包含"改成"必须是真正维度列 X/Y"才修好；二是竞争格局辐射图 SVG 拼接错位。本质是"约定写法"与"解析规则"要对齐，后来把每板块渲染收口到各自作用域避免串味。</div>
+      <h3>Q7：给两周会加什么？</h3>
+      <div class="script">三件：① 执行摘要与定位/能力卡有少量重叠，压摘要为纯结论、细节下沉；② 加历史对比——同对象两次研究看维度变化；③ 维度/预置清单配置化，扩展到 AI 之外。克制地加，不碰 RAG/多智能体。</div>
+      <h3>Q8：10 维度框架凭什么？</h3>
+      <div class="script">来自竞品分析高频关注面归纳：市场/产品/AI能力/数据壁垒/技术生态/商业模式/体验/增长/机会/风险。维度不重叠、各是切面，且风险短板置末（先价值后短板，符合决策阅读顺序）。是框架不是真理，但保证每次结构一致、可横向对比。</div>
+    </section>
+
+    <section id="s6">
+      <h2>6 · 简历 / 对外表达边界（不要踩坑）</h2>
+      <ul>
+        <li><b>状态：</b>写「原型 / 离线验证」，**不写"上线系统""服务了 N 位用户"**。</li>
+        <li><b>指标：</b>不写提升百分比；量化评测未建，相关能力标「待验证」。</li>
+        <li><b>技术词：</b>Workflow / 检索 / 渲染器 / 证据纪律每个都要答"解决哪节点、为何不用更简单方法、怎么失败"。答不出的词删掉。</li>
+      </ul>
+      <div class="script"><b>推荐简历一句话：</b>
+独立设计并实现「AIPM·瞭望台」AI 竞品研究系统（原型）：定义 10 维度分析框架与证据可追溯规范，串联 Tavily 实时检索 + DeepSeek 撰写 + 自研 Markdown→ECharts 渲染器，将跨源竞品调研压缩为一次提交产出结构化可视化报告；已沉淀 9 份真实检索样本。</div>
+    </section>
+
+    <section id="s7">
+      <h2>7 · 翻车兜底（备选方案）</h2>
+      <ul>
+        <li><b>Live Demo 联网失败/超时：</b>不僵等，说"提前跑好一份同样的"，打开 <code>作品展示导览.html</code> 拆成品（步骤 3）。</li>
+        <li><b>本地服务起不来：</b>直接双击 <code>reports/可灵_竞品分析.html</code> 或 <code>作品展示导览.html</code>（浏览器直接开）。</li>
+        <li><b>只能共享一屏：</b>优先共享"作品展示导览 + 报告"，技术链路用 <code>系统架构链路图.html</code> 一页讲完。</li>
+        <li><b>面试官要看代码：</b>打开 <code>scripts/build_report.py</code> 与 <code>web/backend/pipeline.py</code>，指"研究闭环 5 步"和"约定写法→渲染"映射。</li>
+        <li><b>网络整体差：</b>全程用本地文件，靠 9 份已生成报告讲透设计与取舍。</li>
+      </ul>
+    </section>
+
+    <section id="s8">
+      <h2>8 · 链接与启动速查</h2>
+      <h3>本地服务（Live Demo）</h3>
+      <ul class="links">
+        <li>启动：项目目录运行后端，默认 <a href="http://localhost:8787/">http://localhost:8787/</a></li>
+        <li>首页：<code>http://localhost:8787/</code></li>
+        <li>报告：<code>http://localhost:8787/report/&lt;文件名&gt;.html</code></li>
+      </ul>
+      <h3>本文件夹材料（离线最稳，浏览器直接开）</h3>
+      <ul class="links">
+        <li><a href="面试手册.html">面试手册.html</a></li>
+        <li><a href="系统架构链路图.html">系统架构链路图.html</a></li>
+        <li><a href="作品展示导览.html">作品展示导览.html</a></li>
+        <li><code>reports/</code> 下 9 个 HTML</li>
+      </ul>
+      <h3>代码仓库</h3>
+      <ul class="links">
+        <li><a href="https://github.com/Averymeng/rival-in-AI">github.com/Averymeng/rival-in-AI</a> → <code>ai-pm-research-system/</code></li>
+        <li>渲染器：<code>scripts/build_report.py</code>；研究闭环：<code>web/backend/pipeline.py</code></li>
+      </ul>
+    </section>
+  </main>
+</div>
+</body>
+</html>

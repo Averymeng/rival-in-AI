@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIPM·瞭望台 · 作品展示导览</title>
+<style>
+  :root{--ink:#1f2933;--muted:#64748b;--line:#e2e8f0;--brand:#0F766E;--bg:#f8fafc;--card:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;background:var(--bg);color:var(--ink);padding:30px 20px 60px;}
+  .wrap{max-width:1080px;margin:0 auto;}
+  h1{font-size:24px;margin:0 0 4px;}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 18px;}
+  .tip{background:#ecfeff;border:1px solid #a5f3fc;color:#0e7490;border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.7;margin-bottom:20px;}
+  .tip b{color:#155e75;}
+  .mini{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:24px;}
+  .mini svg{width:100%;height:auto;display:block;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s,transform .15s;}
+  .card:hover{box-shadow:0 8px 22px rgba(15,23,42,.08);transform:translateY(-2px);}
+  .tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;align-self:flex-start;}
+  .t-comp{background:#eff6ff;color:#1d4ed8;}
+  .t-single{background:#f0fdfa;color:#0F766E;}
+  .card h3{margin:0;font-size:15px;line-height:1.4;}
+  .card p{margin:0;color:var(--muted);font-size:12px;flex:1;}
+  .open{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--brand);color:#fff;text-decoration:none;font-size:13px;font-weight:600;padding:9px 12px;border-radius:10px;}
+  .open:hover{background:#0c5e58;}
+  .foot{margin-top:30px;color:var(--muted);font-size:12px;line-height:1.8;}
+  .foot code{background:#e2e8f0;padding:1px 6px;border-radius:5px;color:#334155;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AIPM·瞭望台 · 作品展示导览</h1>
+  <p class="sub">面试时打开本页 → 点任意报告卡片即可全屏查看成品（报告为自包含 HTML，离线可用）。</p>
+
+  <div class="tip">
+    <b>怎么用：</b>① 优先用 <b>Live Demo</b>（本地服务 <code>http://localhost:8787/</code> 现场生成）；② 若网络/服务异常，直接点下方卡片打开已生成报告；③ 讲技术链路时另开 <code>系统架构链路图.html</code>。所有报告均带「来源角标 + 底部来源清单」，可现场演示"证据可追溯"。
+  </div>
+
+  <div class="mini">
+    <svg viewBox="0 0 1000 120" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,PingFang SC,sans-serif" font-size="12">
+      <defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#475569"/></marker></defs>
+      <rect x="10" y="45" width="110" height="42" rx="10" fill="#0F766E"/><text x="65" y="71" fill="#fff" text-anchor="middle" font-weight="600">研究目标</text>
+      <rect x="160" y="45" width="120" height="42" rx="10" fill="#fff" stroke="#0F766E" stroke-width="2"/><text x="220" y="71" fill="#0F766E" text-anchor="middle" font-weight="600">意图解析</text>
+      <rect x="320" y="45" width="130" height="42" rx="10" fill="#fff" stroke="#F59E0B" stroke-width="2"/><text x="385" y="71" fill="#B45309" text-anchor="middle" font-weight="600">Tavily 检索</text>
+      <rect x="490" y="45" width="130" height="42" rx="10" fill="#fff" stroke="#8B5CF6" stroke-width="2"/><text x="555" y="71" fill="#7C3AED" text-anchor="middle" font-weight="600">DeepSeek 撰写</text>
+      <rect x="660" y="45" width="150" height="42" rx="10" fill="#fff" stroke="#0F766E" stroke-width="2"/><text x="735" y="71" fill="#0F766E" text-anchor="middle" font-weight="600">约定写法 Markdown</text>
+      <rect x="840" y="45" width="150" height="42" rx="10" fill="#0F766E"/><text x="915" y="69" fill="#fff" text-anchor="middle" font-weight="600">可视化报告</text>
+      <line x1="120" y1="66" x2="156" y2="66" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+      <line x1="280" y1="66" x2="316" y2="66" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+      <line x1="450" y1="66" x2="486" y2="66" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+      <line x1="620" y1="66" x2="656" y2="66" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+      <line x1="810" y1="66" x2="836" y2="66" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+    </svg>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <span class="tag t-comp">对比模式</span>
+      <h3>即梦 vs 小云雀：字节系 AI 创作平台竞品对比</h3>
+      <p>点名两个对象正面 PK，含能力雷达、市场地图、行动建议看板。最适合作"拆报告"范例。</p>
+      <a class="open" href="reports/对比即梦和小云雀_20260824233928.html" target="_blank">打开报告 →</a>
+    </div>
+    <div class="card">
+      <span class="tag t-single">竞品分析模式</span>
+      <h3>可灵 AI 竞品分析</h3>
+      <p>单对象深析 + 对比预置 5 竞品，含机会点模块。展示"单对象→自动补竞品"完整能力。</p>
+      <a class="open" href="reports/可灵_竞品分析.html" target="_blank">打开报告 →</a>
+    </div>
+    <div class="card">
+      <span class="tag t-comp">对比模式</span>
+      <h3>Cursor vs Dify 竞品对比</h3>
+      <p>跨品类对比（AI 编辑器 vs 低代码 Agent 平台），体现框架适应不同赛道。</p>
+      <a class="open" href="reports/Cursor_Dify_竞品对比.html" target="_blank">打开报告 →</a>
+    </div>
+    <div class="card">
+      <span class="tag t-comp">对比模式</span>
+      <h3>Codex vs Cursor：AI 编程助手竞品对比</h3>
+      <p>同赛道头部玩家对比，长文本/编程能力高亮。</p>
+      <a class="open" href="reports/对比_codex_与_cursor_20260824231230.html" target="_blank">打开报告 →</a>
+    </div>
+    <div class="card">
+      <span class="tag t-single">竞品分析模式</span>
+      <h3>Cursor AI 竞品分析</h3>
+      <p>单对象 + 预置竞品，经典 IDE 赛道样本。</p>
+      <a class="open" href="reports/Cursor_竞品分析.html" target="_blank">打开报告 →</a>
+    </div>
+    <div class="card">
+      <span class="tag t-single">竞品分析模式</span>
+      <h3>Cursor 产品分析报告</h3>
+      <p>更聚焦单产品的深度分析版本。</p>
+      <a class="open" href="reports/分析_Cursor_20260824203354.html" target="_blank">打开报告 →</a>
+    </div>
+    <div class="card">
+      <span class="tag t-single">竞品分析模式</span>
+      <h3>Claude Code 竞品分析报告</h3>
+      <p>终端 Agent 编程工具样本，展示框架对"非 GUI 产品"的覆盖。</p>
+      <a class="open" href="reports/claude_code_分析他的竞品_20260825072421.html" target="_blank">打开报告 →</a>
+    </div>
+    <div class="card">
+      <span class="tag t-single">竞品分析模式</span>
+      <h3>Midjourney 产品深度分析报告</h3>
+      <p>图像生成头部产品样本，含数据壁垒与社区增长分析。</p>
+      <a class="open" href="reports/midjourney_20260825081211.html" target="_blank">打开报告 →</a>
+    </div>
+    <div class="card">
+      <span class="tag t-comp">对比模式</span>
+      <h3>Codex 竞品对比研究报告</h3>
+      <p>Codex 为主角的竞品对比版本。</p>
+      <a class="open" href="reports/对比codex_20260824230846.html" target="_blank">打开报告 →</a>
+    </div>
+  </div>
+
+  <div class="foot">
+    共 9 份真实检索样本报告。本地服务（Live Demo）：<code>http://localhost:8787/</code> ｜ 技术链路图：<code>系统架构链路图.html</code> ｜ 源码：<code>scripts/build_report.py</code>、<code>web/backend/pipeline.py</code>。
+  </div>
+</div>
+</body>
+</html>

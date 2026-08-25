@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIPM·瞭望台 · 系统架构链路图</title>
+<style>
+  :root{--ink:#1f2933;--muted:#64748b;--line:#e2e8f0;--brand:#0F766E;--brand2:#3B82F6;--amber:#F59E0B;--bg:#f8fafc;--card:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;background:var(--bg);color:var(--ink);padding:32px 20px;}
+  .wrap{max-width:1080px;margin:0 auto;}
+  h1{font-size:26px;margin:0 0 4px;}
+  .sub{color:var(--muted);margin:0 0 22px;font-size:14px;}
+  .flow{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 22px;box-shadow:0 4px 18px rgba(15,23,42,.05);}
+  svg{width:100%;height:auto;display:block;}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:18px;font-size:13px;color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:12px;height:12px;border-radius:3px;display:inline-block;}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;}
+  .box h3{margin:0 0 10px;font-size:15px;color:var(--brand);}
+  .box ol,.box ul{margin:0;padding-left:18px;font-size:13px;line-height:1.9;color:#334155;}
+  .note{margin-top:18px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:12px 16px;font-size:13px;line-height:1.8;}
+  .note b{color:#7c2d12;}
+  @media(max-width:720px){.cols{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AIPM·瞭望台 · 系统架构链路图</h1>
+  <p class="sub">研究闭环：用户输入 → 意图解析 → 双模式分流 → 实时检索 → 大模型撰写 → 约定写法渲染 → 可视化报告</p>
+
+  <div class="flow">
+    <svg viewBox="0 0 1040 560" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,PingFang SC,Microsoft YaHei,sans-serif">
+      <defs>
+        <marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L8,3 L0,6 Z" fill="#475569"/>
+        </marker>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#0F766E"/><stop offset="1" stop-color="#14B8A6"/>
+        </linearGradient>
+      </defs>
+
+      <!-- nodes -->
+      <!-- 1 input -->
+      <rect x="20" y="250" width="140" height="60" rx="12" fill="#0F766E"/>
+      <text x="90" y="278" fill="#fff" font-size="14" text-anchor="middle" font-weight="600">用户输入</text>
+      <text x="90" y="297" fill="#cffafe" font-size="11" text-anchor="middle">自然语言/对象名</text>
+
+      <!-- 2 parse -->
+      <rect x="200" y="250" width="150" height="60" rx="12" fill="#fff" stroke="#0F766E" stroke-width="2"/>
+      <text x="275" y="278" fill="#0F766E" font-size="13" text-anchor="middle" font-weight="600">意图解析</text>
+      <text x="275" y="296" fill="#64748b" font-size="11" text-anchor="middle">对象/类型/维度</text>
+
+      <!-- 3 dual mode -->
+      <rect x="390" y="250" width="150" height="60" rx="12" fill="#fff" stroke="#3B82F6" stroke-width="2"/>
+      <text x="465" y="274" fill="#3B82F6" font-size="13" text-anchor="middle" font-weight="600">双模式分流</text>
+      <text x="465" y="292" fill="#64748b" font-size="10" text-anchor="middle">对比 / 竞品分析</text>
+
+      <!-- 4 retrieve -->
+      <rect x="580" y="250" width="150" height="60" rx="12" fill="#fff" stroke="#F59E0B" stroke-width="2"/>
+      <text x="655" y="274" fill="#B45309" font-size="13" text-anchor="middle" font-weight="600">Tavily 检索</text>
+      <text x="655" y="292" fill="#64748b" font-size="10" text-anchor="middle">实时·多源</text>
+
+      <!-- 5 draft -->
+      <rect x="770" y="250" width="150" height="60" rx="12" fill="#fff" stroke="#8B5CF6" stroke-width="2"/>
+      <text x="845" y="274" fill="#7C3AED" font-size="13" text-anchor="middle" font-weight="600">DeepSeek 撰写</text>
+      <text x="845" y="292" fill="#64748b" font-size="10" text-anchor="middle">10 维框架</text>
+
+      <!-- arrows main -->
+      <line x1="160" y1="280" x2="196" y2="280" stroke="#475569" stroke-width="2" marker-end="url(#ar)"/>
+      <line x1="350" y1="280" x2="386" y2="280" stroke="#475569" stroke-width="2" marker-end="url(#ar)"/>
+      <line x1="540" y1="280" x2="576" y2="280" stroke="#475569" stroke-width="2" marker-end="url(#ar)"/>
+      <line x1="730" y1="280" x2="766" y2="280" stroke="#475569" stroke-width="2" marker-end="url(#ar)"/>
+
+      <!-- 6 markdown -->
+      <rect x="770" y="360" width="220" height="58" rx="12" fill="#fff" stroke="#0F766E" stroke-width="2"/>
+      <text x="880" y="385" fill="#0F766E" font-size="13" text-anchor="middle" font-weight="600">约定写法 Markdown</text>
+      <text x="880" y="403" fill="#64748b" font-size="10" text-anchor="middle">事实/洞察/建议 + 来源角标</text>
+      <line x1="845" y1="310" x2="845" y2="356" stroke="#475569" stroke-width="2" marker-end="url(#ar)"/>
+
+      <!-- 7 renderer -->
+      <rect x="770" y="450" width="220" height="58" rx="12" fill="#0F766E"/>
+      <text x="880" y="475" fill="#fff" font-size="13" text-anchor="middle" font-weight="600">build_report.py 渲染</text>
+      <text x="880" y="493" fill="#cffafe" font-size="10" text-anchor="middle">约定写法 → ECharts HTML</text>
+      <line x1="880" y1="418" x2="880" y2="446" stroke="#475569" stroke-width="2" marker-end="url(#ar)"/>
+
+      <!-- 8 website -->
+      <rect x="430" y="470" width="260" height="56" rx="12" fill="#fff" stroke="#3B82F6" stroke-width="2"/>
+      <text x="560" y="494" fill="#1d4ed8" font-size="13" text-anchor="middle" font-weight="600">可视化报告 · 网站展示/分享</text>
+      <text x="560" y="512" fill="#64748b" font-size="10" text-anchor="middle">雷达·金字塔·辐射图·SWOT·看板</text>
+      <line x1="770" y1="479" x2="694" y2="485" stroke="#475569" stroke-width="2" marker-end="url(#ar)"/>
+
+      <!-- mode detail boxes -->
+      <g font-size="11" fill="#334155">
+        <rect x="390" y="170" width="320" height="58" rx="10" fill="#eff6ff" stroke="#bfdbfe"/>
+        <text x="404" y="190" fill="#1d4ed8" font-weight="600">对比模式</text>
+        <text x="404" y="207">只比用户点名的 N 个，不引入外部竞品</text>
+        <text x="404" y="222">（例：对比 Cursor 与 Dify）</text>
+
+        <rect x="390" y="330" width="320" height="58" rx="10" fill="#f0fdfa" stroke="#99f6e4"/>
+        <text x="404" y="350" fill="#0F766E" font-weight="600">竞品分析模式</text>
+        <text x="404" y="367">单对象先深析，再对比预置 5 竞品</text>
+        <text x="404" y="382">（例：分析可灵 → 即梦/Runway…）</text>
+      </g>
+      <line x1="465" y1="328" x2="465" y2="312" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <line x1="465" y1="328" x2="550" y2="328" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+      <!-- sources -->
+      <g font-size="10" fill="#64748b">
+        <text x="580" y="330" >检索来源：</text>
+        <text x="580" y="346">官网 · 定价页 · 帮助文档 · 博客</text>
+        <text x="580" y="361">GitHub · Reddit · Product Hunt · 新闻</text>
+      </g>
+
+      <!-- evidence discipline pillar -->
+      <rect x="40" y="430" width="300" height="92" rx="12" fill="#fffbeb" stroke="#fde68a"/>
+      <text x="56" y="452" fill="#B45309" font-size="13" font-weight="600">证据纪律（贯穿全程）</text>
+      <text x="56" y="472" font-size="11" fill="#7c2d12">· 每条结论绑定来源（缺失标「未查证」）</text>
+      <text x="56" y="490" font-size="11" fill="#7c2d12">· 结论分 事实 / 洞察 / 建议</text>
+      <text x="56" y="508" font-size="11" fill="#7c2d12">· 严禁编造 价格/份额/融资</text>
+    </svg>
+
+    <div class="legend">
+      <span><i class="dot" style="background:#0F766E"></i>核心节点</span>
+      <span><i class="dot" style="background:#3B82F6"></i>模式/展示</span>
+      <span><i class="dot" style="background:#F59E0B"></i>检索</span>
+      <span><i class="dot" style="background:#8B5CF6"></i>大模型</span>
+      <span><i class="dot" style="background:#fde68a"></i>证据纪律</span>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="box">
+      <h3>10 维度分析框架</h3>
+      <ol>
+        <li>市场与定位</li>
+        <li>产品与核心功能</li>
+        <li>AI 能力</li>
+        <li>数据壁垒</li>
+        <li>技术与生态</li>
+        <li>商业模式与定价</li>
+        <li>用户体验</li>
+        <li>增长与运营</li>
+        <li>机会点（按意图可选）</li>
+        <li>风险与短板（置末）</li>
+      </ol>
+    </div>
+    <div class="box">
+      <h3>报告 11 章节（可视化选型）</h3>
+      <ul>
+        <li>执行摘要 → 核心判断 + 发现卡</li>
+        <li>市场概览 → 竞争梯队金字塔</li>
+        <li>产品定位 → 档案卡</li>
+        <li>功能矩阵 → 覆盖矩阵 + 覆盖率</li>
+        <li>AI 能力 → 能力卡 + 雷达</li>
+        <li>商业模式 → 会员卡 + 对照</li>
+        <li>增长 → KPI 指标卡</li>
+        <li>竞争格局 → 中心辐射图</li>
+        <li>SWOT → 2×2 象限</li>
+        <li>机会/来源 → 气泡图 + 文献</li>
+        <li>行动建议 → Must/Should/Could 看板</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>关键取舍：</b>① 自研渲染器而非现成 BI —— 内容与呈现解耦，改视觉只动一个脚本；② 用 Tavily 检索而非模型直答 —— 把结论锚定真实来源；③ 明确<b>不做</b> RAG / 向量库 / 多智能体 —— MVP 追求单条可验证闭环，避免为"显得高级"引入复杂度。
+  </div>
+</div>
+</body>
+</html>
