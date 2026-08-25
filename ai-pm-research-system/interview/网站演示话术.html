@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AIPM·瞭望台 · 网站使用演示话术（用户视角）</title>
+<style>
+  :root{--ink:#1f2933;--muted:#64748b;--line:#e2e8f0;--brand:#0F766E;--brand2:#3B82F6;--bg:#f8fafc;--card:#fff;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,"PingFang SC","Microsoft YaHei",Segoe UI,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;}
+  .top{background:#0c2b28;color:#fff;padding:26px 20px;}
+  .top .w{max-width:880px;margin:0 auto;}
+  .top h1{margin:0;font-size:22px;}
+  .top p{margin:6px 0 0;color:#9fe7df;font-size:13px;}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 20px 70px;}
+  .intro{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;font-size:13.5px;color:#334155;margin-bottom:20px;}
+  .intro b{color:var(--brand);}
+  .step{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;}
+  .step .n{flex:none;width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .step .b{flex:1;min-width:0;}
+  .step .t{font-weight:600;font-size:15px;margin-bottom:8px;}
+  .act{display:inline-block;background:#ecfeff;color:#0e7490;border:1px solid #a5f3fc;font-size:12px;font-weight:600;padding:4px 10px;border-radius:8px;margin-bottom:10px;}
+  .act b{color:#155e75;}
+  .script{background:#0f172a;color:#e2e8f0;border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.85;white-space:pre-wrap;}
+  .script b{color:#7dd3fc;}
+  .tip{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:10px;padding:10px 14px;font-size:13px;margin:8px 0 0;}
+  .tip b{color:#7c2d12;}
+  .foot{margin-top:24px;font-size:12px;color:var(--muted);line-height:1.8;}
+  .foot code{background:#e2e8f0;padding:1px 6px;border-radius:5px;color:#334155;}
+</style>
+</head>
+<body>
+<div class="top"><div class="w">
+  <h1>AIPM·瞭望台 · 网站使用演示话术</h1>
+  <p>纯用户视角：怎么用这个产品。不涉及产品设计，只对应"演示网站如何操作"的口播话术。</p>
+</div></div>
+
+<div class="wrap">
+  <div class="intro">
+    <b>用法：</b>下面是一条完整的"用户使用路径"，共 7 步。每一步左边是<b>在网站上做什么操作</b>，右边深色框是<b>你边操作边说的一句话</b>。演示时跟着点、跟着念即可；优先用本地服务 <code>http://localhost:8787/</code> 现场跑，若卡顿直接跳到第 5 步打开已生成报告讲。
+  </div>
+
+  <div class="step"><div class="n">1</div><div class="b">
+    <div class="t">打开首页</div>
+    <span class="act">浏览器访问 <b>http://localhost:8787/</b></span>
+    <div class="script"><b>口播：</b>"这是我平时用这个产品的入口。界面很干净，核心就一个输入框——它不要求我填表单、选维度，直接说人话就行。"</div>
+  </div></div>
+
+  <div class="step"><div class="n">2</div><div class="b">
+    <div class="t">用自然语言输入研究目标</div>
+    <span class="act">在输入框输入 <b>分析一下可灵</b>（或"对比 Cursor 与 Dify"）</span>
+    <div class="script"><b>口播：</b>"作为用户，我只需要做一件事：用大白话描述我想研究什么。比如我输入'分析一下可灵'，也可以输入'对比 Cursor 与 Dify'。它支持中文口语，不用我先想清楚要比哪些维度、选哪种模式——这些它自己判断。"</div>
+  </div></div>
+
+  <div class="step"><div class="n">3</div><div class="b">
+    <div class="t">点击「生成报告」</div>
+    <span class="act">点击按钮 <b>生成报告</b></span>
+    <div class="script"><b>口播：</b>"点一下生成，后面全是系统自动跑的，我不用再操作。这点我很看重——它把'提需求'和'出报告'之间那些搜集、整理、画图的脏活，全部替我吃掉了。"</div>
+  </div></div>
+
+  <div class="step"><div class="n">4</div><div class="b">
+    <div class="t">等待生成，看状态提示</div>
+    <span class="act">观察状态栏：<b>正在实时检索并生成报告（通常需要 30–90 秒）…</b></span>
+    <div class="script"><b>口播：</b>"生成时状态栏会提示它正在实时检索并生成报告。背后它在联网抓官网、定价页、社区这些公开来源，再撰写、再渲染成网页。通常几十秒，我就在这儿等它一下。"</div>
+    <div class="tip"><b>若卡住/失败：</b>状态会显示"生成失败：…"，此时不要僵等，直接说"我提前跑好一份同样的"，跳到第 5 步打开已生成报告继续讲。</div>
+  </div></div>
+
+  <div class="step"><div class="n">5</div><div class="b">
+    <div class="t">报告自动打开，自上而下浏览</div>
+    <span class="act">报告页加载完成（状态变为 <b>报告已生成：…</b>，自动跳转）</span>
+    <div class="script"><b>口播：</b>"报告直接打开了，自动跳到这页。我作为用户不用懂任何分析框架，它已经按产品经理的套路帮我排好顺序：从执行摘要，到市场概览、产品定位、功能矩阵、AI 能力、商业模式、增长、竞争格局、SWOT，最后到来源。我要做的就是往下滑、看结论。"</div>
+  </div></div>
+
+  <div class="step"><div class="n">6</div><div class="b">
+    <div class="t">点来源角标，验证可溯源</div>
+    <span class="act">鼠标移到结论的<b>来源角标</b>，或滚动到底部「来源」章节</span>
+    <div class="script"><b>口播：</b>"我最常用的是这个——每条结论旁边都有个来源角标，点一下能跳到底部来源清单，看到它来自官网还是社区、大概什么时间。这让我敢信这份报告，而不是'AI 说啥我信啥'。对我而言，这才是它能真正帮到做决策的地方。"</div>
+  </div></div>
+
+  <div class="step"><div class="n">7</div><div class="b">
+    <div class="t">返回首页，看历史报告列表</div>
+    <span class="act">返回首页，查看「历史报告」卡片列表</span>
+    <div class="script"><b>口播：</b>"每次生成的报告都会留在首页的历史列表里，下次进来直接点开，不用重新跑一遍。这就是一个用户视角的完整体验：输入一句话，得到一份带来源、可反复查看的报告。"</div>
+  </div></div>
+
+  <div class="foot">
+    纯演示路径，无产品设计内容。本地服务：<code>http://localhost:8787/</code> ｜ 若服务不可用，直接打开 <code>作品展示导览.html</code> 进入第 5 步查看成品报告。配套：<code>面试手册.html</code>、<code>系统架构链路图.html</code>。
+  </div>
+</div>
+</body>
+</html>
