@@ -402,7 +402,7 @@ def render_score_matrix(mid, header, rows):
 def _quadrant_labels(xs, ys):
     """四象限标签随坐标轴语义自适应：避免换轴后仍显示『领先区/规模区』等错位文案。"""
     s = (xs or "") + "·" + (ys or "")
-    if "广度" in s or "深度" in s:
+    if "广度" in s and "深度" in s:
         return ("全能型", "专精型", "广度型", "缝隙型")          # 右·上 / 左·上 / 右·下 / 左·下
     if any(k in s for k in ("规模", "份额", "市场")):
         return ("领先区", "潜力区", "规模区", "利基区")
