@@ -1,0 +1,312 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cursor 产品分析报告</title><script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script><style>
+:root{
+  --bg:#F8F7F4;
+  --surface:#FFFFFF;
+  --surface-2:#F1F5F9;
+  --border:#E8E6E1;
+  --ink:#171717;
+  --ink-2:#666666;
+  --muted:#999999;
+  --accent:#1E40AF;
+  --accent-ink:#1E3A8A;
+  --accent-soft:#EFF6FF;
+  --teal:#14B8A6;
+  --amber:#F59E0B;
+  --danger:#EF4444;
+  --opp:#8B5CF6;
+  --grid:#E5E7EB;
+  --sans:'Inter','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.04);
+  --shadow:0 4px 20px rgba(0,0,0,.04);
+  --radius:16px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* layout */
+.app{display:flex;min-height:100vh;}
+.side{width:248px;background:var(--surface);border-right:1px solid var(--border);position:fixed;left:0;top:0;bottom:0;overflow:auto;padding:32px 22px;z-index:20;}
+.brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:700;color:var(--ink);letter-spacing:.3px;}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--opp));display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;flex-shrink:0;}
+.brand small{display:block;font-size:10px;font-weight:500;color:var(--muted);letter-spacing:2px;margin-top:3px;text-transform:uppercase;}
+.nav{list-style:none;margin:28px 0 0;padding:0;}
+.nav li{margin:1px 0;}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:13px;transition:.15s;}
+.nav a .n{font-size:11px;font-weight:700;color:var(--muted);min-width:20px;font-variant-numeric:tabular-nums;}
+.nav a:hover{background:#F2F0EB;color:var(--ink);}
+.nav a.active{background:var(--accent-soft);color:var(--accent-ink);font-weight:600;}
+.nav a.active .n{color:var(--accent);}
+
+.main{margin-left:248px;flex:1;padding:48px 80px 100px;}
+.content{max-width:1200px;margin:0 auto;}
+
+/* masthead / Research Header */
+.masthead{display:flex;flex-direction:column;gap:18px;padding-bottom:28px;margin-bottom:36px;border-bottom:1px solid var(--border);}
+.masthead .kicker{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;}
+.k-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;}
+.masthead h1{margin:0;font-size:48px;font-weight:700;line-height:1.15;color:var(--ink);letter-spacing:-.8px;}
+/* 顶部文档元信息：纯灰文字，无组件装饰 */
+.docmeta{margin-top:14px;display:flex;flex-direction:column;gap:7px;font-size:13px;line-height:1.7;color:var(--ink-2);}
+.docmeta .dm-line{display:flex;flex-wrap:wrap;gap:6px 22px;}
+.docmeta .dm-item{display:inline-flex;align-items:baseline;gap:6px;}
+.docmeta .dm-k{color:var(--muted);font-weight:500;}
+.docmeta .dm-v{color:var(--ink-2);font-weight:500;}
+
+/* sections */
+section{margin-bottom:56px;scroll-margin-top:24px;}
+.sec-head{display:flex;align-items:flex-start;gap:18px;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:24px;}
+.sec-no{font-size:13px;font-weight:700;color:#fff;background:var(--accent);border-radius:9px;min-width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-variant-numeric:tabular-nums;}
+.sec-eyebrow{font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:5px;}
+.sec-head h2{margin:0;font-size:24px;font-weight:600;color:var(--ink);letter-spacing:-.3px;}
+.sec-sub{font-size:13px;color:var(--ink-2);margin-top:4px;}
+section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
+.lead{font-size:15px;line-height:1.8;color:var(--ink-2);}
+
+/* Insight Card (exec summary / opportunity / recommendations) */
+.findings{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.finding{display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);transition:.2s;}
+.finding:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.find-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:700;}
+.find-body{display:flex;flex-direction:column;gap:6px;}
+.find-kw{font-size:15px;font-weight:600;color:var(--ink);line-height:1.5;}
+.find-text{font-size:13.5px;color:var(--ink-2);line-height:1.7;}
+.find-ev{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.ev-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;}
+.ev-badge.high{background:#DCFCE7;color:#15803D;}
+.ev-badge.med{background:#FEF3C7;color:#92660A;}
+.ev-badge.low{background:#FEE2E2;color:#B91C1C;}
+.ev-conf{font-size:11px;color:var(--muted);}
+
+/* Product Card (positioning note) */
+.callout{display:flex;gap:14px;background:var(--accent-soft);border:1px solid #DDDDFB;border-radius:var(--radius);padding:18px 20px;margin-top:18px;font-size:14px;color:var(--ink);line-height:1.8;}
+.callout-bar{width:4px;background:var(--accent);border-radius:2px;flex-shrink:0;}
+.callout b{color:var(--accent-ink);}
+
+/* feature matrix heatmap */
+.matrix-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px;box-shadow:var(--shadow-sm);}
+.feature-matrix{width:100%;border-collapse:separate;border-spacing:6px;font-size:13px;}
+.feature-matrix th{padding:10px;border-radius:10px;font-weight:600;color:var(--ink);text-align:center;background:#FAFAF9;}
+.feature-matrix th.fm-feat{text-align:left;background:transparent;}
+.fm-ph{padding:4px 12px;border-radius:999px;font-weight:700;white-space:nowrap;font-size:12.5px;}
+.feature-matrix td{padding:0;border-radius:8px;text-align:center;vertical-align:middle;}
+.feature-matrix td.fm-feat{background:transparent;text-align:left;color:var(--ink);font-weight:500;padding:0 4px;}
+.fm-fi{display:inline-flex;vertical-align:middle;margin-right:7px;color:var(--accent);}
+.fm-fi svg{width:16px;height:16px;}
+.fm-dot{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:8px;vertical-align:middle;}
+.fm-dot.yes{background:var(--accent);}
+.fm-dot.partial{background:#93C5FD;}
+.fm-dot.no{background:#E5E7EB;}
+.fm-dot.na{background:#F8FAFC;color:var(--muted);font-size:12px;border:1px solid var(--border);}
+.fm-dot svg{width:12px;height:12px;}
+.fm-cell.yes{background:rgba(30,64,175,0.12);}
+.fm-cell.partial{background:rgba(165,180,252,0.35);}
+.fm-cell.no{background:#F1F5F9;}
+.fm-cell.na{background:#F8FAFC;}
+.fm-note{display:block;font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
+.fm-cov-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding:14px 12px 6px;}
+.fm-cov-title{font-size:12px;font-weight:700;color:var(--ink-2);letter-spacing:.5px;}
+.fm-cov{display:flex;align-items:center;gap:8px;font-size:12px;}
+.fm-cov-name{font-weight:600;color:var(--ink);}
+.fm-cov-bar{width:84px;height:6px;background:#F1EFEA;border-radius:999px;overflow:hidden;}
+.fm-cov-bar i{display:block;height:100%;border-radius:999px;}
+.fm-cov-pct{color:var(--muted);}
+.fm-legend{display:flex;gap:20px;flex-wrap:wrap;padding:6px 12px 12px;font-size:12px;color:var(--ink-2);}
+.fm-legend .lg{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:5px;vertical-align:middle;}
+.lg.yes{background:var(--accent);} .lg.partial{background:#93C5FD;} .lg.no{background:#E5E7EB;}
+
+/* chart card */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin:18px 0;box-shadow:var(--shadow-sm);}
+.chart-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:6px;}
+.chart-title{font-size:18px;font-weight:700;color:var(--ink);}
+.chart-note{font-size:11.5px;color:var(--ink-2);background:#F4F3F0;border:1px solid var(--border);padding:3px 11px;border-radius:999px;}
+.echart{width:100%;height:430px;}
+
+/* AI cards */
+.ai-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.ai-card{display:flex;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;align-items:flex-start;position:relative;box-shadow:var(--shadow-sm);}
+.ai-card::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;background:var(--accent);border-radius:2px;}
+.ai-idx{font-size:13px;color:var(--accent);font-weight:700;}
+.ai-icon{color:var(--accent);margin-top:1px;}
+.ai-body h4{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--ink);}
+.ai-body p{margin:0;font-size:13px;color:var(--ink-2);line-height:1.7;}
+
+/* business model */
+.biz-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:8px 0;}
+.biz-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0 0 14px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.biz-ph{display:flex;align-items:center;gap:8px;padding:15px 16px;font-weight:700;font-size:15px;border-bottom:1px solid var(--border);border-top:3px solid;}
+.biz-dot{width:9px;height:9px;border-radius:50%;}
+.plan{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 16px;border-bottom:1px solid #F3F1EC;}
+.plan:last-child{border-bottom:none;}
+.plan-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+.plan-val{font-size:13px;color:var(--ink);font-weight:500;text-align:right;}
+.biz-extra{margin-top:18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);}
+.biz-extra-title{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--ink-2);margin-bottom:8px;}
+.biz-table{width:100%;border-collapse:collapse;font-size:13px;}
+.biz-table th{padding:9px 12px;text-align:left;color:var(--ink-2);font-weight:600;border-bottom:1px solid var(--border);}
+.biz-table td{padding:9px 12px;border-bottom:1px solid #F3F1EC;color:var(--ink);vertical-align:top;}
+.biz-table td.bk{font-weight:600;color:var(--ink);}
+.biz-table tr:last-child td{border-bottom:none;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:8px 0;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 20px;box-shadow:var(--shadow-sm);}
+.kpi-num{font-size:32px;font-weight:700;color:var(--accent);line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-1px;}
+.kpi-label{font-size:12px;font-weight:600;color:var(--ink);margin:10px 0 4px;}
+.kpi-desc{font-size:12.5px;color:var(--ink-2);line-height:1.6;}
+
+/* competition */
+.comp-stage{position:relative;width:420px;height:420px;margin:10px auto;max-width:100%;}
+.comp-svg{position:absolute;inset:0;}
+.comp-core{position:absolute;transform:translate(-50%,-50%);background:linear-gradient(135deg,var(--accent),var(--accent-ink));color:#fff;border-radius:50%;width:112px;height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(30,64,175,.35);z-index:3;}
+.comp-core small{font-size:9px;font-weight:500;opacity:.85;margin-top:2px;}
+.comp-sat{position:absolute;transform:translate(-50%,-50%);background:#fff;border:2px solid #CBD5E1;width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:600;color:#475569;box-shadow:0 3px 10px rgba(0,0,0,.05);z-index:2;padding:4px;}
+
+/* SWOT */
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.sw-cell{border-radius:20px;padding:18px 20px;border:1px solid var(--border);}
+.sw-cell.s{background:#ECFDF5;border-color:#BBF7D0;}
+.sw-cell.w{background:#F8FAFC;border-color:#E2E8F0;}
+.sw-cell.o{background:#F5F3FF;border-color:#DDD6FE;}
+.sw-cell.t{background:#FFFBEB;border-color:#FDE68A;}
+.sw-h{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.sw-h::before{content:"";width:9px;height:9px;border-radius:3px;}
+.sw-cell.s .sw-h::before{background:#10B981;}
+.sw-cell.w .sw-h::before{background:#94A3B8;}
+.sw-cell.o .sw-h::before{background:#8B5CF6;}
+.sw-cell.t .sw-h::before{background:#F59E0B;}
+.sw-line{font-size:13px;color:var(--ink-2);line-height:1.7;margin:5px 0;padding-left:13px;position:relative;}
+.sw-line::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.35;}
+
+/* radar / 多维能力图谱 dashboard */
+.radar-dash{display:flex;gap:32px;align-items:stretch;}
+.radar-main{flex:1.35;min-width:0;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);}
+.radar-main .echart{width:100%;height:460px;}
+.score-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow-sm);}
+.sp-title{font-size:13px;font-weight:700;letter-spacing:.4px;color:var(--ink-2);margin-bottom:4px;}
+.score-item{display:flex;flex-direction:column;gap:7px;}
+.si-top{display:flex;align-items:baseline;justify-content:space-between;}
+.si-name{font-size:13px;color:var(--ink);font-weight:500;}
+.si-score{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+.si-bar{height:7px;background:#F1EFEA;border-radius:999px;overflow:hidden;}
+.si-bar i{display:block;height:100%;border-radius:999px;transition:width .4s ease;}
+.cmp-legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.cmp-chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);}
+.cmp-chip i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+.cmp-chip small{color:var(--muted);font-size:11px;margin-left:1px;}
+
+/* empty state */
+.chart-empty{padding:42px 0;text-align:center;color:var(--muted);font-size:13px;line-height:1.6;}
+/* pyramid */
+.pyramid{display:flex;flex-direction:column;gap:6px;align-items:center;}
+.pyr-band{width:100%;display:flex;justify-content:center;}
+.pyr-band.t1{width:55%;}
+.pyr-band.t2{width:78%;}
+.pyr-band.t3{width:100%;}
+.pyr-txt{display:flex;flex-direction:column;gap:3px;width:100%;padding:18px 24px;color:#fff;border-radius:14px;}
+.pyr-band.t1 .pyr-txt{background:linear-gradient(90deg,#1E40AF,#3B82F6);}
+.pyr-band.t2 .pyr-txt{background:#94A3B8;}
+.pyr-band.t3 .pyr-txt{background:#CBD5E1;}
+.pyr-label{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.pyr-label span{font-size:12px;font-weight:500;opacity:.9;background:rgba(255,255,255,.22);padding:2px 10px;border-radius:999px;}
+.pyr-names{font-size:14px;font-weight:600;margin-top:2px;}
+.pyr-desc{font-size:12px;opacity:.92;line-height:1.5;}
+
+/* market map legend */
+.mp-legs{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;}
+.mp-leg{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-2);}
+.mp-leg i{width:11px;height:11px;border-radius:50%;}
+
+/* timeline · 横向 Roadmap */
+.timeline-h{overflow-x:auto;padding:30px 2px 14px;margin:6px 0;}
+.tl-track{display:flex;align-items:flex-start;gap:0;min-width:max-content;position:relative;}
+.tl-node{position:relative;flex:0 0 230px;padding:0 16px;box-sizing:border-box;}
+.tl-node::before{content:"";position:absolute;top:14px;left:0;right:0;height:2px;background:var(--border);z-index:0;}
+.tl-node:first-child::before{left:50%;}
+.tl-node:last-child::before{right:50%;}
+.tl-year{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--accent);background:var(--bg);padding:1px 8px;white-space:nowrap;z-index:2;}
+.tl-dot{position:relative;z-index:1;display:block;width:13px;height:13px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 1px var(--border);margin:7px auto 14px;}
+.tl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow-sm);}
+.tl-date{font-size:12px;font-weight:700;color:var(--accent-ink);margin-bottom:6px;}
+.tl-text{font-size:11.5px;color:var(--ink-2);line-height:1.55;}
+
+/* sentiment */
+.sent-bar{display:flex;height:30px;border-radius:10px;overflow:hidden;background:#F1EFEA;}
+.sent-pos{background:var(--teal);}
+.sent-neg{background:#EF4444;}
+.sent-legend{display:flex;align-items:center;gap:16px;margin-top:8px;font-size:12px;color:var(--ink-2);}
+.sent-legend .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+.dot.pos{background:var(--teal);} .dot.neg{background:#EF4444;}
+.sent-pw{margin-left:auto;font-weight:700;color:var(--ink);}
+.voice-list{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+.voice{display:flex;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;align-items:flex-start;box-shadow:var(--shadow-sm);}
+.voice.pos{border-left:3px solid var(--teal);}
+.voice.neg{border-left:3px solid #EF4444;}
+.voice-mono{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;}
+.voice-main{flex:1;}
+.voice-meta{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+.voice-badge{font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;}
+.voice-badge.pos{background:#ECFDF5;color:#15803D;}
+.voice-badge.neg{background:#FEF2F2;color:#B91C1C;}
+.voice-prod{font-size:12px;color:var(--ink-2);background:#F4F3F0;padding:2px 10px;border-radius:999px;}
+.voice-quote{font-size:13px;color:var(--ink);line-height:1.65;}
+
+/* priority */
+.pri-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.pri-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0 0 14px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.pri-h{border-top:3px solid;padding:14px 16px;font-size:14px;font-weight:700;margin-bottom:6px;}
+.pri-col ul{margin:0;padding:0 16px;list-style:none;}
+.pri-col li{font-size:13px;color:var(--ink);line-height:1.65;padding:9px 0 9px 16px;position:relative;border-bottom:1px solid #F3F1EC;}
+.pri-col li:last-child{border-bottom:none;}
+.pri-col li::before{content:"";position:absolute;left:0;top:16px;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;}
+
+/* sources */
+.ref-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px 20px;}
+.ref{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid #F3F1EC;font-size:13px;}
+.ref-no{color:var(--accent);font-weight:700;min-width:18px;}
+.ref a{color:var(--accent-ink);text-decoration:none;font-weight:500;}
+.ref a:hover{text-decoration:underline;}
+.ref-dom{color:var(--muted);font-size:11px;margin-left:auto;}
+.cred{font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:8px;flex-shrink:0;}
+.cred.high{background:#DCFCE7;color:#15803D;}
+.cred.mid{background:#FEF3C7;color:#B45309;}
+.cred.low{background:#FEE2E2;color:#B91C1C;}
+
+/* generic tables */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th,.tbl td{padding:11px 14px;text-align:left;border-bottom:1px solid #F3F1EC;}
+.tbl th{font-weight:600;color:var(--ink-2);font-size:12px;background:#FAFAF9;}
+.tbl tbody tr:hover{background:var(--accent-soft);}
+.tbl tr:last-child td{border-bottom:none;}
+.pos-table th,.pos-table td{padding:13px 16px;}
+.pos-dim{font-weight:600;color:var(--ink);white-space:nowrap;}
+.pos-ph{padding:4px 12px;border-radius:999px;font-weight:700;white-space:nowrap;font-size:12.5px;}
+.pos-di{display:inline-flex;vertical-align:middle;margin-right:8px;color:var(--accent);}
+
+/* score badge */
+.score-badge{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:54px;height:54px;border-radius:50%;font-weight:700;flex-shrink:0;}
+.score-badge .sb-num{font-size:19px;line-height:1;font-variant-numeric:tabular-nums;}
+.score-badge .sb-lab{font-size:9px;font-weight:600;opacity:.75;margin-top:2px;}
+
+/* footer / evidence footer */
+.ev-footer{margin-top:48px;padding:24px 0 0;border-top:1px solid var(--border);color:var(--muted);font-size:12px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;}
+.ev-footer .ef-brand{font-weight:700;color:var(--ink);}
+.ev-footer .ef-sep{width:1px;height:14px;background:var(--border);}
+
+@media(max-width:920px){
+  .side{display:none;}
+  .main{margin-left:0;padding:32px 24px 80px;}
+  .content{max-width:none;}
+  .ai-grid{grid-template-columns:1fr;}
+  .radar-dash{flex-direction:column;}
+  .comp-stage{width:340px;height:340px;}
+}
+@media(max-width:640px){
+  .pri-row{grid-template-columns:1fr;}
+  .swot-grid{grid-template-columns:1fr;}
+  .findings{grid-template-columns:1fr;}
+  .masthead h1{font-size:28px;}
+}
+</style></head><body><div class="app"><aside class="side"><div class="brand"><span class="logo">瞭</span><div>瞭望台<small>AIPM Watchtower</small></div></div><ul class="nav"><li><a href="#sec-1"><span class="n">01</span>执行摘要</a></li><li><a href="#sec-2"><span class="n">02</span>市场概览</a></li><li><a href="#sec-3"><span class="n">03</span>产品定位</a></li><li><a href="#sec-4"><span class="n">04</span>功能矩阵</a></li><li><a href="#sec-5"><span class="n">05</span>AI 能力</a></li><li><a href="#sec-6"><span class="n">06</span>商业模式</a></li><li><a href="#sec-7"><span class="n">07</span>增长</a></li><li><a href="#sec-8"><span class="n">08</span>竞争格局</a></li><li><a href="#sec-9"><span class="n">09</span>SWOT</a></li><li><a href="#sec-10"><span class="n">10</span>能力雷达</a></li><li><a href="#sec-11"><span class="n">11</span>市场地图</a></li><li><a href="#sec-12"><span class="n">12</span>时间线</a></li><li><a href="#sec-13"><span class="n">13</span>用户口碑</a></li><li><a href="#sec-14"><span class="n">14</span>来源</a></li></ul></aside><main class="main"><header class="masthead"><div class="kicker"><span class="k-dot"></span>AI PM · 竞品研究报告</div><h1>Cursor 产品分析报告</h1><div class="docmeta"><div class="dm-line"><span class="dm-item"><span class="dm-k">分析对象</span><span class="dm-v">Cursor（Anysphere 公司）</span></span><span class="dm-item"><span class="dm-k">研究意图</span><span class="dm-v">产品分析</span></span><span class="dm-item"><span class="dm-k">数据可信等级</span><span class="dm-v">高（公开来源检索）</span></span><span class="dm-item"><span class="dm-k">日期</span><span class="dm-v">2026年8月26日</span></span></div><div class="dm-line"><span class="dm-item"><span class="dm-k">选用维度</span><span class="dm-v">全 10 维</span></span><span class="dm-item"><span class="dm-k">研究深度</span><span class="dm-v">标准</span></span></div></div></header><div class="content"><section id="sec-1"><div class="sec-head"><div class="sec-no">01</div><div><div class="sec-eyebrow">EXECUTIVE SUMMARY</div><h2>执行摘要</h2><div class="sec-sub">核心结论与关键洞察</div></div></div><div class="findings"><div class="finding"><span class="find-num">01</span><div class="find-body"><span class="find-kw"></span><span class="find-text">Cursor 已成为 AI 编程工具领域的标杆产品，基于 VS Code 构建，深度集成 GPT-4、Claude、Gemini 等前沿模型，以「AI 优先」理念重塑了开发者工作流。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">02</span><div class="find-body"><span class="find-kw">产品定位清晰</span><span class="find-text">面向中高级开发者，提供从代码补全、自然语言编程到多文件 Agent 编辑的全链路 AI 辅助，而非简单插件式增强。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">03</span><div class="find-body"><span class="find-kw">商业模式正经历关键转型</span><span class="find-text">从 2025 年 6 月起由「固定请求次数」转向「API 额度 + 用量计费」双池模式，团队版也改为按量付费，反映出 AI 编程工具成本结构对定价模式的深刻影响。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">04</span><div class="find-body"><span class="find-kw">用户口碑两极分化</span><span class="find-text">正面评价集中于效率提升（2-3 倍）与代码库理解能力；负面反馈则指向回答准确率、定价波动及大型项目性能问题。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">05</span><div class="find-body"><span class="find-kw">竞争格局激烈</span><span class="find-text">Cursor 与 GitHub Copilot、Windsurf、Cline 等竞品在功能深度、价格、生态整合上展开差异化竞争，目前处于领先地位但护城河尚未稳固。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">06</span><div class="find-body"><span class="find-kw"></span><span class="find-text">增长策略依赖开发者社区与口碑传播，免费版提供高级模型体验是重要获客手段，但成本压力与定价调整可能影响用户留存。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div></div></section><section id="sec-2"><div class="sec-head"><div class="sec-no">02</div><div><div class="sec-eyebrow">MARKET OVERVIEW</div><h2>市场概览</h2><div class="sec-sub">赛道格局与竞争梯队</div></div></div><p>AI 编程工具市场正处于爆发式增长阶段，从早期的代码补全（如 TabNine）演进到 AI Agent 驱动的自动化编程。Cursor 作为「AI 原生编辑器」的代表，与 GitHub Copilot（插件形态）、Windsurf（独立编辑器）、Cline（开源 Agent）等形成差异化竞争。市场呈现以下特征：</p><p>从辅助到自主：工具能力从「建议代码」向「理解项目、自主执行多文件任务」演进。</p><p>模型能力是核心壁垒：对前沿模型（Claude、GPT-5）的接入与调度能力成为竞争关键。</p><p>定价模式动荡：行业尚未形成稳定定价范式，按量付费与订阅制并存，成本控制成为产品可持续性的挑战。</p><p>开发者体验为王：与现有 IDE 生态的融合度、响应速度、上下文理解准确性决定用户留存。</p></section><section id="sec-3"><div class="sec-head"><div class="sec-no">03</div><div><div class="sec-eyebrow">POSITIONING</div><h2>产品定位</h2><div class="sec-sub">差异化定位对照</div></div></div><p>为专业开发者打造：面向中高级开发者，提供深度代码库理解与 Agent 能力，而非零基础编程工具。</p><p>替代而非补充：基于 VS Code 分支构建，目标是成为开发者日常编码的主编辑器。</p><p>全流程覆盖：从代码补全（Tab）、自然语言编辑（Cmd+K）、多文件 Agent（Composer）到代码审查（Bugbot），覆盖编码全生命周期。</p><p>模型无关：接入多家前沿模型（OpenAI、Anthropic、Google、xAI），让用户按需选择，避免被单一模型锁定。</p><div class="callout"><span class="callout-bar"></span><div>Cursor 定位为「AI 优先的代码编辑器」，而非传统编辑器的 AI 插件。其核心主张是：</div></div></section><section id="sec-4"><div class="sec-head"><div class="sec-no">04</div><div><div class="sec-eyebrow">CAPABILITY MATRIX</div><h2>功能矩阵</h2><div class="sec-sub">核心能力覆盖情况</div></div></div><div class="matrix-card"><table class="feature-matrix"><thead><tr><th class="fm-feat">功能模块</th><th style="color:#8B5CF6"><span class="fm-ph" style="background:#8B5CF61a;color:#8B5CF6">具体能力</span></th><th style="color:#14B8A6"><span class="fm-ph" style="background:#14B8A61a;color:#14B8A6">说明</span></th></tr></thead><tbody><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>智能补全</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">Tab 代码补全</span></td><td class="fm-cell no"><span class="fm-dot no"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span><span class="fm-note">上下文感知，支持多语言，无限量（Pro 版</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>自然语言编辑</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">Cmd+K 内联编辑</span></td><td class="fm-cell partial"><span class="fm-dot partial"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span><span class="fm-note">选中代码块，用自然语言指令修改</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>对话式编程</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">Chat 面板（Cmd+L</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">与 AI 对话，可添加文件/代码库作为上下文</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>多文件 Agent</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">Composer（Cmd+I</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">跨文件理解项目，执行大规模代码生成与重构</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>代码库问答</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">Codebase Q&amp;A</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">与整个代码库对话，快速定位功能定义与实现</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>知识库集成</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">外部文档/笔记接入</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">将 API 文档、Obsidian 笔记等作为 AI 上下文</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>代码审查</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">Bugbot</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">智能体驱动的代码审查，发现潜在问题</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>团队协作</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">云端 Agent、共享上下文</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">团队级上下文共享、用量分析与 SSO</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>自定义规则</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">.cursorrules 文件</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">项目级 AI 行为定制（代码风格、架构偏好</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>终端集成</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">自然语言生成 Shell 命令</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">将指令转换为可执行命令</span></td></tr></tbody></table><div class="fm-cov-wrap"><span class="fm-cov-title">功能覆盖率</span><div class="fm-cov"><span class="fm-cov-name" style="color:#8B5CF6">具体能力</span><span class="fm-cov-bar"><i style="width:0%;background:#8B5CF6"></i></span><span class="fm-cov-pct">0%</span></div><div class="fm-cov"><span class="fm-cov-name" style="color:#14B8A6">说明</span><span class="fm-cov-bar"><i style="width:0%;background:#14B8A6"></i></span><span class="fm-cov-pct">0%</span></div></div><div class="fm-legend"><span><i class="lg yes"></i>强</span><span><i class="lg partial"></i>中</span><span><i class="lg no"></i>小</span></div></div></section><section id="sec-5"><div class="sec-head"><div class="sec-no">05</div><div><div class="sec-eyebrow">AI CAPABILITIES</div><h2>AI 能力</h2><div class="sec-sub">底层技术与智能化能力</div></div></div><div class="ai-grid"><div class="ai-card"><span class="ai-idx">01</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>多模型接入</h4><p>支持 Claude（Opus/Sonnet）、GPT-5、Gemini、Grok 等前沿模型，用户可切换或并行使用。</p></div></div><div class="ai-card"><span class="ai-idx">02</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>上下文工程</h4><p>核心优势在于对项目代码库的索引与理解，支持「与整个代码库对话」，显著提升回答准确性。</p></div></div><div class="ai-card"><span class="ai-idx">03</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>Agent 能力</h4><p>Composer 与云端 Agent 可自主规划并执行多步骤任务，如创建完整 Web 应用（前端+后端+数据库）。</p></div></div><div class="ai-card"><span class="ai-idx">04</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>模型调度策略</h4><p>根据任务复杂度自动选择模型，平衡速度与质量（如快速请求与慢速请求分层）。</p></div></div><div class="ai-card"><span class="ai-idx">05</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>自定义与扩展</h4><p>通过 MCP（模型上下文协议）、技能（Skills）和钩子（Hooks）扩展 AI 能力边界。</p></div></div><div class="ai-card"><span class="ai-idx">06</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>成本控制机制</h4><p>采用「API 额度池」模式，不同模型消耗额度速度不同，让用户按需付费。</p></div></div></div></section><section id="sec-6"><div class="sec-head"><div class="sec-no">06</div><div><div class="sec-eyebrow">BUSINESS MODEL</div><h2>商业模式</h2><div class="sec-sub">定价结构与变现路径</div></div></div><p>订阅制为主，按量付费为辅：个人版（Pro $20/月、Pro+ $60/月、Ultra $200/月）与团队版（$40/用户/月 + API 用量）并行。</p><p>双用量池设计：API 额度池（按模型推理量消耗）+ Auto/Composer 用量池（功能使用次数）。</p><p>免费版引流：Hobby 版提供有限额度，注册可享 14 天 Pro 试用（含 500 次高级模型对话），降低体验门槛。</p><p>定价策略调整：2025 年 8 月再次调整，团队版改为「$20 使用额度 + API 价格 + 服务费」，Auto 功能改为按 token 计费（输入 $1.25/1MT，输出 $6.00/1MT）。</p><p>成本结构挑战：模型推理成本是主要支出，定价调整反映其试图在用户价值与成本之间寻找平衡。</p></section><section id="sec-7"><div class="sec-head"><div class="sec-no">07</div><div><div class="sec-eyebrow">GROWTH &amp; TRACTION</div><h2>增长</h2><div class="sec-sub">用户规模与增长动能</div></div></div><div class="kpi-grid"><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">社区驱动</div><div class="kpi-desc">通过开发者口碑、Reddit、X（Twitter）等社区传播，形成病毒式增长。</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">免费策略</div><div class="kpi-desc">免费版提供高级模型体验（如 GPT-4 慢速请求），吸引大量用户尝试。</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">内容营销</div><div class="kpi-desc">官方博客、开发者大会（如 2024 开发者大会）持续输出产品更新与技术理念。</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">企业合作</div><div class="kpi-desc">与多家科技企业达成战略合作，拓展团队级市场。</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">生态建设</div><div class="kpi-desc">支持 MCP、技能、插件市场，构建开发者生态，增强粘性。</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">增长挑战</div><div class="kpi-desc">定价频繁调整可能引发用户不满，需在商业化与用户留存间谨慎权衡。</div></div></div></section><section id="sec-8"><div class="sec-head"><div class="sec-no">08</div><div><div class="sec-eyebrow">COMPETITIVE LANDSCAPE</div><h2>竞争格局</h2><div class="sec-sub">主要竞品对标关系</div></div></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>产品</th><th>形态</th><th>价格</th><th>核心优势</th><th>主要局限</th></tr></thead><tbody><tr><td>Cursor</td><td>AI 原生编辑器</td><td>$20/月起</td><td>深度代码库理解、Agent 模式、模型多样</td><td>定价波动、大型项目性能争议</td></tr><tr><td>GitHub Copilot</td><td>IDE 插件</td><td>$10/月</td><td>GitHub 生态整合、稳定</td><td>上下文理解有限、无法跨文件修改</td></tr><tr><td>Windsurf</td><td>AI 原生编辑器</td><td>$15/月</td><td>价格略低</td><td>回答准确性较低</td></tr><tr><td>Cline</td><td>开源 Agent</td><td>按量付费</td><td>深度代码库理解、开源</td><td>费用不可预测、可能昂贵</td></tr><tr><td>JetBrains AI</td><td>IDE 内置</td><td>随 IDE 订阅</td><td>与 JetBrains 深度整合</td><td>功能相对基础</td></tr></tbody></table></div><p>竞争态势：Cursor 目前处于领先地位，但 GitHub Copilot 凭借生态与价格优势紧追，Windsurf 等新进入者通过低价策略争夺市场。差异化关键在于 AI 能力的深度（代码库理解、Agent 自主性）与用户体验的流畅度。</p><div class="chart-card"><div class="chart-head"><span class="chart-title">竞争辐射关系</span><span class="chart-note">中心 = 主体 · 外环 = 主要竞品</span></div><div class="comp-stage"><svg class="comp-svg" viewBox="0 0 420 420" width="420" height="420"><line x1="210" y1="210" x2="307.0" y2="343.5" stroke="#E2E8F0" stroke-width="1.5"/><line x1="210" y1="210" x2="113.0" y2="343.5" stroke="#E2E8F0" stroke-width="1.5"/><line x1="210" y1="210" x2="53.1" y2="159.0" stroke="#E2E8F0" stroke-width="1.5"/><circle cx="210" cy="210" r="6" fill="#1E40AF"/></svg><div class="comp-core" style="left:210.0px;top:45.0px">Cursor<small>本报告主体</small></div><div class="comp-core" style="left:366.9px;top:159.0px">GitHub Copilot<small>本报告主体</small></div><div class="comp-sat" style="left:307.0px;top:343.5px">Windsurf</div><div class="comp-sat" style="left:113.0px;top:343.5px">Cline</div><div class="comp-sat" style="left:53.1px;top:159.0px">JetBrains AI</div></div></div></section><section id="sec-9"><div class="sec-head"><div class="sec-no">09</div><div><div class="sec-eyebrow">SWOT ANALYSIS</div><h2>SWOT</h2><div class="sec-sub">优势 / 劣势 / 机会 / 威胁</div></div></div><div class="swot"><div class="swot-grid"><div class="sw-cell s"><div class="sw-h">优势 (S)</div><div class="sw-line">技术领先的 AI 能力；强大的代码库理解；多模型接入灵活性；活跃的开发者社区</div></div><div class="sw-cell w"><div class="sw-h">劣势 (W)</div><div class="sw-line">定价频繁调整引发信任危机；对大型代码库性能评价不一；依赖第三方模型，缺乏自有模型</div></div><div class="sw-cell o"><div class="sw-h">机会 (O)</div><div class="sw-line">AI 编程市场高速增长；企业级市场渗透（团队版、企业版）；Agent 自动化编程的深化</div></div><div class="sw-cell t"><div class="sw-h">威胁 (T)</div><div class="sw-line">GitHub Copilot 生态与价格优势；Windsurf 等低价竞品；模型成本高企压缩利润；大型科技公司自研 AI 编辑器</div></div></div></div></section><section id="sec-10"><div class="sec-head"><div class="sec-no">10</div><div><div class="sec-eyebrow">CAPABILITY RADAR</div><h2>能力雷达</h2><div class="sec-sub">多维度能力综合评估</div></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">多维能力图谱</span><span class="chart-note">5=领先 · 3=平均 · 1=基本不覆盖</span></div><div class="radar-dash"><div class="radar-main"><div id="radar_2" class="echart"></div></div><div class="score-panel"><div class="sp-title">能力评分 · 代码补全</div><div class="score-item"><div class="si-top"><span class="si-name">Cursor</span><span class="si-score" style="color:#1E3A8A">5.0</span></div><div class="si-bar"><i style="width:100%;background:#1E3A8A"></i></div></div><div class="score-item"><div class="si-top"><span class="si-name">GitHub Copilot</span><span class="si-score" style="color:#1E3A8A">4.0</span></div><div class="si-bar"><i style="width:80%;background:#1E3A8A"></i></div></div><div class="score-item"><div class="si-top"><span class="si-name">Windsurf</span><span class="si-score" style="color:#475569">3.0</span></div><div class="si-bar"><i style="width:60%;background:#475569"></i></div></div><div class="score-item"><div class="si-top"><span class="si-name">行业平均</span><span class="si-score" style="color:#475569">3.0</span></div><div class="si-bar"><i style="width:60%;background:#475569"></i></div></div></div></div><div class="cmp-legend"><span class="cmp-chip"><i style="background:#1E40AF"></i>代码补全<small>分析主体</small></span><span class="cmp-chip"><i style="background:#94A3B8"></i>代码库理解<small>竞品</small></span><span class="cmp-chip"><i style="background:#CBD5E1"></i>Agent 自主性<small>竞品</small></span><span class="cmp-chip"><i style="background:#93C5FD"></i>多模型支持<small>竞品</small></span><span class="cmp-chip"><i style="background:#94A3B8"></i>生态整合<small>竞品</small></span><span class="cmp-chip"><i style="background:#CBD5E1"></i>定价灵活性<small>竞品</small></span><span class="cmp-chip"><i style="background:#93C5FD"></i>企业级功能<small>竞品</small></span><span class="cmp-chip"><i style="background:#94A3B8"></i>开发者体验<small>竞品</small></span><span class="cmp-chip"><i style="background:#CBD5E1"></i>社区与口碑<small>竞品</small></span><span class="cmp-chip"><i style="background:#93C5FD"></i>成本控制<small>竞品</small></span></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("radar_2"));c.setOption({"backgroundColor": "transparent", "tooltip": {"trigger": "item"}, "radar": {"indicator": [{"name": "Cursor", "max": 5}, {"name": "GitHub Copilot", "max": 5}, {"name": "Windsurf", "max": 5}, {"name": "行业平均", "max": 5}], "radius": "72%", "center": ["50%", "48%"], "axisName": {"color": "#666666", "fontSize": 12}, "splitNumber": 4, "splitLine": {"lineStyle": {"color": "#ECECEC"}}, "axisLine": {"lineStyle": {"color": "#ECECEC"}}, "splitArea": {"areaStyle": {"color": ["rgba(255,255,255,0)", "rgba(0,0,0,0.018)"]}}}, "series": [{"type": "radar", "data": [{"name": "代码补全", "value": [5.0, 4.0, 3.0, 3.0], "lineStyle": {"color": "#1E40AF", "width": 3}, "itemStyle": {"color": "#1E40AF"}, "symbolSize": 7, "areaStyle": {"color": "#1E40AF", "opacity": 0.18}}, {"name": "代码库理解", "value": [5.0, 2.0, 3.0, 3.0], "lineStyle": {"color": "#94A3B8", "width": 1.8}, "itemStyle": {"color": "#94A3B8"}, "symbolSize": 4}, {"name": "Agent 自主性", "value": [5.0, 2.0, 3.0, 3.0], "lineStyle": {"color": "#CBD5E1", "width": 1.8}, "itemStyle": {"color": "#CBD5E1"}, "symbolSize": 4}, {"name": "多模型支持", "value": [5.0, 2.0, 3.0, 3.0], "lineStyle": {"color": "#93C5FD", "width": 1.8}, "itemStyle": {"color": "#93C5FD"}, "symbolSize": 4}, {"name": "生态整合", "value": [3.0, 5.0, 2.0, 3.0], "lineStyle": {"color": "#94A3B8", "width": 1.8}, "itemStyle": {"color": "#94A3B8"}, "symbolSize": 4}, {"name": "定价灵活性", "value": [3.0, 4.0, 4.0, 3.0], "lineStyle": {"color": "#CBD5E1", "width": 1.8}, "itemStyle": {"color": "#CBD5E1"}, "symbolSize": 4}, {"name": "企业级功能", "value": [4.0, 3.0, 2.0, 3.0], "lineStyle": {"color": "#93C5FD", "width": 1.8}, "itemStyle": {"color": "#93C5FD"}, "symbolSize": 4}, {"name": "开发者体验", "value": [4.0, 4.0, 3.0, 3.0], "lineStyle": {"color": "#94A3B8", "width": 1.8}, "itemStyle": {"color": "#94A3B8"}, "symbolSize": 4}, {"name": "社区与口碑", "value": [5.0, 4.0, 2.0, 3.0], "lineStyle": {"color": "#CBD5E1", "width": 1.8}, "itemStyle": {"color": "#CBD5E1"}, "symbolSize": 4}, {"name": "成本控制", "value": [3.0, 4.0, 3.0, 3.0], "lineStyle": {"color": "#93C5FD", "width": 1.8}, "itemStyle": {"color": "#93C5FD"}, "symbolSize": 4}]}], "graphic": [{"type": "text", "left": "center", "top": "40%", "style": {"text": "3.8", "fontSize": 34, "fontWeight": "bold", "fill": "#1E40AF", "textAlign": "center"}}, {"type": "text", "left": "center", "top": "50%", "style": {"text": "AI 能力分", "fontSize": 11, "fill": "#999999", "textAlign": "center"}}]});REG.push(c);});</script></section><section id="sec-11"><div class="sec-head"><div class="sec-no">11</div><div><div class="sec-eyebrow">MARKET MAP</div><h2>市场地图</h2><div class="sec-sub">产品定位气泡图</div></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">市场地图</span></div><div class="chart-empty">暂无可定位的产品数据——请检查市场地图表格是否包含「名称 / X（AI 深度） / Y（生态整合）」三列数值。</div></div></section><section id="sec-12"><div class="sec-head"><div class="sec-no">12</div><div><div class="sec-eyebrow">TIMELINE</div><h2>时间线</h2><div class="sec-sub">关键节点编年</div></div></div><div class="timeline-h"><div class="tl-track"><div class="tl-node"><div class="tl-year">2022</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2022</div><div class="tl-text">Anysphere 公司成立，开始研发 Cursor。</div></div></div><div class="tl-node"><div class="tl-year">2023</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2023</div><div class="tl-text">Cursor 正式发布，基于 VS Code 分支，集成 GPT-4，引发开发者社区关注。</div></div></div><div class="tl-node"><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2023-11</div><div class="tl-text">早期评测视频出现，展示 GPT 全自动写代码能力，免费版提供 GPT-4 慢速请求额度。</div></div></div><div class="tl-node"><div class="tl-year">2024</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2024-03</div><div class="tl-text">发布 AI 代码补全功能升级，支持更多语言与框架；宣布与多家企业战略合作。</div></div></div><div class="tl-node"><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2024-04</div><div class="tl-text">举办 2024 开发者大会，展示技术进展与规划。</div></div></div><div class="tl-node"><div class="tl-year">2025</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2025-06</div><div class="tl-text">重大定价变更，从「固定请求次数」改为「API 使用额度」模型。</div></div></div><div class="tl-node"><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2025-08</div><div class="tl-text">再次调整定价，团队版改为按量付费，Auto 功能按 token 计费（9 月 15 日生效）。</div></div></div><div class="tl-node"><div class="tl-year">2026</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2026-02</div><div class="tl-text">发布 2026 入门指南，确认 6 种订阅套餐与双用量池系统。</div></div></div></div></div></section><section id="sec-13"><div class="sec-head"><div class="sec-no">13</div><div><div class="sec-eyebrow">USER VOICE</div><h2>用户口碑</h2><div class="sec-sub">来自真实用户的声音</div></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">用户口碑</span><span class="chart-note">样本 6 条</span></div><div class="sent-bar"><i class="sent-pos" style="width:50%"></i><i class="sent-neg" style="width:50%"></i></div><div class="sent-legend"><span><i class="dot pos"></i>正面 3</span><span><i class="dot neg"></i>负面 / 建议 3</span><span class="sent-pw">好评率 50%</span></div><div class="voice-list"><div class="voice pos"><div class="voice-mono" style="background:#14B8A620;color:#14B8A6">正</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge pos">正面</span></div><div class="voice-quote">「Cursor 已经改变了游戏规则。我真的无法想像没有它如何编写代码。从 VSCode 转换很容易，现在我在编辑器和终端中都拥有 AI 超能力。」—— GitHub 员工工程师</div></div></div><div class="voice pos"><div class="voice-mono" style="background:#14B8A620;color:#14B8A6">正</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge pos">正面</span></div><div class="voice-quote">「一旦我学会了如何正确地提示它，我感觉我比没有它时快 2-3 倍。」—— 15 年经验 Web 开发者</div></div></div><div class="voice pos"><div class="voice-mono" style="background:#14B8A620;color:#14B8A6">正</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge pos">正面</span></div><div class="voice-quote">「Cursor 是我最大的工作流程改进之一。」—— Figma 工程师</div></div></div><div class="voice neg"><div class="voice-mono" style="background:#EF444420;color:#EF4444">负</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge neg">负面</span></div><div class="voice-quote">「Cursor 的回答成功率比 GitHub Copilot 低得多，使用起来更烦人，而且费用翻倍。」—— Reddit 用户</div></div></div><div class="voice neg"><div class="voice-mono" style="background:#EF444420;color:#EF4444">负</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge neg">负面</span></div><div class="voice-quote">「Cursor 编辑器缺少一些功能，比如 PyCharm 的项目配置、每个项目的 Python 配置等。」—— Reddit 用户</div></div></div><div class="voice neg"><div class="voice-mono" style="background:#EF444420;color:#EF4444">负</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge neg">负面</span></div><div class="voice-quote">「关于 Cursor 的炒作变得非常荒谬，每天的宣传越来越疯狂。」—— Reddit 用户</div></div></div></div></div></section><section id="sec-14"><div class="sec-head"><div class="sec-no">14</div><div><div class="sec-eyebrow">SOURCES</div><h2>来源</h2><div class="sec-sub">数据来源与参考</div></div></div><div class="ref-list"><div class="ref"><span class="ref-no">1</span><a href="https://cursor.com/cn/pricing" target="_blank" rel="noopener">Cursor 官网（定价页）</a><span class="ref-dom">cursor.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">2</span><a href="https://cursor.51component.com" target="_blank" rel="noopener">Cursor 中文网站</a><span class="ref-dom">cursor.51component.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">3</span><a href="https://www.pmbaobao.com/sites/3006.html" target="_blank" rel="noopener">PMBaoBao 产品介绍</a><span class="ref-dom">www.pmbaobao.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">4</span><a href="https://www.zoho.com.cn/creator/articles/login0225.html" target="_blank" rel="noopener">Zoho 低代码平台文章</a><span class="ref-dom">www.zoho.com.cn</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">5</span><a href="https://www.axtonliu.ai/blog/cursor-ai-development-tool-revolutionary-natural-language-programming-assistant" target="_blank" rel="noopener">Axton Liu 博客</a><span class="ref-dom">www.axtonliu.ai</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">6</span><a href="https://x.com/zhanghaili0610/status/1957305754396106902" target="_blank" rel="noopener">Harry Zhang 推特（定价调整）</a><span class="ref-dom">x.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">7</span><a href="https://zhuanlan.zhihu.com/p/1952065758101234340" target="_blank" rel="noopener">知乎专栏（定价分析）</a><span class="ref-dom">zhuanlan.zhihu.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">8</span><a href="https://unifuncs.com/s/CoTX6rZw" target="_blank" rel="noopener">U深搜（套餐详解）</a><span class="ref-dom">unifuncs.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">9</span><a href="https://www.reddit.com/r/developersIndia/comments/1iuodvx/" target="_blank" rel="noopener">Reddit 用户讨论</a><span class="ref-dom">www.reddit.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">10</span><a href="https://tenten.co/learning/cursor-ai-review" target="_blank" rel="noopener">TentEn 评测文章</a><span class="ref-dom">tenten.co</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">11</span><a href="https://qianfan.cloud.baidu.com/qianfandev/topic/685729" target="_blank" rel="noopener">百度智能云千帆社区</a><span class="ref-dom">qianfan.cloud.baidu.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">12</span><a href="https://www.youtube.com/watch?v=S9To7dKZyGA" target="_blank" rel="noopener">YouTube 评测视频</a><span class="ref-dom">www.youtube.com</span><span class="cred mid">中</span></div></div><p>--</p><p>行动建议</p><div class="pri"><div class="pri-row"><div class="pri-col m"><div class="pri-h" style="border-color:#1E40AF;color:#1E40AF">Must · 必做</div><ul><li>持续优化大型代码库的性能与上下文管理，这是企业级用户的核心痛点。</li></ul></div><div class="pri-col s"><div class="pri-h" style="border-color:#F59E0B;color:#F59E0B">Should · 应做</div><ul><li>稳定定价策略，加强与用户沟通，避免频繁调价损害信任；可考虑推出「按需付费」的轻量级选项以覆盖价格敏感用户。</li></ul></div><div class="pri-col c"><div class="pri-h" style="border-color:#7C3AED;color:#7C3AED">Could · 可做</div><ul><li>探索自有模型或与模型厂商深度绑定，以降低推理成本并形成差异化能力；深化 Agent 自动化能力，向「AI 软件工程师」方向演进。</li></ul></div></div></div></section></div><footer class="ev-footer"><span class="ef-brand">AIPM·瞭望台</span><span class="ef-sep"></span><span>本报告由 AI 实时检索公开来源生成，结论可溯源</span><span class="ef-sep"></span><span>更新于 2026年8月26日</span></footer></main></div><script>var REG=[];window.addEventListener("load",function(){REG.forEach(function(c){c.resize();});});window.addEventListener("resize",function(){REG.forEach(function(c){c.resize();});});var navs=document.querySelectorAll(".nav a");navs.forEach(function(a){a.addEventListener("click",function(){navs.forEach(function(x){x.classList.remove("active");});this.classList.add("active");});});var secs=[].slice.call(document.querySelectorAll("section"));window.addEventListener("scroll",function(){var pos=window.scrollY+120;secs.forEach(function(s){if(s.offsetTop<=pos){navs.forEach(function(x){x.classList.remove("active");});var a=document.querySelector('.nav a[href="#'+s.id+'"]');if(a)a.classList.add("active");}});});</script></body></html>

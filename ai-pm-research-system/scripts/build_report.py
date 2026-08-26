@@ -1175,7 +1175,7 @@ def render_section(sec, mid_state, market_map, idx):
             if title == '用户口碑' and mk:
                 sentiment.append((mk.group(1), mk.group(2).strip(), mk.group(3).strip()))
             elif title == '时间线':
-                mm = re.match(r'^(\d{4}(?:[\d\-年/]*\s+[^\s：:]+)?)\s*[：:]\s*(.*)$', bl)
+                mm = re.match(r'^(\d{4}(?:年\d{1,2}月?|[-/]\d{1,2}(?:[-/]\d{1,2})?|[ \t]+Q[1-4])?)\s*[：:]\s*(.*)$', bl)
                 if mm:
                     timeline.append((mm.group(1).strip(), mm.group(2).strip()))
             elif title == '行动建议':

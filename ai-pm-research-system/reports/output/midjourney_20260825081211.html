@@ -1,0 +1,313 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Midjourney 产品深度分析报告</title><script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script><style>
+:root{
+  --bg:#F8F7F4;
+  --surface:#FFFFFF;
+  --surface-2:#F1F5F9;
+  --border:#E8E6E1;
+  --ink:#171717;
+  --ink-2:#666666;
+  --muted:#999999;
+  --accent:#1E40AF;
+  --accent-ink:#1E3A8A;
+  --accent-soft:#EFF6FF;
+  --teal:#14B8A6;
+  --amber:#F59E0B;
+  --danger:#EF4444;
+  --opp:#8B5CF6;
+  --grid:#E5E7EB;
+  --sans:'Inter','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.04);
+  --shadow:0 4px 20px rgba(0,0,0,.04);
+  --radius:16px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* layout */
+.app{display:flex;min-height:100vh;}
+.side{width:248px;background:var(--surface);border-right:1px solid var(--border);position:fixed;left:0;top:0;bottom:0;overflow:auto;padding:32px 22px;z-index:20;}
+.brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:700;color:var(--ink);letter-spacing:.3px;}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--opp));display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;flex-shrink:0;}
+.brand small{display:block;font-size:10px;font-weight:500;color:var(--muted);letter-spacing:2px;margin-top:3px;text-transform:uppercase;}
+.nav{list-style:none;margin:28px 0 0;padding:0;}
+.nav li{margin:1px 0;}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:13px;transition:.15s;}
+.nav a .n{font-size:11px;font-weight:700;color:var(--muted);min-width:20px;font-variant-numeric:tabular-nums;}
+.nav a:hover{background:#F2F0EB;color:var(--ink);}
+.nav a.active{background:var(--accent-soft);color:var(--accent-ink);font-weight:600;}
+.nav a.active .n{color:var(--accent);}
+
+.main{margin-left:248px;flex:1;padding:48px 80px 100px;}
+.content{max-width:1200px;margin:0 auto;}
+
+/* masthead / Research Header */
+.masthead{display:flex;flex-direction:column;gap:18px;padding-bottom:28px;margin-bottom:36px;border-bottom:1px solid var(--border);}
+.masthead .kicker{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;}
+.k-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;}
+.masthead h1{margin:0;font-size:48px;font-weight:700;line-height:1.15;color:var(--ink);letter-spacing:-.8px;}
+/* 顶部文档元信息：纯灰文字，无组件装饰 */
+.docmeta{margin-top:14px;display:flex;flex-direction:column;gap:7px;font-size:13px;line-height:1.7;color:var(--ink-2);}
+.docmeta .dm-line{display:flex;flex-wrap:wrap;gap:6px 22px;}
+.docmeta .dm-item{display:inline-flex;align-items:baseline;gap:6px;}
+.docmeta .dm-k{color:var(--muted);font-weight:500;}
+.docmeta .dm-v{color:var(--ink-2);font-weight:500;}
+
+/* sections */
+section{margin-bottom:56px;scroll-margin-top:24px;}
+.sec-head{display:flex;align-items:flex-start;gap:18px;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:24px;}
+.sec-no{font-size:13px;font-weight:700;color:#fff;background:var(--accent);border-radius:9px;min-width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-variant-numeric:tabular-nums;}
+.sec-eyebrow{font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:5px;}
+.sec-head h2{margin:0;font-size:24px;font-weight:600;color:var(--ink);letter-spacing:-.3px;}
+.sec-sub{font-size:13px;color:var(--ink-2);margin-top:4px;}
+section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
+.lead{font-size:15px;line-height:1.8;color:var(--ink-2);}
+
+/* Insight Card (exec summary / opportunity / recommendations) */
+.findings{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.finding{display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);transition:.2s;}
+.finding:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.find-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:700;}
+.find-body{display:flex;flex-direction:column;gap:6px;}
+.find-kw{font-size:15px;font-weight:600;color:var(--ink);line-height:1.5;}
+.find-text{font-size:13.5px;color:var(--ink-2);line-height:1.7;}
+.find-ev{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.ev-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;}
+.ev-badge.high{background:#DCFCE7;color:#15803D;}
+.ev-badge.med{background:#FEF3C7;color:#92660A;}
+.ev-badge.low{background:#FEE2E2;color:#B91C1C;}
+.ev-conf{font-size:11px;color:var(--muted);}
+
+/* Product Card (positioning note) */
+.callout{display:flex;gap:14px;background:var(--accent-soft);border:1px solid #DDDDFB;border-radius:var(--radius);padding:18px 20px;margin-top:18px;font-size:14px;color:var(--ink);line-height:1.8;}
+.callout-bar{width:4px;background:var(--accent);border-radius:2px;flex-shrink:0;}
+.callout b{color:var(--accent-ink);}
+
+/* feature matrix heatmap */
+.matrix-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px;box-shadow:var(--shadow-sm);}
+.feature-matrix{width:100%;border-collapse:separate;border-spacing:6px;font-size:13px;}
+.feature-matrix th{padding:10px;border-radius:10px;font-weight:600;color:var(--ink);text-align:center;background:#FAFAF9;}
+.feature-matrix th.fm-feat{text-align:left;background:transparent;}
+.fm-ph{padding:4px 12px;border-radius:999px;font-weight:700;white-space:nowrap;font-size:12.5px;}
+.feature-matrix td{padding:0;border-radius:8px;text-align:center;vertical-align:middle;}
+.feature-matrix td.fm-feat{background:transparent;text-align:left;color:var(--ink);font-weight:500;padding:0 4px;}
+.fm-fi{display:inline-flex;vertical-align:middle;margin-right:7px;color:var(--accent);}
+.fm-fi svg{width:16px;height:16px;}
+.fm-dot{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:8px;vertical-align:middle;}
+.fm-dot.yes{background:var(--accent);}
+.fm-dot.partial{background:#93C5FD;}
+.fm-dot.no{background:#E5E7EB;}
+.fm-dot.na{background:#F8FAFC;color:var(--muted);font-size:12px;border:1px solid var(--border);}
+.fm-dot svg{width:12px;height:12px;}
+.fm-cell.yes{background:rgba(30,64,175,0.12);}
+.fm-cell.partial{background:rgba(165,180,252,0.35);}
+.fm-cell.no{background:#F1F5F9;}
+.fm-cell.na{background:#F8FAFC;}
+.fm-note{display:block;font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
+.fm-cov-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding:14px 12px 6px;}
+.fm-cov-title{font-size:12px;font-weight:700;color:var(--ink-2);letter-spacing:.5px;}
+.fm-cov{display:flex;align-items:center;gap:8px;font-size:12px;}
+.fm-cov-name{font-weight:600;color:var(--ink);}
+.fm-cov-bar{width:84px;height:6px;background:#F1EFEA;border-radius:999px;overflow:hidden;}
+.fm-cov-bar i{display:block;height:100%;border-radius:999px;}
+.fm-cov-pct{color:var(--muted);}
+.fm-legend{display:flex;gap:20px;flex-wrap:wrap;padding:6px 12px 12px;font-size:12px;color:var(--ink-2);}
+.fm-legend .lg{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:5px;vertical-align:middle;}
+.lg.yes{background:var(--accent);} .lg.partial{background:#93C5FD;} .lg.no{background:#E5E7EB;}
+
+/* chart card */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin:18px 0;box-shadow:var(--shadow-sm);}
+.chart-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:6px;}
+.chart-title{font-size:18px;font-weight:700;color:var(--ink);}
+.chart-note{font-size:11.5px;color:var(--ink-2);background:#F4F3F0;border:1px solid var(--border);padding:3px 11px;border-radius:999px;}
+.echart{width:100%;height:430px;}
+
+/* AI cards */
+.ai-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.ai-card{display:flex;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;align-items:flex-start;position:relative;box-shadow:var(--shadow-sm);}
+.ai-card::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;background:var(--accent);border-radius:2px;}
+.ai-idx{font-size:13px;color:var(--accent);font-weight:700;}
+.ai-icon{color:var(--accent);margin-top:1px;}
+.ai-body h4{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--ink);}
+.ai-body p{margin:0;font-size:13px;color:var(--ink-2);line-height:1.7;}
+
+/* business model */
+.biz-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:8px 0;}
+.biz-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0 0 14px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.biz-ph{display:flex;align-items:center;gap:8px;padding:15px 16px;font-weight:700;font-size:15px;border-bottom:1px solid var(--border);border-top:3px solid;}
+.biz-dot{width:9px;height:9px;border-radius:50%;}
+.plan{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 16px;border-bottom:1px solid #F3F1EC;}
+.plan:last-child{border-bottom:none;}
+.plan-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+.plan-val{font-size:13px;color:var(--ink);font-weight:500;text-align:right;}
+.biz-extra{margin-top:18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);}
+.biz-extra-title{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--ink-2);margin-bottom:8px;}
+.biz-table{width:100%;border-collapse:collapse;font-size:13px;}
+.biz-table th{padding:9px 12px;text-align:left;color:var(--ink-2);font-weight:600;border-bottom:1px solid var(--border);}
+.biz-table td{padding:9px 12px;border-bottom:1px solid #F3F1EC;color:var(--ink);vertical-align:top;}
+.biz-table td.bk{font-weight:600;color:var(--ink);}
+.biz-table tr:last-child td{border-bottom:none;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:8px 0;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 20px;box-shadow:var(--shadow-sm);}
+.kpi-num{font-size:32px;font-weight:700;color:var(--accent);line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-1px;}
+.kpi-label{font-size:12px;font-weight:600;color:var(--ink);margin:10px 0 4px;}
+.kpi-desc{font-size:12.5px;color:var(--ink-2);line-height:1.6;}
+
+/* competition */
+.comp-stage{position:relative;width:420px;height:420px;margin:10px auto;max-width:100%;}
+.comp-svg{position:absolute;inset:0;}
+.comp-core{position:absolute;transform:translate(-50%,-50%);background:linear-gradient(135deg,var(--accent),var(--accent-ink));color:#fff;border-radius:50%;width:112px;height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(30,64,175,.35);z-index:3;}
+.comp-core small{font-size:9px;font-weight:500;opacity:.85;margin-top:2px;}
+.comp-sat{position:absolute;transform:translate(-50%,-50%);background:#fff;border:2px solid #CBD5E1;width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:600;color:#475569;box-shadow:0 3px 10px rgba(0,0,0,.05);z-index:2;padding:4px;}
+
+/* SWOT */
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.sw-cell{border-radius:20px;padding:18px 20px;border:1px solid var(--border);}
+.sw-cell.s{background:#ECFDF5;border-color:#BBF7D0;}
+.sw-cell.w{background:#F8FAFC;border-color:#E2E8F0;}
+.sw-cell.o{background:#F5F3FF;border-color:#DDD6FE;}
+.sw-cell.t{background:#FFFBEB;border-color:#FDE68A;}
+.sw-h{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.sw-h::before{content:"";width:9px;height:9px;border-radius:3px;}
+.sw-cell.s .sw-h::before{background:#10B981;}
+.sw-cell.w .sw-h::before{background:#94A3B8;}
+.sw-cell.o .sw-h::before{background:#8B5CF6;}
+.sw-cell.t .sw-h::before{background:#F59E0B;}
+.sw-line{font-size:13px;color:var(--ink-2);line-height:1.7;margin:5px 0;padding-left:13px;position:relative;}
+.sw-line::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.35;}
+
+/* radar / 多维能力图谱 dashboard */
+.radar-dash{display:flex;gap:32px;align-items:stretch;}
+.radar-main{flex:1.35;min-width:0;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);}
+.radar-main .echart{width:100%;height:460px;}
+.score-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow-sm);}
+.sp-title{font-size:13px;font-weight:700;letter-spacing:.4px;color:var(--ink-2);margin-bottom:4px;}
+.score-item{display:flex;flex-direction:column;gap:7px;}
+.si-top{display:flex;align-items:baseline;justify-content:space-between;}
+.si-name{font-size:13px;color:var(--ink);font-weight:500;}
+.si-score{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+.si-bar{height:7px;background:#F1EFEA;border-radius:999px;overflow:hidden;}
+.si-bar i{display:block;height:100%;border-radius:999px;transition:width .4s ease;}
+.cmp-legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.cmp-chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);}
+.cmp-chip i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+.cmp-chip small{color:var(--muted);font-size:11px;margin-left:1px;}
+
+/* empty state */
+.chart-empty{padding:42px 0;text-align:center;color:var(--muted);font-size:13px;line-height:1.6;}
+/* pyramid */
+.pyramid{display:flex;flex-direction:column;gap:6px;align-items:center;}
+.pyr-band{width:100%;display:flex;justify-content:center;}
+.pyr-band.t1{width:55%;}
+.pyr-band.t2{width:78%;}
+.pyr-band.t3{width:100%;}
+.pyr-txt{display:flex;flex-direction:column;gap:3px;width:100%;padding:18px 24px;color:#fff;border-radius:14px;}
+.pyr-band.t1 .pyr-txt{background:linear-gradient(90deg,#1E40AF,#3B82F6);}
+.pyr-band.t2 .pyr-txt{background:#94A3B8;}
+.pyr-band.t3 .pyr-txt{background:#CBD5E1;}
+.pyr-label{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.pyr-label span{font-size:12px;font-weight:500;opacity:.9;background:rgba(255,255,255,.22);padding:2px 10px;border-radius:999px;}
+.pyr-names{font-size:14px;font-weight:600;margin-top:2px;}
+.pyr-desc{font-size:12px;opacity:.92;line-height:1.5;}
+
+/* market map legend */
+.mp-legs{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;}
+.mp-leg{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-2);}
+.mp-leg i{width:11px;height:11px;border-radius:50%;}
+
+/* timeline · 横向 Roadmap */
+.timeline-h{overflow-x:auto;padding:30px 2px 14px;margin:6px 0;}
+.tl-track{display:flex;align-items:flex-start;gap:0;min-width:max-content;position:relative;}
+.tl-node{position:relative;flex:0 0 230px;padding:0 16px;box-sizing:border-box;}
+.tl-node::before{content:"";position:absolute;top:14px;left:0;right:0;height:2px;background:var(--border);z-index:0;}
+.tl-node:first-child::before{left:50%;}
+.tl-node:last-child::before{right:50%;}
+.tl-year{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--accent);background:var(--bg);padding:1px 8px;white-space:nowrap;z-index:2;}
+.tl-dot{position:relative;z-index:1;display:block;width:13px;height:13px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 1px var(--border);margin:7px auto 14px;}
+.tl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow-sm);}
+.tl-date{font-size:12px;font-weight:700;color:var(--accent-ink);margin-bottom:6px;}
+.tl-text{font-size:11.5px;color:var(--ink-2);line-height:1.55;}
+
+/* sentiment */
+.sent-bar{display:flex;height:30px;border-radius:10px;overflow:hidden;background:#F1EFEA;}
+.sent-pos{background:var(--teal);}
+.sent-neg{background:#EF4444;}
+.sent-legend{display:flex;align-items:center;gap:16px;margin-top:8px;font-size:12px;color:var(--ink-2);}
+.sent-legend .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+.dot.pos{background:var(--teal);} .dot.neg{background:#EF4444;}
+.sent-pw{margin-left:auto;font-weight:700;color:var(--ink);}
+.voice-list{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+.voice{display:flex;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;align-items:flex-start;box-shadow:var(--shadow-sm);}
+.voice.pos{border-left:3px solid var(--teal);}
+.voice.neg{border-left:3px solid #EF4444;}
+.voice-mono{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;}
+.voice-main{flex:1;}
+.voice-meta{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+.voice-badge{font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;}
+.voice-badge.pos{background:#ECFDF5;color:#15803D;}
+.voice-badge.neg{background:#FEF2F2;color:#B91C1C;}
+.voice-prod{font-size:12px;color:var(--ink-2);background:#F4F3F0;padding:2px 10px;border-radius:999px;}
+.voice-quote{font-size:13px;color:var(--ink);line-height:1.65;}
+
+/* priority */
+.pri-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.pri-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0 0 14px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.pri-h{border-top:3px solid;padding:14px 16px;font-size:14px;font-weight:700;margin-bottom:6px;}
+.pri-col ul{margin:0;padding:0 16px;list-style:none;}
+.pri-col li{font-size:13px;color:var(--ink);line-height:1.65;padding:9px 0 9px 16px;position:relative;border-bottom:1px solid #F3F1EC;}
+.pri-col li:last-child{border-bottom:none;}
+.pri-col li::before{content:"";position:absolute;left:0;top:16px;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;}
+
+/* sources */
+.ref-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px 20px;}
+.ref{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid #F3F1EC;font-size:13px;}
+.ref-no{color:var(--accent);font-weight:700;min-width:18px;}
+.ref a{color:var(--accent-ink);text-decoration:none;font-weight:500;}
+.ref a:hover{text-decoration:underline;}
+.ref-dom{color:var(--muted);font-size:11px;margin-left:auto;}
+.cred{font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:8px;flex-shrink:0;}
+.cred.high{background:#DCFCE7;color:#15803D;}
+.cred.mid{background:#FEF3C7;color:#B45309;}
+.cred.low{background:#FEE2E2;color:#B91C1C;}
+
+/* generic tables */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th,.tbl td{padding:11px 14px;text-align:left;border-bottom:1px solid #F3F1EC;}
+.tbl th{font-weight:600;color:var(--ink-2);font-size:12px;background:#FAFAF9;}
+.tbl tbody tr:hover{background:var(--accent-soft);}
+.tbl tr:last-child td{border-bottom:none;}
+.pos-table th,.pos-table td{padding:13px 16px;}
+.pos-dim{font-weight:600;color:var(--ink);white-space:nowrap;}
+.pos-ph{padding:4px 12px;border-radius:999px;font-weight:700;white-space:nowrap;font-size:12.5px;}
+.pos-di{display:inline-flex;vertical-align:middle;margin-right:8px;color:var(--accent);}
+
+/* score badge */
+.score-badge{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:54px;height:54px;border-radius:50%;font-weight:700;flex-shrink:0;}
+.score-badge .sb-num{font-size:19px;line-height:1;font-variant-numeric:tabular-nums;}
+.score-badge .sb-lab{font-size:9px;font-weight:600;opacity:.75;margin-top:2px;}
+
+/* footer / evidence footer */
+.ev-footer{margin-top:48px;padding:24px 0 0;border-top:1px solid var(--border);color:var(--muted);font-size:12px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;}
+.ev-footer .ef-brand{font-weight:700;color:var(--ink);}
+.ev-footer .ef-sep{width:1px;height:14px;background:var(--border);}
+
+@media(max-width:920px){
+  .side{display:none;}
+  .main{margin-left:0;padding:32px 24px 80px;}
+  .content{max-width:none;}
+  .ai-grid{grid-template-columns:1fr;}
+  .radar-dash{flex-direction:column;}
+  .comp-stage{width:340px;height:340px;}
+}
+@media(max-width:640px){
+  .pri-row{grid-template-columns:1fr;}
+  .swot-grid{grid-template-columns:1fr;}
+  .findings{grid-template-columns:1fr;}
+  .masthead h1{font-size:28px;}
+}
+</style></head><body><div class="app"><aside class="side"><div class="brand"><span class="logo">瞭</span><div>瞭望台<small>AIPM Watchtower</small></div></div><ul class="nav"><li><a href="#sec-1"><span class="n">01</span>执行摘要</a></li><li><a href="#sec-2"><span class="n">02</span>市场概览</a></li><li><a href="#sec-3"><span class="n">03</span>产品定位</a></li><li><a href="#sec-4"><span class="n">04</span>功能矩阵</a></li><li><a href="#sec-5"><span class="n">05</span>AI 能力</a></li><li><a href="#sec-6"><span class="n">06</span>商业模式</a></li><li><a href="#sec-7"><span class="n">07</span>增长</a></li><li><a href="#sec-8"><span class="n">08</span>竞争格局</a></li><li><a href="#sec-9"><span class="n">09</span>SWOT</a></li><li><a href="#sec-10"><span class="n">10</span>能力雷达</a></li><li><a href="#sec-11"><span class="n">11</span>市场地图</a></li><li><a href="#sec-12"><span class="n">12</span>时间线</a></li><li><a href="#sec-13"><span class="n">13</span>用户口碑</a></li><li><a href="#sec-14"><span class="n">14</span>来源</a></li></ul></aside><main class="main"><header class="masthead"><div class="kicker"><span class="k-dot"></span>AI PM · 竞品研究报告</div><h1>Midjourney 产品深度分析报告</h1><div class="docmeta"><div class="dm-line"><span class="dm-item"><span class="dm-k">分析对象</span><span class="dm-v">Midjourney</span></span><span class="dm-item"><span class="dm-k">研究意图</span><span class="dm-v">产品分析</span></span><span class="dm-item"><span class="dm-k">数据可信等级</span><span class="dm-v">高（公开来源检索）</span></span><span class="dm-item"><span class="dm-k">日期</span><span class="dm-v">2026年8月26日</span></span></div><div class="dm-line"><span class="dm-item"><span class="dm-k">选用维度</span><span class="dm-v">全 10 维</span></span><span class="dm-item"><span class="dm-k">研究深度</span><span class="dm-v">标准</span></span></div></div></header><div class="content"><section id="sec-1"><div class="sec-head"><div class="sec-no">01</div><div><div class="sec-eyebrow">EXECUTIVE SUMMARY</div><h2>执行摘要</h2><div class="sec-sub">核心结论与关键洞察</div></div></div><div class="findings"><div class="finding"><span class="find-num">01</span><div class="find-body"><span class="find-kw"></span><span class="find-text">Midjourney 是 AI 绘画领域的标杆产品，以 Discord 为载体，通过文本生成高质量图像，其生成质量被广泛认为超越多数同类产品。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">02</span><div class="find-body"><span class="find-kw"></span><span class="find-text">产品核心优势在于极致的图像质量与艺术风格表现力，而非功能数量，其“少而精”的功能设计策略值得借鉴。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">03</span><div class="find-body"><span class="find-kw"></span><span class="find-text">商业模式为纯订阅制，定价从 10 美元/月到 120 美元/月不等，按 GPU 算力消耗计费，无免费永久额度，盈利模式清晰。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">04</span><div class="find-body"><span class="find-kw"></span><span class="find-text">用户规模已超 2000 万，其中 30%-50% 为专业用户（设计师、艺术家、广告从业者），社区生态活跃。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">05</span><div class="find-body"><span class="find-kw"></span><span class="find-text">主要竞争对手包括 DALL-E 2（OpenAI）、Stable Diffusion（Stability AI）和 Runway，竞争焦点从“生成质量”转向“生态与工作流整合”。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">06</span><div class="find-body"><span class="find-kw"></span><span class="find-text">产品对国内用户存在注册与付费门槛，催生了大量中文版/镜像站，但官方并未正式进入中国市场（未查证）。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div></div></section><section id="sec-2"><div class="sec-head"><div class="sec-no">02</div><div><div class="sec-eyebrow">MARKET OVERVIEW</div><h2>市场概览</h2><div class="sec-sub">赛道格局与竞争梯队</div></div></div><p>AI 图像生成市场自 2022 年起进入爆发期，Midjourney 凭借其卓越的生成质量迅速成为该领域的“当红炸子鸡”。市场主要参与者分为三类：以 Midjourney 为代表的“质量优先”派，以 Stable Diffusion 为代表的“开源免费”派，以及以 DALL-E 2 为代表的“生态整合”派。当前市场正从“技术验证期”进入“商业化落地期”，竞争维度从单纯图像质量扩展到工作流集成、协作能力、行业解决方案等。Midjourney 虽未公布官方营收数据（未查证），但其订阅制模式已被验证为可持续的商业路径。</p><div class="chart-card"><div class="chart-head"><span class="chart-title">竞争梯队金字塔</span><span class="chart-note">按市场规模 / 影响力划分</span></div><div class="pyramid"><div class="pyr-band t1"><div class="pyr-txt"><div class="pyr-label">第一梯队<span>头部领跑</span></div><div class="pyr-names">Midjourney、DALL-E 2、Stable Diffusion</div><div class="pyr-desc">行业绝对领先，能力全面、规模与商业化突出</div></div></div><div class="pyr-band t2"><div class="pyr-txt"><div class="pyr-label">第二梯队<span>强势跟进</span></div><div class="pyr-names">文心一格</div><div class="pyr-desc">能力优秀、增长迅速，细分场景具强竞争力</div></div></div><div class="pyr-band t3"><div class="pyr-txt"><div class="pyr-label">第三梯队<span>细分突围</span></div><div class="pyr-names">Runway、Leonardo AI</div><div class="pyr-desc">聚焦特定场景或用户群，寻求差异化突破</div></div></div></div></div></section><section id="sec-3"><div class="sec-head"><div class="sec-no">03</div><div><div class="sec-eyebrow">POSITIONING</div><h2>产品定位</h2><div class="sec-sub">差异化定位对照</div></div></div><div class="callout"><span class="callout-bar"></span><div>Midjourney 定位为“AI 艺术创作工具”，而非通用设计软件。其核心价值主张是：让没有绘画技能的用户也能生成媲美专业插画师、原画师水平的图像作品。产品刻意保持极简交互——用户只需在 Discord 频道中输入文本提示（Prompt），即可获得图像输出。这种定位使其区别于强调“精细控制”的 Stable Diffusion（面向技术用户）和强调“API 集成”的 DALL-E 2（面向开发者）。Midjourney 更偏向“创意灵感工具”与“艺术表达媒介”，其创始人 David Holz 曾表示“体验是一个聊天机器人在一个有多人的环境中，而不是试图成为一个人”，强调其社区属性与共创氛围。</div></div></section><section id="sec-4"><div class="sec-head"><div class="sec-no">04</div><div><div class="sec-eyebrow">CAPABILITY MATRIX</div><h2>功能矩阵</h2><div class="sec-sub">核心能力覆盖情况</div></div></div><div class="matrix-card"><table class="feature-matrix"><thead><tr><th class="fm-feat">功能模块</th><th style="color:#8B5CF6"><span class="fm-ph" style="background:#8B5CF61a;color:#8B5CF6">具体功能</span></th><th style="color:#14B8A6"><span class="fm-ph" style="background:#14B8A61a;color:#14B8A6">说明</span></th></tr></thead><tbody><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>核心生成</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">/imagine</span></td><td class="fm-cell yes"><span class="fm-dot yes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="fm-note">文本生成图像，支持自定义参数（长宽比、风格化、种子值等</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>图像扩展</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">图生图</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">上传参考图+文字描述，生成风格一致的图像</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>图像混合</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">混合模式</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">多张图片融合生成新图像</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>图像编辑</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">局部重绘、变体生成</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">对生成结果进行微调或生成多个变体</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>提示词工具</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">/describe、/shorten</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">图片反推提示词、长提示词精简建议</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>模式切换</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">/fast、/relax、/turbo、/stealth</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">按需选择生成速度与隐私模式</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>参数控制</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">--ar、--style、--seed 等</span></td><td class="fm-cell yes"><span class="fm-dot yes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="fm-note">精细控制图像比例、风格强度、随机性</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>社区功能</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">画廊浏览、Prompt 分享</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">基于 Discord 的社区共创与灵感获取</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>账户管理</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">/info、/subscribe、/settings</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">查看用量、订阅管理、个性化设置</span></td></tr></tbody></table><div class="fm-cov-wrap"><span class="fm-cov-title">功能覆盖率</span><div class="fm-cov"><span class="fm-cov-name" style="color:#8B5CF6">具体功能</span><span class="fm-cov-bar"><i style="width:0%;background:#8B5CF6"></i></span><span class="fm-cov-pct">0%</span></div><div class="fm-cov"><span class="fm-cov-name" style="color:#14B8A6">说明</span><span class="fm-cov-bar"><i style="width:22%;background:#14B8A6"></i></span><span class="fm-cov-pct">22%</span></div></div><div class="fm-legend"><span><i class="lg yes"></i>强</span><span><i class="lg partial"></i>中</span><span><i class="lg no"></i>小</span></div></div></section><section id="sec-5"><div class="sec-head"><div class="sec-no">05</div><div><div class="sec-eyebrow">AI CAPABILITIES</div><h2>AI 能力</h2><div class="sec-sub">底层技术与智能化能力</div></div></div><p>Midjourney 基于生成对抗网络（GAN）类深度学习模型，核心技术为 Text-to-Image。其模型迭代速度极快：v1（2022年7月）→ v2（提升文本理解）→ v3 → v4 → v5 → v5.2 → v6 → v6.1，每次迭代都在图像细节、光影处理、语义理解上有显著提升。产品支持识别特定艺术家风格（如安迪·沃霍尔、达芬奇、毕加索）及摄影术语（如景深、曝光）。2023 年推出的“风格化命令”允许用户一键生成大师级作品，大幅降低使用门槛。在生成速度方面，单张图像生成时间通常不超过 1 分钟，且支持批量生成。其算力成本高昂——创始人透露“每张图片需要进行 petaops 运算”，这也是其采用订阅制而非免费模式的根本原因。</p></section><section id="sec-6"><div class="sec-head"><div class="sec-no">06</div><div><div class="sec-eyebrow">BUSINESS MODEL</div><h2>商业模式</h2><div class="sec-sub">定价结构与变现路径</div></div></div><p>Midjourney 采用纯订阅制（SaaS），无广告、无免费永久额度。定价分三档：</p><p>Basic：10 美元/月（约 200 张/月）</p><p>Standard：30 美元/月（约 15 小时 GPU 算力/月）</p><p>Pro：60 美元/月（约 30 小时 GPU 算力/月）</p><p>Mega：120 美元/月（约 60 小时 GPU 算力/月）</p><p>价格按 GPU 算力消耗计费，而非简单按张数，这种模式更贴合成本结构。公司组织结构极度精简，以“最少管理层+小型独立团队+外部顾问网络”运作，无传统董事会，决策效率极高。与 Discord 的深度绑定既是获客渠道也是成本中心（需向 Discord 支付服务器费用）。据估算，单张图像成本约 0.4 元人民币（未查证），毛利率空间较大。</p></section><section id="sec-7"><div class="sec-head"><div class="sec-no">07</div><div><div class="sec-eyebrow">GROWTH &amp; TRACTION</div><h2>增长</h2><div class="sec-sub">用户规模与增长动能</div></div></div><div class="kpi-grid"><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">社区驱动</div><div class="kpi-desc">Discord 服务器既是产品入口也是内容社区，用户生成的作品自动成为“广告”</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">口碑传播</div><div class="kpi-desc">高质量输出是核心增长引擎，用户自发在社交媒体分享</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">版本迭代</div><div class="kpi-desc">高频发布新版本（v1→v6.1），每次升级都引发新一轮讨论与拉新</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">低门槛体验</div><div class="kpi-desc">新用户可免费生成约 25 张图像，体验后付费转化</div></div></div></section><section id="sec-8"><div class="sec-head"><div class="sec-no">08</div><div><div class="sec-eyebrow">COMPETITIVE LANDSCAPE</div><h2>竞争格局</h2><div class="sec-sub">主要竞品对标关系</div></div></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>对比维度</th><th>Midjourney</th><th>DALL-E 2</th><th>Stable Diffusion</th><th>Runway</th></tr></thead><tbody><tr><td>生成质量</td><td>★★★★★</td><td>★★★★</td><td>★★★</td><td>★★★★</td></tr><tr><td>开源程度</td><td>闭源</td><td>闭源</td><td>开源</td><td>闭源</td></tr><tr><td>使用方式</td><td>Discord 内</td><td>Web/API</td><td>本地/云端</td><td>Web/API</td></tr><tr><td>目标用户</td><td>创意人群</td><td>开发者/企业</td><td>技术用户</td><td>专业视频/图像编辑</td></tr><tr><td>定价</td><td>10-120 美元/月</td><td>按量计费</td><td>免费/自托管</td><td>15 美元/月起</td></tr><tr><td>融资情况</td><td>未披露</td><td>OpenAI 背书</td><td>1.238 亿美元</td><td>2.365 亿美元</td></tr></tbody></table></div><p>Midjourney 的核心壁垒在于模型质量与社区生态，但 DALL-E 2 的 API 开放策略和 Stable Diffusion 的开源模式分别从“生态”和“成本”两个维度构成威胁。Runway 则在视频生成领域形成差异化竞争。</p><div class="chart-card"><div class="chart-head"><span class="chart-title">竞争辐射关系</span><span class="chart-note">中心 = 主体 · 外环 = 主要竞品</span></div><div class="comp-stage"><svg class="comp-svg" viewBox="0 0 420 420" width="420" height="420"><line x1="210" y1="210" x2="352.9" y2="292.5" stroke="#E2E8F0" stroke-width="1.5"/><line x1="210" y1="210" x2="210.0" y2="375.0" stroke="#E2E8F0" stroke-width="1.5"/><line x1="210" y1="210" x2="67.1" y2="292.5" stroke="#E2E8F0" stroke-width="1.5"/><line x1="210" y1="210" x2="67.1" y2="127.5" stroke="#E2E8F0" stroke-width="1.5"/><circle cx="210" cy="210" r="6" fill="#1E40AF"/></svg><div class="comp-core" style="left:210.0px;top:45.0px">Midjourney<small>本报告主体</small></div><div class="comp-core" style="left:352.9px;top:127.5px">DALL-E 2<small>本报告主体</small></div><div class="comp-sat" style="left:352.9px;top:292.5px">Stable Diffusion</div><div class="comp-sat" style="left:210.0px;top:375.0px">Runway</div><div class="comp-sat" style="left:67.1px;top:292.5px">文心一格</div><div class="comp-sat" style="left:67.1px;top:127.5px">Leonardo AI</div></div></div></section><section id="sec-9"><div class="sec-head"><div class="sec-no">09</div><div><div class="sec-eyebrow">SWOT ANALYSIS</div><h2>SWOT</h2><div class="sec-sub">优势 / 劣势 / 机会 / 威胁</div></div></div><div class="swot"><div class="swot-grid"><div class="sw-cell s"><div class="sw-h">优势（S）</div><div class="sw-line">图像生成质量行业领先；社区生态活跃；品牌认知度高；迭代速度快；组织敏捷</div></div><div class="sw-cell w"><div class="sw-h">劣势（W）</div><div class="sw-line">依赖 Discord 平台，独立入口缺失；无 API 开放；自定义控制弱于开源方案；国内访问门槛高</div></div><div class="sw-cell o"><div class="sw-h">机会（O）</div><div class="sw-line">企业级应用场景拓展（游戏、广告、影视）；视频生成能力延伸；API 商业化；中国市场进入</div></div><div class="sw-cell t"><div class="sw-h">威胁（T）</div><div class="sw-line">开源模型快速追赶；大厂（OpenAI、Google）资源碾压；监管政策不确定性；算力成本上升</div></div></div></div></section><section id="sec-10"><div class="sec-head"><div class="sec-no">10</div><div><div class="sec-eyebrow">CAPABILITY RADAR</div><h2>能力雷达</h2><div class="sec-sub">多维度能力综合评估</div></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">多维能力图谱</span><span class="chart-note">5=领先 · 3=平均 · 1=基本不覆盖</span></div><div class="radar-dash"><div class="radar-main"><div id="radar_2" class="echart"></div></div><div class="score-panel"><div class="sp-title">能力评分 · 生成质量</div><div class="score-item"><div class="si-top"><span class="si-name">Midjourney</span><span class="si-score" style="color:#1E3A8A">5.0</span></div><div class="si-bar"><i style="width:100%;background:#1E3A8A"></i></div></div><div class="score-item"><div class="si-top"><span class="si-name">DALL-E 2</span><span class="si-score" style="color:#1E3A8A">4.0</span></div><div class="si-bar"><i style="width:80%;background:#1E3A8A"></i></div></div><div class="score-item"><div class="si-top"><span class="si-name">Stable Diffusion</span><span class="si-score" style="color:#475569">3.0</span></div><div class="si-bar"><i style="width:60%;background:#475569"></i></div></div><div class="score-item"><div class="si-top"><span class="si-name">Runway</span><span class="si-score" style="color:#1E3A8A">4.0</span></div><div class="si-bar"><i style="width:80%;background:#1E3A8A"></i></div></div><div class="score-item"><div class="si-top"><span class="si-name">行业平均</span><span class="si-score" style="color:#475569">3.5</span></div><div class="si-bar"><i style="width:70%;background:#475569"></i></div></div></div></div><div class="cmp-legend"><span class="cmp-chip"><i style="background:#1E40AF"></i>生成质量<small>分析主体</small></span><span class="cmp-chip"><i style="background:#94A3B8"></i>功能丰富度<small>竞品</small></span><span class="cmp-chip"><i style="background:#CBD5E1"></i>易用性<small>竞品</small></span><span class="cmp-chip"><i style="background:#93C5FD"></i>社区生态<small>竞品</small></span><span class="cmp-chip"><i style="background:#94A3B8"></i>商业模式<small>竞品</small></span><span class="cmp-chip"><i style="background:#CBD5E1"></i>技术创新<small>竞品</small></span><span class="cmp-chip"><i style="background:#93C5FD"></i>企业服务<small>竞品</small></span><span class="cmp-chip"><i style="background:#94A3B8"></i>国际化<small>竞品</small></span><span class="cmp-chip"><i style="background:#CBD5E1"></i>价格竞争力<small>竞品</small></span><span class="cmp-chip"><i style="background:#93C5FD"></i>品牌影响力<small>竞品</small></span></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("radar_2"));c.setOption({"backgroundColor": "transparent", "tooltip": {"trigger": "item"}, "radar": {"indicator": [{"name": "Midjourney", "max": 5}, {"name": "DALL-E 2", "max": 5}, {"name": "Stable Diffusion", "max": 5}, {"name": "Runway", "max": 5}, {"name": "行业平均", "max": 5}], "radius": "72%", "center": ["50%", "48%"], "axisName": {"color": "#666666", "fontSize": 12}, "splitNumber": 4, "splitLine": {"lineStyle": {"color": "#ECECEC"}}, "axisLine": {"lineStyle": {"color": "#ECECEC"}}, "splitArea": {"areaStyle": {"color": ["rgba(255,255,255,0)", "rgba(0,0,0,0.018)"]}}}, "series": [{"type": "radar", "data": [{"name": "生成质量", "value": [5.0, 4.0, 3.0, 4.0, 3.5], "lineStyle": {"color": "#1E40AF", "width": 3}, "itemStyle": {"color": "#1E40AF"}, "symbolSize": 7, "areaStyle": {"color": "#1E40AF", "opacity": 0.18}}, {"name": "功能丰富度", "value": [3.0, 4.0, 5.0, 4.0, 3.5], "lineStyle": {"color": "#94A3B8", "width": 1.8}, "itemStyle": {"color": "#94A3B8"}, "symbolSize": 4}, {"name": "易用性", "value": [4.0, 4.0, 2.0, 3.0, 3.0], "lineStyle": {"color": "#CBD5E1", "width": 1.8}, "itemStyle": {"color": "#CBD5E1"}, "symbolSize": 4}, {"name": "社区生态", "value": [5.0, 3.0, 4.0, 2.0, 3.0], "lineStyle": {"color": "#93C5FD", "width": 1.8}, "itemStyle": {"color": "#93C5FD"}, "symbolSize": 4}, {"name": "商业模式", "value": [4.0, 3.0, 2.0, 3.0, 3.0], "lineStyle": {"color": "#94A3B8", "width": 1.8}, "itemStyle": {"color": "#94A3B8"}, "symbolSize": 4}, {"name": "技术创新", "value": [5.0, 4.0, 4.0, 4.0, 4.0], "lineStyle": {"color": "#CBD5E1", "width": 1.8}, "itemStyle": {"color": "#CBD5E1"}, "symbolSize": 4}, {"name": "企业服务", "value": [2.0, 4.0, 3.0, 4.0, 3.0], "lineStyle": {"color": "#93C5FD", "width": 1.8}, "itemStyle": {"color": "#93C5FD"}, "symbolSize": 4}, {"name": "国际化", "value": [3.0, 5.0, 4.0, 4.0, 4.0], "lineStyle": {"color": "#94A3B8", "width": 1.8}, "itemStyle": {"color": "#94A3B8"}, "symbolSize": 4}, {"name": "价格竞争力", "value": [3.0, 3.0, 5.0, 3.0, 3.5], "lineStyle": {"color": "#CBD5E1", "width": 1.8}, "itemStyle": {"color": "#CBD5E1"}, "symbolSize": 4}, {"name": "品牌影响力", "value": [5.0, 4.0, 3.0, 3.0, 3.5], "lineStyle": {"color": "#93C5FD", "width": 1.8}, "itemStyle": {"color": "#93C5FD"}, "symbolSize": 4}]}], "graphic": [{"type": "text", "left": "center", "top": "40%", "style": {"text": "3.9", "fontSize": 34, "fontWeight": "bold", "fill": "#1E40AF", "textAlign": "center"}}, {"type": "text", "left": "center", "top": "50%", "style": {"text": "AI 能力分", "fontSize": 11, "fill": "#999999", "textAlign": "center"}}]});REG.push(c);});</script></section><section id="sec-11"><div class="sec-head"><div class="sec-no">11</div><div><div class="sec-eyebrow">MARKET MAP</div><h2>市场地图</h2><div class="sec-sub">产品定位气泡图</div></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">市场地图</span><span class="chart-note">气泡位置 = 定位 · 主分析对象深蓝高亮，竞品灰色</span></div><div id="scatter_3" class="echart"></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("scatter_3"));c.setOption({"backgroundColor": "transparent", "tooltip": {"trigger": "item", "formatter": "{b}<br/>{c}"}, "grid": {"left": "10%", "right": "8%", "top": "11%", "bottom": "13%"}, "xAxis": {"type": "value", "name": "X（质量）", "nameLocation": "middle", "nameGap": 30, "nameTextStyle": {"color": "#666666"}, "min": 0, "max": 10, "axisLabel": {"color": "#666666"}, "axisLine": {"lineStyle": {"color": "#E8E6E1"}}, "splitLine": {"lineStyle": {"color": "#EFEFEF", "type": "dashed"}}}, "yAxis": {"type": "value", "name": "Y（易用性）", "nameTextStyle": {"color": "#666666"}, "min": 0, "max": 10, "axisLabel": {"color": "#666666"}, "axisLine": {"lineStyle": {"color": "#E8E6E1"}}, "splitLine": {"lineStyle": {"color": "#EFEFEF", "type": "dashed"}}}, "series": [{"type": "scatter", "data": [{"name": "Midjourney", "value": [9.0, 8.0], "symbolSize": 204.0, "itemStyle": {"color": "#1E40AF", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}}, {"name": "DALL-E 2", "value": [7.0, 7.0], "symbolSize": 114.0, "itemStyle": {"color": "#CBD5E1", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}}, {"name": "Stable Diffusion", "value": [6.0, 4.0], "symbolSize": 159.0, "itemStyle": {"color": "#CBD5E1", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}}, {"name": "Runway", "value": [7.0, 6.0], "symbolSize": 51.0, "itemStyle": {"color": "#CBD5E1", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}}, {"name": "文心一格", "value": [5.0, 6.0], "symbolSize": 69.0, "itemStyle": {"color": "#CBD5E1", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}}, {"name": "Leonardo AI", "value": [6.0, 7.0], "symbolSize": 42.0, "itemStyle": {"color": "#CBD5E1", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}}], "markLine": {"silent": true, "symbol": "none", "lineStyle": {"color": "#E8E6E1", "type": "solid", "width": 1.5}, "data": [{"xAxis": 5}, {"yAxis": 5}]}, "markArea": {"silent": true, "itemStyle": {"color": "rgba(30,64,175,0.05)"}, "data": [[{"coord": [5, 5]}, {"coord": [10, 10]}]]}}], "graphic": [{"type": "text", "right": "7%", "top": "9%", "style": {"text": "高Y（易用性）·高X（质量）", "fontSize": 12, "fill": "#999999"}}, {"type": "text", "left": "10%", "top": "9%", "style": {"text": "低X（质量）·高Y（易用性）", "fontSize": 12, "fill": "#999999"}}, {"type": "text", "right": "7%", "bottom": "11%", "style": {"text": "高X（质量）·低Y（易用性）", "fontSize": 12, "fill": "#999999"}}, {"type": "text", "left": "10%", "bottom": "11%", "style": {"text": "低X（质量）·低Y（易用性）", "fontSize": 12, "fill": "#999999"}}]});REG.push(c);});</script></section><section id="sec-12"><div class="sec-head"><div class="sec-no">12</div><div><div class="sec-eyebrow">TIMELINE</div><h2>时间线</h2><div class="sec-sub">关键节点编年</div></div></div></section><section id="sec-13"><div class="sec-head"><div class="sec-no">13</div><div><div class="sec-eyebrow">USER VOICE</div><h2>用户口碑</h2><div class="sec-sub">来自真实用户的声音</div></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">用户口碑</span><span class="chart-note">样本 8 条</span></div><div class="sent-bar"><i class="sent-pos" style="width:50%"></i><i class="sent-neg" style="width:50%"></i></div><div class="sent-legend"><span><i class="dot pos"></i>正面 4</span><span><i class="dot neg"></i>负面 / 建议 4</span><span class="sent-pw">好评率 50%</span></div><div class="voice-list"><div class="voice pos"><div class="voice-mono" style="background:#14B8A620;color:#14B8A6">正</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge pos">正面</span></div><div class="voice-quote">生成质量极高，“几乎可以与专业设计师的作品相比拟”</div></div></div><div class="voice pos"><div class="voice-mono" style="background:#14B8A620;color:#14B8A6">正</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge pos">正面</span></div><div class="voice-quote">操作简单，“即使没有设计背景的人也能轻松上手”</div></div></div><div class="voice pos"><div class="voice-mono" style="background:#14B8A620;color:#14B8A6">正</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge pos">正面</span></div><div class="voice-quote">生成速度快，“从输入描述到图像生成只需几秒钟”</div></div></div><div class="voice pos"><div class="voice-mono" style="background:#14B8A620;color:#14B8A6">正</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge pos">正面</span></div><div class="voice-quote">社区氛围好，“可以学习其他用户的描述方式，获得灵感”</div></div></div><div class="voice neg"><div class="voice-mono" style="background:#EF444420;color:#EF4444">负</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge neg">负面</span></div><div class="voice-quote">自定义功能受限，“可能无法完全满足复杂项目的需求”</div></div></div><div class="voice neg"><div class="voice-mono" style="background:#EF444420;color:#EF4444">负</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge neg">负面</span></div><div class="voice-quote">生成结果有随机性，“相同描述可能生成不同图像，需要多次尝试”</div></div></div><div class="voice neg"><div class="voice-mono" style="background:#EF444420;color:#EF4444">负</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge neg">负面</span></div><div class="voice-quote">国内用户注册与付费流程繁琐，“免费额度用完后付费非常麻烦”</div></div></div><div class="voice neg"><div class="voice-mono" style="background:#EF444420;color:#EF4444">负</div><div class="voice-main"><div class="voice-meta"><span class="voice-badge neg">负面</span></div><div class="voice-quote">学习曲线存在，“深入挖掘强大功能需要学习术语和技术手段”</div></div></div></div></div></section><section id="sec-14"><div class="sec-head"><div class="sec-no">14</div><div><div class="sec-eyebrow">SOURCES</div><h2>来源</h2><div class="sec-sub">数据来源与参考</div></div></div><div class="ref-list"><div class="ref"><span class="ref-no">1</span><a href="https://js.design/special/article/midjourney-ai.html" target="_blank" rel="noopener">即时设计-《Midjourney是什么？Midjourney功能和使用方法》</a><span class="ref-dom">js.design</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">2</span><a href="https://pixso.cn/tools/midjourney" target="_blank" rel="noopener">Pixso-《Midjourney官网中文-下载\</a><span class="ref-dom">pixso.cn</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">3</span><a href="https://www.cnblogs.com/SmartBear360/p/17560517.html" target="_blank" rel="noopener">博客园-《AI制图工具丨Midjourney产品功能介绍》</a><span class="ref-dom">www.cnblogs.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">4</span><a href="https://blog.csdn.net/charlues/article/details/142306044" target="_blank" rel="noopener">CSDN-《MidJourney 产品拆解调研报告》</a><span class="ref-dom">blog.csdn.net</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">5</span><a href="https://zhuanlan.zhihu.com/p/19208236927" target="_blank" rel="noopener">知乎专栏-《MidJourney和OpenAI的定价逻辑给我们的启示》</a><span class="ref-dom">zhuanlan.zhihu.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">6</span><a href="https://www.chuangkit.com/blog/pingmiansheji556.html" target="_blank" rel="noopener">创客贴-《midjourney多少钱一个月?》</a><span class="ref-dom">www.chuangkit.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">7</span><a href="https://developer.cloud.tencent.com/techpedia/1969/14270" target="_blank" rel="noopener">腾讯云-《Midjourney 收费方式？》</a><span class="ref-dom">developer.cloud.tencent.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">8</span><a href="https://www.163.com/dy/article/JA4KKVCU0538K0P0.html" target="_blank" rel="noopener">网易-《Midjourney中文版vs 国际版》</a><span class="ref-dom">www.163.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">9</span><a href="https://www.bzu.cn/news/show/1846.html" target="_blank" rel="noopener">B族智能-《Midjourney怎么样？探索其优缺点与应用》</a><span class="ref-dom">www.bzu.cn</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">10</span><a href="https://time.geekbang.org/column/article/656941" target="_blank" rel="noopener">极客时间-《从Midjourney开始，探索AI产品的用户体验》</a><span class="ref-dom">time.geekbang.org</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">11</span><a href="https://m.cyzone.cn/article/723526" target="_blank" rel="noopener">创业邦-《“少数人”的胜利，Midjourney走上AIGC神坛》</a><span class="ref-dom">m.cyzone.cn</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">12</span><a href="https://www.woshipm.com/it/6087713.html" target="_blank" rel="noopener">人人都是产品经理-《Midjourney 商业画布深度分析》</a><span class="ref-dom">www.woshipm.com</span><span class="cred mid">中</span></div></div><p>--</p><p>行动建议：</p><div class="pri"><div class="pri-row"><div class="pri-col m"><div class="pri-h" style="border-color:#1E40AF;color:#1E40AF">Must · 必做</div><ul><li>持续关注 Midjourney 的模型迭代方向（v7/v8），其技术路线是行业风向标。</li></ul></div><div class="pri-col s"><div class="pri-h" style="border-color:#F59E0B;color:#F59E0B">Should · 应做</div><ul><li>评估 Midjourney 在企业级场景（游戏、广告、影视）的落地可能性，探索 API 化合作机会。</li></ul></div><div class="pri-col c"><div class="pri-h" style="border-color:#7C3AED;color:#7C3AED">Could · 可做</div><ul><li>借鉴其“社区驱动增长”模式，构建自身产品的用户共创生态；关注其进入中国市场的潜在路径。</li></ul></div></div></div></section></div><footer class="ev-footer"><span class="ef-brand">AIPM·瞭望台</span><span class="ef-sep"></span><span>本报告由 AI 实时检索公开来源生成，结论可溯源</span><span class="ef-sep"></span><span>更新于 2026年8月26日</span></footer></main></div><script>var REG=[];window.addEventListener("load",function(){REG.forEach(function(c){c.resize();});});window.addEventListener("resize",function(){REG.forEach(function(c){c.resize();});});var navs=document.querySelectorAll(".nav a");navs.forEach(function(a){a.addEventListener("click",function(){navs.forEach(function(x){x.classList.remove("active");});this.classList.add("active");});});var secs=[].slice.call(document.querySelectorAll("section"));window.addEventListener("scroll",function(){var pos=window.scrollY+120;secs.forEach(function(s){if(s.offsetTop<=pos){navs.forEach(function(x){x.classList.remove("active");});var a=document.querySelector('.nav a[href="#'+s.id+'"]');if(a)a.classList.add("active");}});});</script></body></html>
