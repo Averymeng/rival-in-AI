@@ -5,7 +5,7 @@
 约定写法（Markdown） → 自包含 HTML（ECharts CDN）。
 
 设计语言（v3 · Editorial Strategy Brief）：
-  - 暖中性底色 + Indigo 主色（#6366F1），Inter/PingFang 字体，卡片化、克制的 AI 研究操作系统视觉（Linear / Notion AI / Stripe 风格）
+  - 暖中性底色 + 深蓝主色（#1E40AF），Inter/PingFang 字体，卡片化、克制的 AI 研究操作系统视觉（Linear / Notion AI / Stripe 风格）
   - 每个章节：编号 + 英文 eyebrow + 中文标题 + 副标题，发丝分隔线
   - 左侧细窄目录（编号 + 标题，无图标），顶部报头（标题 + 研究范围 + 日期）
   - 板块呈现形式严格匹配业务语义：
@@ -29,7 +29,7 @@
 import sys, re, json, html, argparse, datetime, math
 
 # 分类色板（竞品/维度区分，克制且专业）
-CAT = ["#6366F1", "#14B8A6", "#8B5CF6", "#0EA5E9", "#F59E0B"]
+CAT = ["#1E40AF", "#14B8A6", "#8B5CF6", "#0EA5E9", "#F59E0B"]
 
 SCATTER_TOOLTIP = "function(p){return p.data.name+'<br/>专业能力：'+p.data.value[0]+'<br/>功能深度：'+p.data.value[1]+'<br/>规模：'+p.data.value[2];}"
 SCATTER_LABEL = "function(p){return p.data.name;}"
@@ -125,7 +125,7 @@ SECTION_SUBTITLES = {
 }
 
 
-def icon(name, size=18, color="#6366F1"):
+def icon(name, size=18, color="#1E40AF"):
     path = ICON_PATHS.get(name, ICON_PATHS["bullet"])
     return (f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" '
             f'stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{path}</svg>')
@@ -243,7 +243,7 @@ def product_icon(name):
 
 def score_bg(v):
     if v >= 4:
-        return "#EEF0FF", "#4F46E5"
+        return "#EFF6FF", "#1E3A8A"
     if v >= 2.5:
         return "#F1F5F9", "#475569"
     return "#FEE2E2", "#B91C1C"
@@ -251,19 +251,19 @@ def score_bg(v):
 
 # ---------- 功能矩阵 ----------
 def parse_feature_cell(cell):
-    """返回 (state, note)，state ∈ yes/partial/no/na。"""
-    cell = cell.strip()
-    note = re.sub(r'^[✅✔❌✗×是否强中弱部分半一般无未]+\s*', '', cell).strip()
+    """返回 (state, note)，state ∈ yes/partial/no/na。
+    放宽匹配：不再只看首字，而是在整格中检索关键词，兼容「支持/有/有限/高/低/英文」等真实写法。"""
+    raw = cell.strip()
+    note = re.sub(r'^[✅✔❌✗×是否强中弱部分半一般无未]+\s*', '', raw).strip()
     note = note.strip('（）()（）')
-    if not cell:
+    if not raw:
         return None, note
-    first = cell[0]
-    if first in ('✅', '✔', '是') or cell.startswith('强') or cell.startswith('支持'):
-        return 'yes', note
-    if first in ('❌', '✗', '×', '否', '无', '未'):
+    if re.search(r'不支持|无|未|否|缺少|缺失|不提供|不具备|没', raw):
         return 'no', note
-    if first in ('中', '部', '半', '弱', '一'):
+    if re.search(r'部分|有限|中|弱|半|一般|基础|初步|轻度', raw):
         return 'partial', note
+    if re.search(r'支持|有|强|高|✓|✔|具备|提供|完整|是|可用|覆盖', raw):
+        return 'yes', note
     return None, note
 
 
@@ -283,7 +283,7 @@ def render_feature_matrix(header, rows):
         total += 1
         fname = clean(r[0])
         ico = FEATURE_ICONS.get(fname, "bullet")
-        cells = ('<td class="fm-feat"><span class="fm-fi">' + icon(ico, 16, "#6366F1")
+        cells = ('<td class="fm-feat"><span class="fm-fi">' + icon(ico, 16, "#1E40AF")
                  + '</span>' + html.escape(fname) + '</td>')
         for pi, c in enumerate(r[1:]):
             st, note = parse_feature_cell(c)
@@ -313,9 +313,9 @@ def render_feature_matrix(header, rows):
     return ('<div class="matrix-card"><table class="feature-matrix"><thead><tr>' + ths
             + '</tr></thead><tbody>' + trs + '</tbody></table>'
             + '<div class="fm-cov-wrap"><span class="fm-cov-title">功能覆盖率</span>' + cov_html + '</div>'
-            + '<div class="fm-legend"><span><i class="lg yes"></i>支持</span>'
-            + '<span><i class="lg partial"></i>部分 / 有限</span>'
-            + '<span><i class="lg no"></i>不支持 / 未明确</span></div></div>')
+            + '<div class="fm-legend"><span><i class="lg yes"></i>强</span>'
+            + '<span><i class="lg partial"></i>中</span>'
+            + '<span><i class="lg no"></i>小</span></div></div>')
 
 
 # ---------- 能力雷达 ----------
@@ -327,112 +327,143 @@ def render_score_matrix(mid, header, rows):
         vals = [float(v) if re.match(r'^\d+(\.\d+)?$', v) else 0 for v in r[1:]]
         matrix.append(vals)
     indicators = [{"name": d, "max": 5} for d in dims]
+
+    # 颜色层级：主体高识别度 AI 紫，竞品降饱和
+    MAIN_C = "#1E40AF"
+    COMP_C = ["#94A3B8", "#CBD5E1", "#93C5FD"]
+    def obj_color(oi):
+        return MAIN_C if oi == 0 else COMP_C[(oi - 1) % len(COMP_C)]
+
     radar_data = []
     for oi, obj in enumerate(objects):
-        c = CAT[oi % len(CAT)]
-        d = {"name": obj, "value": matrix[oi], "lineStyle": {"color": c, "width": 2.4},
-             "itemStyle": {"color": c}}
+        c = obj_color(oi)
+        d = {"name": obj, "value": matrix[oi],
+             "lineStyle": {"color": c, "width": 3 if oi == 0 else 1.8},
+             "itemStyle": {"color": c}, "symbolSize": 7 if oi == 0 else 4}
         if oi == 0:
-            d["areaStyle"] = {"color": c, "opacity": 0.15}
+            d["areaStyle"] = {"color": c, "opacity": 0.18}
         radar_data.append(d)
+
     opt = {
         "backgroundColor": "transparent",
         "tooltip": {"trigger": "item"},
-        "legend": {"bottom": 0, "data": objects, "textStyle": {"color": "#666666", "fontSize": 12},
-                   "itemGap": 16, "icon": "roundRect"},
         "radar": {
-            "indicator": indicators, "radius": "62%", "center": ["50%", "46%"],
-            "axisName": {"color": "#666666", "fontSize": 11},
-            "splitLine": {"lineStyle": {"color": "#E5E7EB"}},
-            "axisLine": {"lineStyle": {"color": "#E5E7EB"}},
-            "splitArea": {"areaStyle": {"color": ["#FFFFFF", "#FBFBFA"]}}
+            "indicator": indicators, "radius": "72%", "center": ["50%", "48%"],
+            "axisName": {"color": "#666666", "fontSize": 12},
+            "splitNumber": 4,
+            "splitLine": {"lineStyle": {"color": "#ECECEC"}},
+            "axisLine": {"lineStyle": {"color": "#ECECEC"}},
+            "splitArea": {"areaStyle": {"color": ["rgba(255,255,255,0)", "rgba(0,0,0,0.018)"]}}
         },
-        "series": [{"type": "radar", "data": radar_data, "symbolSize": 6, "lineStyle": {"width": 2.4}}]
+        "series": [{"type": "radar", "data": radar_data}]
     }
     avg0 = sum(matrix[0]) / len(matrix[0]) if matrix else 0
-    opt["graphic"] = [{"type": "text", "left": "center", "top": "39%",
-                       "style": {"text": f"{avg0:.1f}", "fontSize": 30, "fontWeight": "bold",
-                                 "fill": "#6366F1", "textAlign": "center"}},
-                      {"type": "text", "left": "center", "top": "48%",
+    opt["graphic"] = [{"type": "text", "left": "center", "top": "40%",
+                       "style": {"text": f"{avg0:.1f}", "fontSize": 34, "fontWeight": "bold",
+                                 "fill": "#1E40AF", "textAlign": "center"}},
+                      {"type": "text", "left": "center", "top": "50%",
                        "style": {"text": "AI 能力分", "fontSize": 11, "fill": "#999999", "textAlign": "center"}}]
-    # 综合评分条形
-    bars = ""
-    ranked = sorted(((obj, sum(matrix[oi]) / len(matrix[oi])) for oi, obj in enumerate(objects)),
-                    key=lambda x: -x[1])
-    mx = max((v for _, v in ranked), default=5) or 5
-    for obj, avg in ranked:
-        c = CAT[objects.index(obj) % len(CAT)]
-        bg, fg = score_bg(avg)
-        bars += ('<div class="rk-row"><span class="rk-name" style="color:{0}">{1}</span>'
-                 '<span class="rk-bar"><i style="width:{2:.0f}%;background:{0}"></i></span>'
-                 '<span class="score-badge" style="background:{3};color:{4}">'
-                 '<span class="sb-num">{5:.1f}</span><span class="sb-lab">评分</span></span></div>').format(
-                    c, html.escape(obj), avg / mx * 100, bg, fg, avg)
 
-    dim_legend = "".join(
-        '<span class="rd-dim"><i>' + icon(RADAR_DIM_ICONS.get(d, "bullet"), 14, "#6366F1")
-        + '</i>' + html.escape(d) + '</span>' for d in dims)
+    # 右侧：主体对象各能力维度评分（进度条 + 分数 + 状态色）
+    score_items = ""
+    main_obj = objects[0] if objects else ""
+    for j, d in enumerate(dims):
+        v = matrix[0][j] if matrix else 0
+        bg, fg = score_bg(v)
+        pct = (v / 5.0) * 100
+        score_items += ('<div class="score-item">'
+                        '<div class="si-top"><span class="si-name">' + html.escape(d)
+                        + '</span><span class="si-score" style="color:' + fg + '">' + f'{v:.1f}' + '</span></div>'
+                        '<div class="si-bar"><i style="width:' + f'{pct:.0f}' + '%;background:' + fg + '"></i></div>'
+                        '</div>')
+
+    # 底部：竞品对象图例（全局对比索引）
+    legend_items = ""
+    for oi, obj in enumerate(objects):
+        c = obj_color(oi)
+        tag = "分析主体" if oi == 0 else "竞品"
+        legend_items += ('<span class="cmp-chip"><i style="background:' + c + '"></i>'
+                         + html.escape(obj) + '<small>' + tag + '</small></span>')
 
     return ('<div class="chart-card"><div class="chart-head"><span class="chart-title">多维能力图谱</span>'
             '<span class="chart-note">5=领先 · 3=平均 · 1=基本不覆盖</span></div>'
-            '<div class="radar-wrap"><div id="radar_' + str(mid) + '" class="echart"></div>'
-            '<div class="radar-side"><div class="rk-title">综合评分</div>' + bars + '</div></div>'
-            '<div class="rd-dims">' + dim_legend + '</div></div>\n'
+            '<div class="radar-dash">'
+            '<div class="radar-main"><div id="radar_' + str(mid) + '" class="echart"></div></div>'
+            '<div class="score-panel"><div class="sp-title">能力评分 · ' + html.escape(main_obj) + '</div>'
+            + score_items + '</div>'
+            '</div>'
+            '<div class="cmp-legend">' + legend_items + '</div></div>\n'
             '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("radar_'
             + str(mid) + '"));c.setOption(' + json.dumps(opt, ensure_ascii=False)
             + ');REG.push(c);});</script>')
 
 
-# ---------- 市场地图 / 机会地图 ----------
+# ---------- 市场地图 / 机会地图（四象限定位图） ----------
+def _quadrant_labels(xs, ys):
+    """四象限标签随坐标轴语义自适应：避免换轴后仍显示『领先区/规模区』等错位文案。"""
+    s = (xs or "") + "·" + (ys or "")
+    if "广度" in s or "深度" in s:
+        return ("全能型", "专精型", "广度型", "缝隙型")          # 右·上 / 左·上 / 右·下 / 左·下
+    if any(k in s for k in ("规模", "份额", "市场")):
+        return ("领先区", "潜力区", "规模区", "利基区")
+    # 通用兜底：按轴方向描述，保证永不出现语义错位的固定词
+    return (f"高{ys}·高{xs}", f"低{xs}·高{ys}", f"高{xs}·低{ys}", f"低{xs}·低{ys}")
+
+
 def render_scatter(mid, header, rows, title):
-    data = []
+    xs = header[1] if len(header) > 1 and header[1] else "X 维度"
+    ys = header[2] if len(header) > 2 and header[2] else "Y 维度"
+    pts = []
     for i, r in enumerate(rows):
-        if len(r) < 4:
+        if len(r) < 3:
             continue
         try:
-            x = float(r[1]); y = float(r[2]); s = float(r[3])
+            x = float(r[1]); y = float(r[2])
+            s = float(r[3]) if len(r) > 3 and str(r[3]).strip() != "" else 1
         except Exception:
             continue
-        c = "#6366F1" if i == 0 else "#CBD5E1"
-        data.append({"name": r[0], "value": [x, y, s], "itemStyle": {"color": c}, "label": {"color": "#fff"}})
+        c = "#1E40AF" if i == 0 else "#CBD5E1"
+        pts.append({"name": r[0], "value": [x, y],
+                    "symbolSize": 24 + (s or 1) * 9,
+                    "itemStyle": {"color": c, "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2},
+                    "label": {"show": True, "formatter": "{b}", "position": "bottom",
+                              "color": "#171717", "fontSize": 11, "fontWeight": "600"}})
+    if not pts:
+        return ('<div class="chart-card"><div class="chart-head"><span class="chart-title">' + html.escape(title)
+                + '</span></div><div class="chart-empty">暂无可定位的产品数据——请检查市场地图表格是否包含「名称 / '
+                + html.escape(xs) + ' / ' + html.escape(ys) + '」三列数值。</div></div>')
     opt = {
         "backgroundColor": "transparent",
-        "tooltip": {"trigger": "item", "formatter": "__SCATTER_TOOLTIP__"},
-        "grid": {"left": "9%", "right": "9%", "top": "10%", "bottom": "12%"},
-        "xAxis": {"name": "专业能力 (X)", "nameLocation": "middle", "nameGap": 28,
+        "tooltip": {"trigger": "item", "formatter": "{b}<br/>{c}"},
+        "grid": {"left": "10%", "right": "8%", "top": "11%", "bottom": "13%"},
+        "xAxis": {"type": "value", "name": xs, "nameLocation": "middle", "nameGap": 30,
                   "nameTextStyle": {"color": "#666666"}, "min": 0, "max": 10,
                   "axisLabel": {"color": "#666666"}, "axisLine": {"lineStyle": {"color": "#E8E6E1"}},
                   "splitLine": {"lineStyle": {"color": "#EFEFEF", "type": "dashed"}}},
-        "yAxis": {"name": "功能深度 (Y)", "nameTextStyle": {"color": "#666666"},
+        "yAxis": {"type": "value", "name": ys, "nameTextStyle": {"color": "#666666"},
                   "min": 0, "max": 10, "axisLabel": {"color": "#666666"},
                   "axisLine": {"lineStyle": {"color": "#E8E6E1"}},
                   "splitLine": {"lineStyle": {"color": "#EFEFEF", "type": "dashed"}}},
-        "series": [
-            {"type": "scatter", "data": data,
-             "symbolSize": "function(d){return 34 + d[2]*11;}",
-             "itemStyle": {"opacity": 0.18, "borderWidth": 0}, "z": 1, "silent": True, "label": {"show": False}},
-            {"type": "scatter", "data": data,
-             "symbolSize": "function(d){return 22 + d[2]*7;}",
-             "itemStyle": {"opacity": 0.92, "borderColor": "#fff", "borderWidth": 2},
-             "label": {"show": True, "formatter": "__SCATTER_LABEL__", "position": "inside",
-                       "color": "#fff", "fontSize": 11, "fontWeight": "bold"}, "z": 2,
-             "markArea": {"silent": True, "itemStyle": {"color": "rgba(139,92,246,0.15)"},
-                          "data": [[{"coord": [5, 5]}, {"coord": [10, 10]}]]}}
-        ]
+        "series": [{
+            "type": "scatter", "data": pts,
+            "markLine": {"silent": True, "symbol": "none",
+                         "lineStyle": {"color": "#E8E6E1", "type": "solid", "width": 1.5},
+                         "data": [{"xAxis": 5}, {"yAxis": 5}]},
+            "markArea": {"silent": True, "itemStyle": {"color": "rgba(30,64,175,0.05)"},
+                         "data": [[{"coord": [5, 5]}, {"coord": [10, 10]}]]}
+        }]
     }
+    _ql = _quadrant_labels(xs, ys)
+    opt["graphic"] = [
+        {"type": "text", "right": "7%", "top": "9%", "style": {"text": _ql[0], "fontSize": 12, "fill": "#999999"}},
+        {"type": "text", "left": "10%", "top": "9%", "style": {"text": _ql[1], "fontSize": 12, "fill": "#999999"}},
+        {"type": "text", "right": "7%", "bottom": "11%", "style": {"text": _ql[2], "fontSize": 12, "fill": "#999999"}},
+        {"type": "text", "left": "10%", "bottom": "11%", "style": {"text": _ql[3], "fontSize": 12, "fill": "#999999"}}
+    ]
     opt_json = json.dumps(opt, ensure_ascii=False)
-    opt_json = opt_json.replace('"__SCATTER_TOOLTIP__"', SCATTER_TOOLTIP).replace('"__SCATTER_LABEL__"', SCATTER_LABEL)
-    legend = ""
-    for i, r in enumerate(rows):
-        if len(r) < 4:
-            continue
-        c = "#6366F1" if i == 0 else "#CBD5E1"
-        legend += ('<span class="mp-leg"><i style="background:' + c + '"></i>'
-                   + html.escape(r[0]) + '</span>')
     return ('<div class="chart-card"><div class="chart-head"><span class="chart-title">' + html.escape(title)
-            + '</span><span class="chart-note">气泡面积 = 市场规模 / 影响力 · 紫色区域为机会带</span></div>'
-            + '<div id="scatter_' + str(mid) + '" class="echart"></div>'
-            + '<div class="mp-legs">' + legend + '</div></div>\n'
+            + '</span><span class="chart-note">气泡位置 = 定位 · 主分析对象深蓝高亮，竞品灰色</span></div>'
+            + '<div id="scatter_' + str(mid) + '" class="echart"></div></div>\n'
             + '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("scatter_'
             + str(mid) + '"));c.setOption(' + opt_json + ');REG.push(c);});</script>')
 
@@ -477,7 +508,7 @@ def render_ai_cards(items):
     for i, (title, body) in enumerate(items):
         ico = AI_CARD_ICONS.get(title, "sparkle")
         cards += ('<div class="ai-card"><span class="ai-idx">' + str(i + 1).zfill(2) + '</span>'
-                  + '<div class="ai-icon">' + icon(ico, 20, "#6366F1") + '</div>'
+                  + '<div class="ai-icon">' + icon(ico, 20, "#1E40AF") + '</div>'
                   + '<div class="ai-body"><h4>' + html.escape(title) + '</h4><p>' + html.escape(body) + '</p></div></div>')
     return '<div class="ai-grid">' + cards + '</div>'
 
@@ -567,7 +598,7 @@ def render_competition_graph(mid, center, others):
         line_elems.append('<line x1="%d" y1="%d" x2="%.1f" y2="%.1f" stroke="#E2E8F0" stroke-width="1.5"/>'
                           % (cx, cy, x, y))
     svg = ('<svg class="comp-svg" viewBox="0 0 %d %d" width="%d" height="%d">%s'
-           '<circle cx="%d" cy="%d" r="6" fill="#6366F1"/></svg>'
+           '<circle cx="%d" cy="%d" r="6" fill="#1E40AF"/></svg>'
            % (W, H, W, H, ''.join(line_elems), cx, cy))
     nodes = ""
     for kind, name, x, y in positions:
@@ -646,7 +677,7 @@ def render_positioning_table(header, rows):
             continue
         dim = clean(r[0])
         ico = DIMENSION_ICONS.get(dim, "bullet")
-        cells = '<td class="pos-dim"><span class="pos-di">' + icon(ico, 16, "#6366F1") + '</span>' + html.escape(dim) + '</td>'
+        cells = '<td class="pos-dim"><span class="pos-di">' + icon(ico, 16, "#1E40AF") + '</span>' + html.escape(dim) + '</td>'
         cells += "".join('<td>' + html.escape(clean(c)) + '</td>' for c in r[1:])
         trs += '<tr>' + cells + '</tr>'
     return '<div class="tbl-wrap"><table class="pos-table"><thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table></div>'
@@ -706,45 +737,53 @@ def render_priority(must, should, could):
         return ('<div class="pri-col ' + cls + '"><div class="pri-h" style="border-color:' + color + ';color:' + color + '">'
                 + title + '</div><ul>' + lis + '</ul></div>')
     return ('<div class="pri"><div class="pri-row">'
-            + col("Must · 必做", must, "m", "#6366F1")
+            + col("Must · 必做", must, "m", "#1E40AF")
             + col("Should · 应做", should, "s", "#F59E0B")
             + col("Could · 可做", could, "c", "#7C3AED") + '</div></div>')
 
 
 def render_source_inline(rows):
+    cred_map = {'高': 'high', '中': 'mid', '低': 'low'}
     links = ""
     for i, r in enumerate(rows):
         if len(r) < 2:
             continue
         nm = clean(r[0]); lk = r[-1].strip()
+        cred = 'mid'
+        mm = re.search(r'[（(\[]\s*(高|中|低)\s*[）)\]]', nm)
+        if mm:
+            cred = cred_map[mm.group(1)]
+            nm = (nm[:mm.start()] + nm[mm.end():]).strip()
         dom = ''
         m = re.match(r'https?://([^/]+)', lk)
         if m:
             dom = m.group(1)
+        badge = '<span class="cred ' + cred + '">' + ('高' if cred == 'high' else '中' if cred == 'mid' else '低') + '</span>'
         if lk.startswith('http'):
             links += ('<div class="ref"><span class="ref-no">' + str(i + 1) + '</span>'
                       + '<a href="' + lk + '" target="_blank" rel="noopener">' + html.escape(nm) + '</a>'
-                      + '<span class="ref-dom">' + html.escape(dom) + '</span></div>')
+                      + '<span class="ref-dom">' + html.escape(dom) + '</span>' + badge + '</div>')
         else:
             links += ('<div class="ref"><span class="ref-no">' + str(i + 1) + '</span>'
-                      + '<span>' + html.escape(nm) + '</span></div>')
+                      + '<span>' + html.escape(nm) + '</span>' + badge + '</div>')
     return '<div class="ref-list">' + links + '</div>'
 
 
 def render_timeline(items):
-    rows = ""
+    nodes = ""
     last_year = ""
     for d, t in items:
         yr = re.match(r'(\d{4})', d)
         yr = yr.group(1) if yr else ''
-        mark = ''
+        year_tag = ''
         if yr and yr != last_year:
-            mark = '<div class="tl-year">' + yr + '</div>'
+            year_tag = '<div class="tl-year">' + yr + '</div>'
             last_year = yr
-        rows += (mark + '<div class="tl-item"><span class="tl-dot"></span>'
-                 + '<span class="tl-date">' + html.escape(d) + '</span>'
-                 + '<span class="tl-text">' + html.escape(t) + '</span></div>')
-    return '<div class="timeline">' + rows + '</div>'
+        nodes += ('<div class="tl-node">' + year_tag
+                  + '<span class="tl-dot"></span>'
+                  + '<div class="tl-card"><div class="tl-date">' + html.escape(d) + '</div>'
+                  + '<div class="tl-text">' + html.escape(t) + '</div></div></div>')
+    return '<div class="timeline-h"><div class="tl-track">' + nodes + '</div></div>'
 
 
 # ---------- 样式 ----------
@@ -757,9 +796,9 @@ CSS = """
   --ink:#171717;
   --ink-2:#666666;
   --muted:#999999;
-  --accent:#6366F1;
-  --accent-ink:#4F46E5;
-  --accent-soft:#EEF0FF;
+  --accent:#1E40AF;
+  --accent-ink:#1E3A8A;
+  --accent-soft:#EFF6FF;
   --teal:#14B8A6;
   --amber:#F59E0B;
   --danger:#EF4444;
@@ -796,18 +835,12 @@ body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);font
 .masthead .kicker{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;}
 .k-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;}
 .masthead h1{margin:0;font-size:48px;font-weight:700;line-height:1.15;color:var(--ink);letter-spacing:-.8px;}
-.info-tags{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;}
-.info-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 20px rgba(0,0,0,.04);padding:16px 20px;min-width:0;}
-.info-card .ic-k{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:8px;letter-spacing:.3px;}
-.info-card .ic-v{font-size:16px;color:var(--ink);font-weight:600;line-height:1.45;word-break:break-word;}
-.info-card.trust .ic-v{color:var(--teal);}
-
-/* assumptions brief */
-.brief{display:flex;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:36px;box-shadow:var(--shadow-sm);}
-.brief .b-item{flex:1;min-width:170px;padding:16px 22px;border-right:1px solid var(--border);}
-.brief .b-item:last-child{border-right:none;}
-.brief .b-k{font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px;}
-.brief .b-v{font-size:13.5px;color:var(--ink);font-weight:500;line-height:1.5;}
+/* 顶部文档元信息：纯灰文字，无组件装饰 */
+.docmeta{margin-top:14px;display:flex;flex-direction:column;gap:7px;font-size:13px;line-height:1.7;color:var(--ink-2);}
+.docmeta .dm-line{display:flex;flex-wrap:wrap;gap:6px 22px;}
+.docmeta .dm-item{display:inline-flex;align-items:baseline;gap:6px;}
+.docmeta .dm-k{color:var(--muted);font-weight:500;}
+.docmeta .dm-v{color:var(--ink-2);font-weight:500;}
 
 /* sections */
 section{margin-bottom:56px;scroll-margin-top:24px;}
@@ -851,11 +884,11 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .fm-fi svg{width:16px;height:16px;}
 .fm-dot{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:8px;vertical-align:middle;}
 .fm-dot.yes{background:var(--accent);}
-.fm-dot.partial{background:#A5B4FC;}
+.fm-dot.partial{background:#93C5FD;}
 .fm-dot.no{background:#E5E7EB;}
 .fm-dot.na{background:#F8FAFC;color:var(--muted);font-size:12px;border:1px solid var(--border);}
 .fm-dot svg{width:12px;height:12px;}
-.fm-cell.yes{background:rgba(99,102,241,0.12);}
+.fm-cell.yes{background:rgba(30,64,175,0.12);}
 .fm-cell.partial{background:rgba(165,180,252,0.35);}
 .fm-cell.no{background:#F1F5F9;}
 .fm-cell.na{background:#F8FAFC;}
@@ -869,7 +902,7 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .fm-cov-pct{color:var(--muted);}
 .fm-legend{display:flex;gap:20px;flex-wrap:wrap;padding:6px 12px 12px;font-size:12px;color:var(--ink-2);}
 .fm-legend .lg{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:5px;vertical-align:middle;}
-.lg.yes{background:var(--accent);} .lg.partial{background:#A5B4FC;} .lg.no{background:#E5E7EB;}
+.lg.yes{background:var(--accent);} .lg.partial{background:#93C5FD;} .lg.no{background:#E5E7EB;}
 
 /* chart card */
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin:18px 0;box-shadow:var(--shadow-sm);}
@@ -914,7 +947,7 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 /* competition */
 .comp-stage{position:relative;width:420px;height:420px;margin:10px auto;max-width:100%;}
 .comp-svg{position:absolute;inset:0;}
-.comp-core{position:absolute;transform:translate(-50%,-50%);background:linear-gradient(135deg,var(--accent),var(--accent-ink));color:#fff;border-radius:50%;width:112px;height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(99,102,241,.35);z-index:3;}
+.comp-core{position:absolute;transform:translate(-50%,-50%);background:linear-gradient(135deg,var(--accent),var(--accent-ink));color:#fff;border-radius:50%;width:112px;height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(30,64,175,.35);z-index:3;}
 .comp-core small{font-size:9px;font-weight:500;opacity:.85;margin-top:2px;}
 .comp-sat{position:absolute;transform:translate(-50%,-50%);background:#fff;border:2px solid #CBD5E1;width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:600;color:#475569;box-shadow:0 3px 10px rgba(0,0,0,.05);z-index:2;padding:4px;}
 
@@ -934,28 +967,33 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .sw-line{font-size:13px;color:var(--ink-2);line-height:1.7;margin:5px 0;padding-left:13px;position:relative;}
 .sw-line::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.35;}
 
-/* radar */
-.radar-wrap{display:flex;gap:28px;align-items:stretch;}
-.radar-wrap .echart{flex:1;min-width:0;height:440px;}
-.radar-side{width:230px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;gap:12px;}
-.rk-title{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--ink-2);margin-bottom:2px;}
-.rk-row{display:flex;align-items:center;gap:10px;font-size:12px;margin:6px 0;}
-.rk-name{font-weight:600;min-width:66px;color:var(--ink);}
-.rk-bar{flex:1;height:8px;background:#F1EFEA;border-radius:999px;overflow:hidden;}
-.rk-bar i{display:block;height:100%;border-radius:999px;}
-.rk-val{font-weight:700;color:var(--ink);min-width:30px;text-align:right;font-variant-numeric:tabular-nums;}
-.rd-dims{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
-.rd-dim{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);}
-.rd-dim svg{width:13px;height:13px;}
+/* radar / 多维能力图谱 dashboard */
+.radar-dash{display:flex;gap:32px;align-items:stretch;}
+.radar-main{flex:1.35;min-width:0;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);}
+.radar-main .echart{width:100%;height:460px;}
+.score-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow-sm);}
+.sp-title{font-size:13px;font-weight:700;letter-spacing:.4px;color:var(--ink-2);margin-bottom:4px;}
+.score-item{display:flex;flex-direction:column;gap:7px;}
+.si-top{display:flex;align-items:baseline;justify-content:space-between;}
+.si-name{font-size:13px;color:var(--ink);font-weight:500;}
+.si-score{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+.si-bar{height:7px;background:#F1EFEA;border-radius:999px;overflow:hidden;}
+.si-bar i{display:block;height:100%;border-radius:999px;transition:width .4s ease;}
+.cmp-legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.cmp-chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);}
+.cmp-chip i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+.cmp-chip small{color:var(--muted);font-size:11px;margin-left:1px;}
 
+/* empty state */
+.chart-empty{padding:42px 0;text-align:center;color:var(--muted);font-size:13px;line-height:1.6;}
 /* pyramid */
 .pyramid{display:flex;flex-direction:column;gap:6px;align-items:center;}
 .pyr-band{width:100%;display:flex;justify-content:center;}
-.pyr-band.t1{width:100%;}
-.pyr-band.t2{width:80%;}
-.pyr-band.t3{width:60%;}
+.pyr-band.t1{width:55%;}
+.pyr-band.t2{width:78%;}
+.pyr-band.t3{width:100%;}
 .pyr-txt{display:flex;flex-direction:column;gap:3px;width:100%;padding:18px 24px;color:#fff;border-radius:14px;}
-.pyr-band.t1 .pyr-txt{background:linear-gradient(90deg,#6366F1,#818CF8);}
+.pyr-band.t1 .pyr-txt{background:linear-gradient(90deg,#1E40AF,#3B82F6);}
 .pyr-band.t2 .pyr-txt{background:#94A3B8;}
 .pyr-band.t3 .pyr-txt{background:#CBD5E1;}
 .pyr-label{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
@@ -968,14 +1006,18 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .mp-leg{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-2);}
 .mp-leg i{width:11px;height:11px;border-radius:50%;}
 
-/* timeline */
-.timeline{position:relative;padding-left:6px;}
-.tl-year{font-size:15px;font-weight:700;color:var(--accent);margin:16px 0 6px;}
-.tl-year:first-child{margin-top:0;}
-.tl-item{display:flex;gap:14px;align-items:baseline;padding:8px 0 8px 20px;position:relative;border-left:2px solid var(--border);margin-left:4px;}
-.tl-dot{position:absolute;left:-7px;top:15px;width:11px;height:11px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 1px var(--border);}
-.tl-date{font-size:13px;font-weight:700;color:var(--accent-ink);min-width:110px;flex-shrink:0;}
-.tl-text{font-size:13px;color:var(--ink);line-height:1.6;}
+/* timeline · 横向 Roadmap */
+.timeline-h{overflow-x:auto;padding:30px 2px 14px;margin:6px 0;}
+.tl-track{display:flex;align-items:flex-start;gap:0;min-width:max-content;position:relative;}
+.tl-node{position:relative;flex:0 0 230px;padding:0 16px;box-sizing:border-box;}
+.tl-node::before{content:"";position:absolute;top:14px;left:0;right:0;height:2px;background:var(--border);z-index:0;}
+.tl-node:first-child::before{left:50%;}
+.tl-node:last-child::before{right:50%;}
+.tl-year{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--accent);background:var(--bg);padding:1px 8px;white-space:nowrap;z-index:2;}
+.tl-dot{position:relative;z-index:1;display:block;width:13px;height:13px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 1px var(--border);margin:7px auto 14px;}
+.tl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow-sm);}
+.tl-date{font-size:12px;font-weight:700;color:var(--accent-ink);margin-bottom:6px;}
+.tl-text{font-size:11.5px;color:var(--ink-2);line-height:1.55;}
 
 /* sentiment */
 .sent-bar{display:flex;height:30px;border-radius:10px;overflow:hidden;background:#F1EFEA;}
@@ -1014,6 +1056,10 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .ref a{color:var(--accent-ink);text-decoration:none;font-weight:500;}
 .ref a:hover{text-decoration:underline;}
 .ref-dom{color:var(--muted);font-size:11px;margin-left:auto;}
+.cred{font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:8px;flex-shrink:0;}
+.cred.high{background:#DCFCE7;color:#15803D;}
+.cred.mid{background:#FEF3C7;color:#B45309;}
+.cred.low{background:#FEE2E2;color:#B91C1C;}
 
 /* generic tables */
 .tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
@@ -1042,15 +1088,13 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
   .main{margin-left:0;padding:32px 24px 80px;}
   .content{max-width:none;}
   .ai-grid{grid-template-columns:1fr;}
-  .radar-wrap{flex-direction:column;}
-  .radar-side{width:100%;}
+  .radar-dash{flex-direction:column;}
   .comp-stage{width:340px;height:340px;}
 }
 @media(max-width:640px){
   .pri-row{grid-template-columns:1fr;}
   .swot-grid{grid-template-columns:1fr;}
   .findings{grid-template-columns:1fr;}
-  .brief .b-item{flex-basis:50%;border-right:none;border-bottom:1px solid var(--border);}
   .masthead h1{font-size:28px;}
 }
 """
@@ -1131,9 +1175,9 @@ def render_section(sec, mid_state, market_map, idx):
             if title == '用户口碑' and mk:
                 sentiment.append((mk.group(1), mk.group(2).strip(), mk.group(3).strip()))
             elif title == '时间线':
-                mm = re.match(r'^([\d]{4}[\d\-年/]*)\s*[：:]\s*(.*)$', bl)
+                mm = re.match(r'^(\d{4}(?:[\d\-年/]*\s+[^\s：:]+)?)\s*[：:]\s*(.*)$', bl)
                 if mm:
-                    timeline.append((mm.group(1), mm.group(2).strip()))
+                    timeline.append((mm.group(1).strip(), mm.group(2).strip()))
             elif title == '行动建议':
                 mm = re.match(r'^(Must|Should|Could)\s*[：:]\s*(.*)$', bl)
                 if mm:
@@ -1263,36 +1307,37 @@ def render(input_path, output_path):
     ASSUMPTION_ORDER = ["分析对象", "研究意图", "选用维度", "研究深度", "对比对象", "深度", "输出"]
     ASSUMPTION_LABEL = {"分析对象": "分析对象", "研究意图": "研究意图", "选用维度": "选用维度",
                         "研究深度": "研究深度", "对比对象": "对比对象", "深度": "研究深度", "输出": "输出形式"}
-    brief_html = ""
-    if assumption:
-        ordered = []
-        for k in ASSUMPTION_ORDER:
-            for ak in list(assumption.keys()):
-                if ak == k and ak not in [o[0] for o in ordered]:
-                    ordered.append((ak, assumption[ak]))
-        for ak, av in assumption.items():
-            if ak not in [o[0] for o in ordered]:
-                ordered.append((ak, av))
-        items = ""
-        for k, v in ordered:
-            if k in ("分析对象", "研究意图", "对比对象"):
-                continue
-            items += ('<div class="b-item"><div class="b-k">' + html.escape(ASSUMPTION_LABEL.get(k, k))
-                      + '</div><div class="b-v">' + html.escape(v) + '</div></div>')
-        brief_html = '<div class="brief">' + items + '</div>'
-
     today = datetime.datetime.now().strftime("%Y年%-m月%-d日")
 
-    # 顶部信息标签卡片（分析对象 / 研究意图 / 对比对象 / 数据可信等级 / 日期）
-    info_cards = ""
-    for k in ("分析对象", "研究意图", "对比对象"):
-        if assumption.get(k):
-            info_cards += ('<div class="info-card"><div class="ic-k">' + html.escape(k)
-                           + '</div><div class="ic-v">' + html.escape(assumption[k]) + '</div></div>')
-    info_cards += ('<div class="info-card trust"><div class="ic-k">数据可信等级</div>'
-                   '<div class="ic-v">高（公开来源检索）</div></div>')
-    info_cards += ('<div class="info-card"><div class="ic-k">日期</div>'
-                   '<div class="ic-v">' + today + '</div></div>')
+    # 顶部文档元信息：纯灰文字，置于大标题下（无组件装饰）
+    _dm_line1, _dm_line2 = [], []
+    def _dm_add(lst, label, val):
+        if val:
+            lst.append((label, val))
+    _dm_add(_dm_line1, "分析对象", assumption.get("分析对象"))
+    _dm_add(_dm_line1, "研究意图", assumption.get("研究意图"))
+    _dm_add(_dm_line1, "对比对象", assumption.get("对比对象"))
+    _dm_add(_dm_line1, "数据可信等级", "高（公开来源检索）")
+    _dm_add(_dm_line1, "日期", today)
+    _dm_add(_dm_line2, "选用维度", assumption.get("选用维度"))
+    _dm_add(_dm_line2, "研究深度", assumption.get("研究深度") or assumption.get("深度"))
+    _dm_add(_dm_line2, "输出报告", assumption.get("输出") or assumption.get("输出形式"))
+    for ak, av in assumption.items():
+        if ak not in ("分析对象", "研究意图", "对比对象", "选用维度",
+                      "研究深度", "深度", "输出", "输出形式"):
+            _dm_add(_dm_line2, ak, av)
+
+    def _dm_render(lst):
+        if not lst:
+            return ""
+        parts = []
+        for label, val in lst:
+            parts.append('<span class="dm-item"><span class="dm-k">'
+                         + html.escape(label) + '</span><span class="dm-v">'
+                         + html.escape(val) + '</span></span>')
+        return '<div class="dm-line">' + "".join(parts) + '</div>'
+
+    docmeta_html = '<div class="docmeta">' + _dm_render(_dm_line1) + _dm_render(_dm_line2) + '</div>'
 
     html_doc = ('<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
@@ -1308,9 +1353,9 @@ def render(input_path, output_path):
         '<header class="masthead">'
         '<div class="kicker"><span class="k-dot"></span>AI PM · 竞品研究报告</div>'
         '<h1>' + html.escape(title) + '</h1>'
-        '<div class="info-tags">' + info_cards + '</div>'
+        + docmeta_html +
         '</header>'
-        + brief_html + '<div class="content">' + "".join(body_parts) + '</div>'
+        + '<div class="content">' + "".join(body_parts) + '</div>'
         + '<footer class="ev-footer"><span class="ef-brand">AIPM·瞭望台</span><span class="ef-sep"></span><span>本报告由 AI 实时检索公开来源生成，结论可溯源</span><span class="ef-sep"></span><span>更新于 ' + today + '</span></footer>'
         '</main></div>'
         '<script>var REG=[];window.addEventListener("load",function(){REG.forEach(function(c){c.resize();});});'
