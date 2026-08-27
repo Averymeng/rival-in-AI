@@ -1,0 +1,322 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VS Code 竞品分析报告：代码编辑器市场的统治与挑战</title><script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script><style>
+:root{
+  --bg:#F8F7F4;
+  --surface:#FFFFFF;
+  --surface-2:#F1F5F9;
+  --border:#E8E6E1;
+  --ink:#171717;
+  --ink-2:#666666;
+  --muted:#999999;
+  --accent:#1E40AF;
+  --accent-ink:#1E3A8A;
+  --accent-soft:#EFF6FF;
+  --teal:#14B8A6;
+  --amber:#F59E0B;
+  --danger:#EF4444;
+  --opp:#8B5CF6;
+  --grid:#E5E7EB;
+  --sans:'Inter','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.04);
+  --shadow:0 4px 20px rgba(0,0,0,.04);
+  --radius:16px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* layout */
+.app{display:flex;min-height:100vh;}
+.side{width:248px;background:var(--surface);border-right:1px solid var(--border);position:fixed;left:0;top:0;bottom:0;overflow:auto;padding:32px 22px;z-index:20;}
+.brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:700;color:var(--ink);letter-spacing:.3px;}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--opp));display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;flex-shrink:0;}
+.brand small{display:block;font-size:10px;font-weight:500;color:var(--muted);letter-spacing:2px;margin-top:3px;text-transform:uppercase;}
+.nav{list-style:none;margin:28px 0 0;padding:0;}
+.nav li{margin:1px 0;}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:13px;transition:.15s;}
+.nav a .n{font-size:11px;font-weight:700;color:var(--muted);min-width:20px;font-variant-numeric:tabular-nums;}
+.nav a:hover{background:#F2F0EB;color:var(--ink);}
+.nav a.active{background:var(--accent-soft);color:var(--accent-ink);font-weight:600;}
+.nav a.active .n{color:var(--accent);}
+
+.main{margin-left:248px;flex:1;padding:48px 80px 100px;}
+.content{max-width:1200px;margin:0 auto;}
+
+/* masthead / Research Header */
+.masthead{display:flex;flex-direction:column;gap:18px;padding-bottom:28px;margin-bottom:36px;border-bottom:1px solid var(--border);}
+.masthead .kicker{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:600;}
+.k-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;}
+.masthead h1{margin:0;font-size:48px;font-weight:700;line-height:1.15;color:var(--ink);letter-spacing:-.8px;}
+/* 顶部文档元信息：纯灰文字，无组件装饰 */
+.docmeta{margin-top:14px;display:flex;flex-direction:column;gap:7px;font-size:13px;line-height:1.7;color:var(--ink-2);}
+.docmeta .dm-line{display:flex;flex-wrap:wrap;gap:6px 22px;}
+.docmeta .dm-item{display:inline-flex;align-items:baseline;gap:6px;}
+.docmeta .dm-k{color:var(--muted);font-weight:500;}
+.docmeta .dm-v{color:var(--ink-2);font-weight:500;}
+
+/* sections */
+section{margin-bottom:56px;scroll-margin-top:24px;}
+.sec-head{display:flex;align-items:flex-start;gap:18px;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:24px;}
+.sec-no{font-size:13px;font-weight:700;color:#fff;background:var(--accent);border-radius:9px;min-width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-variant-numeric:tabular-nums;}
+.sec-eyebrow{font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:5px;}
+.sec-head h2{margin:0;font-size:24px;font-weight:600;color:var(--ink);letter-spacing:-.3px;}
+.sec-sub{font-size:13px;color:var(--ink-2);margin-top:4px;}
+section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
+.lead{font-size:15px;line-height:1.8;color:var(--ink-2);}
+
+/* Insight Card (exec summary / opportunity / recommendations) */
+.findings{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.finding{display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);transition:.2s;}
+.finding:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.find-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:700;}
+.find-body{display:flex;flex-direction:column;gap:6px;}
+.find-kw{font-size:15px;font-weight:600;color:var(--ink);line-height:1.5;}
+.find-text{font-size:13.5px;color:var(--ink-2);line-height:1.7;}
+.find-ev{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.ev-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;}
+.ev-badge.high{background:#DCFCE7;color:#15803D;}
+.ev-badge.med{background:#FEF3C7;color:#92660A;}
+.ev-badge.low{background:#FEE2E2;color:#B91C1C;}
+.ev-conf{font-size:11px;color:var(--muted);}
+
+/* Product Card (positioning note) */
+.callout{display:flex;gap:14px;background:var(--accent-soft);border:1px solid #DDDDFB;border-radius:var(--radius);padding:18px 20px;margin-top:18px;font-size:14px;color:var(--ink);line-height:1.8;}
+.callout-bar{width:4px;background:var(--accent);border-radius:2px;flex-shrink:0;}
+.callout b{color:var(--accent-ink);}
+
+/* feature matrix heatmap */
+.matrix-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px;box-shadow:var(--shadow-sm);}
+.feature-matrix{width:100%;border-collapse:separate;border-spacing:6px;font-size:13px;}
+.feature-matrix th{padding:10px;border-radius:10px;font-weight:600;color:var(--ink);text-align:center;background:#FAFAF9;}
+.feature-matrix th.fm-feat{text-align:left;background:transparent;}
+.fm-ph{padding:4px 12px;border-radius:999px;font-weight:700;white-space:nowrap;font-size:12.5px;}
+.feature-matrix td{padding:0;border-radius:8px;text-align:center;vertical-align:middle;}
+.feature-matrix td.fm-feat{background:transparent;text-align:left;color:var(--ink);font-weight:500;padding:0 4px;}
+.fm-fi{display:inline-flex;vertical-align:middle;margin-right:7px;color:var(--accent);}
+.fm-fi svg{width:16px;height:16px;}
+.fm-dot{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:8px;vertical-align:middle;}
+.fm-dot.yes{background:var(--accent);}
+.fm-dot.partial{background:#93C5FD;}
+.fm-dot.no{background:#E5E7EB;}
+.fm-dot.na{background:#F8FAFC;color:var(--muted);font-size:12px;border:1px solid var(--border);}
+.fm-dot svg{width:12px;height:12px;}
+.fm-cell.yes{background:rgba(30,64,175,0.12);}
+.fm-cell.partial{background:rgba(165,180,252,0.35);}
+.fm-cell.no{background:#F1F5F9;}
+.fm-cell.na{background:#F8FAFC;}
+.fm-note{display:block;font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
+.fm-cov-wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding:14px 12px 6px;}
+.fm-cov-title{font-size:12px;font-weight:700;color:var(--ink-2);letter-spacing:.5px;}
+.fm-cov{display:flex;align-items:center;gap:8px;font-size:12px;}
+.fm-cov-name{font-weight:600;color:var(--ink);}
+.fm-cov-bar{width:84px;height:6px;background:#F1EFEA;border-radius:999px;overflow:hidden;}
+.fm-cov-bar i{display:block;height:100%;border-radius:999px;}
+.fm-cov-pct{color:var(--muted);}
+.fm-legend{display:flex;gap:20px;flex-wrap:wrap;padding:6px 12px 12px;font-size:12px;color:var(--ink-2);}
+.fm-legend .lg{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:5px;vertical-align:middle;}
+.lg.yes{background:var(--accent);} .lg.partial{background:#93C5FD;} .lg.no{background:#E5E7EB;}
+
+/* chart card */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin:18px 0;box-shadow:var(--shadow-sm);}
+.chart-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:6px;}
+.chart-title{font-size:18px;font-weight:700;color:var(--ink);}
+.chart-note{font-size:11.5px;color:var(--ink-2);background:#F4F3F0;border:1px solid var(--border);padding:3px 11px;border-radius:999px;}
+.echart{width:100%;height:430px;}
+
+/* AI cards */
+.ai-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.ai-card{display:flex;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;align-items:flex-start;position:relative;box-shadow:var(--shadow-sm);}
+.ai-card::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:3px;background:var(--accent);border-radius:2px;}
+.ai-idx{font-size:13px;color:var(--accent);font-weight:700;}
+.ai-icon{color:var(--accent);margin-top:1px;}
+.ai-body h4{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--ink);}
+.ai-body p{margin:0;font-size:13px;color:var(--ink-2);line-height:1.7;}
+
+/* business model */
+.biz-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:8px 0;}
+.biz-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0 0 14px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.biz-ph{display:flex;align-items:center;gap:8px;padding:15px 16px;font-weight:700;font-size:15px;border-bottom:1px solid var(--border);border-top:3px solid;}
+.biz-dot{width:9px;height:9px;border-radius:50%;}
+.plan{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 16px;border-bottom:1px solid #F3F1EC;}
+.plan:last-child{border-bottom:none;}
+.plan-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+.plan-val{font-size:13px;color:var(--ink);font-weight:500;text-align:right;}
+.biz-tiers{display:flex;flex-direction:column;}
+.biz-table-wrap{overflow-x:auto;}
+.biz-extra{margin-top:18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);}
+.biz-extra-title{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--ink-2);margin-bottom:8px;}
+.biz-table{width:100%;border-collapse:collapse;font-size:13px;}
+.biz-table th{padding:9px 12px;text-align:left;color:var(--ink-2);font-weight:600;border-bottom:1px solid var(--border);}
+.biz-table td{padding:9px 12px;border-bottom:1px solid #F3F1EC;color:var(--ink);vertical-align:top;}
+.biz-table td.bk{font-weight:600;color:var(--ink);}
+.biz-table tr:last-child td{border-bottom:none;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:8px 0;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 20px;box-shadow:var(--shadow-sm);}
+.kpi-num{font-size:32px;font-weight:700;color:var(--accent);line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-1px;}
+.kpi-label{font-size:12px;font-weight:600;color:var(--ink);margin:10px 0 4px;}
+.kpi-desc{font-size:12.5px;color:var(--ink-2);line-height:1.6;}
+
+/* competition */
+.comp-stage{position:relative;width:420px;height:420px;margin:10px auto;max-width:100%;}
+.comp-svg{position:absolute;inset:0;}
+.comp-core{position:absolute;transform:translate(-50%,-50%);background:linear-gradient(135deg,var(--accent),var(--accent-ink));color:#fff;border-radius:50%;width:112px;height:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:14px;box-shadow:0 8px 24px rgba(30,64,175,.35);z-index:3;}
+.comp-core small{font-size:9px;font-weight:500;opacity:.85;margin-top:2px;}
+.comp-sat{position:absolute;transform:translate(-50%,-50%);background:#fff;border:2px solid #CBD5E1;width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:600;color:#475569;box-shadow:0 3px 10px rgba(0,0,0,.05);z-index:2;padding:4px;}
+
+/* SWOT */
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.sw-cell{border-radius:20px;padding:18px 20px;border:1px solid var(--border);}
+.sw-cell.s{background:#ECFDF5;border-color:#BBF7D0;}
+.sw-cell.w{background:#F8FAFC;border-color:#E2E8F0;}
+.sw-cell.o{background:#F5F3FF;border-color:#DDD6FE;}
+.sw-cell.t{background:#FFFBEB;border-color:#FDE68A;}
+.sw-h{font-size:14px;font-weight:700;margin-bottom:10px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.sw-h::before{content:"";width:9px;height:9px;border-radius:3px;}
+.sw-cell.s .sw-h::before{background:#10B981;}
+.sw-cell.w .sw-h::before{background:#94A3B8;}
+.sw-cell.o .sw-h::before{background:#8B5CF6;}
+.sw-cell.t .sw-h::before{background:#F59E0B;}
+.sw-line{font-size:13px;color:var(--ink-2);line-height:1.7;margin:5px 0;padding-left:13px;position:relative;}
+.sw-line::before{content:"";position:absolute;left:0;top:9px;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.35;}
+
+/* radar / 多维能力图谱 dashboard */
+.radar-dash{display:flex;gap:32px;align-items:stretch;}
+.radar-main{flex:1.35;min-width:0;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:18px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);}
+.radar-main .echart{width:100%;height:460px;}
+.score-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow-sm);}
+.sp-title{font-size:13px;font-weight:700;letter-spacing:.4px;color:var(--ink-2);margin-bottom:4px;}
+.score-item{display:flex;flex-direction:column;gap:7px;}
+.si-top{display:flex;align-items:baseline;justify-content:space-between;}
+.si-name{font-size:13px;color:var(--ink);font-weight:500;}
+.si-score{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+.si-bar{height:7px;background:#F1EFEA;border-radius:999px;overflow:hidden;}
+.si-bar i{display:block;height:100%;border-radius:999px;transition:width .4s ease;}
+.cmp-legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+.cmp-chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);}
+.cmp-chip i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+.cmp-chip small{color:var(--muted);font-size:11px;margin-left:1px;}
+
+/* empty state */
+.chart-empty{padding:42px 0;text-align:center;color:var(--muted);font-size:13px;line-height:1.6;}
+/* pyramid */
+.pyramid{display:flex;flex-direction:column;gap:6px;align-items:center;}
+.pyr-band{width:100%;display:flex;justify-content:center;}
+.pyr-band.t1{width:55%;}
+.pyr-band.t2{width:78%;}
+.pyr-band.t3{width:100%;}
+.pyr-txt{display:flex;flex-direction:column;gap:3px;width:100%;padding:18px 24px;color:#fff;border-radius:14px;}
+.pyr-band.t1 .pyr-txt{background:linear-gradient(90deg,#1E40AF,#3B82F6);}
+.pyr-band.t2 .pyr-txt{background:#94A3B8;}
+.pyr-band.t3 .pyr-txt{background:#CBD5E1;}
+.pyr-label{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.pyr-label span{font-size:12px;font-weight:500;opacity:.9;background:rgba(255,255,255,.22);padding:2px 10px;border-radius:999px;}
+.pyr-names{font-size:14px;font-weight:600;margin-top:2px;}
+.pyr-desc{font-size:12px;opacity:.92;line-height:1.5;}
+
+/* market map legend */
+.mp-legs{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;}
+.mp-leg{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-2);}
+.mp-leg i{width:11px;height:11px;border-radius:50%;}
+
+/* timeline · 横向 Roadmap */
+.timeline-h{overflow-x:auto;padding:30px 2px 14px;margin:6px 0;}
+.tl-track{display:flex;align-items:flex-start;gap:0;min-width:max-content;position:relative;}
+.tl-node{position:relative;flex:0 0 230px;padding:0 16px;box-sizing:border-box;}
+.tl-node::before{content:"";position:absolute;top:14px;left:0;right:0;height:2px;background:var(--border);z-index:0;}
+.tl-node:first-child::before{left:50%;}
+.tl-node:last-child::before{right:50%;}
+.tl-year{position:absolute;top:-24px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--accent);background:var(--bg);padding:1px 8px;white-space:nowrap;z-index:2;}
+.tl-dot{position:relative;z-index:1;display:block;width:13px;height:13px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 1px var(--border);margin:7px auto 14px;}
+.tl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow-sm);}
+.tl-date{font-size:12px;font-weight:700;color:var(--accent-ink);margin-bottom:6px;}
+.tl-text{font-size:11.5px;color:var(--ink-2);line-height:1.55;}
+
+/* sentiment */
+.sent-bar{display:flex;height:30px;border-radius:10px;overflow:hidden;background:#F1EFEA;}
+.sent-pos{background:var(--teal);}
+.sent-neg{background:#EF4444;}
+.sent-legend{display:flex;align-items:center;gap:16px;margin-top:8px;font-size:12px;color:var(--ink-2);}
+.sent-legend .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+.dot.pos{background:var(--teal);} .dot.neg{background:#EF4444;}
+.sent-pw{margin-left:auto;font-weight:700;color:var(--ink);}
+.voice-list{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+.voice-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px;}
+.voice-col{background:#FAFAF9;border:1px solid var(--border);border-radius:14px;padding:14px;min-width:0;}
+.vc-head{font-size:13px;font-weight:700;padding:5px 14px;border-radius:999px;display:inline-block;margin-bottom:12px;}
+.vc-head.pos{background:rgba(20,184,166,0.12);color:#0F9E8E;}
+.vc-head.neg{background:rgba(239,68,68,0.1);color:#DC2626;}
+.vc-body{display:flex;flex-direction:column;gap:10px;}
+.voice{display:flex;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;align-items:flex-start;box-shadow:var(--shadow-sm);}
+.voice.pos{border-left:3px solid var(--teal);}
+.voice.neg{border-left:3px solid #EF4444;}
+.voice-mono{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;}
+.voice-main{flex:1;}
+.voice-meta{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+.voice-badge{font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px;}
+.voice-badge.pos{background:#ECFDF5;color:#15803D;}
+.voice-badge.neg{background:#FEF2F2;color:#B91C1C;}
+.voice-prod{font-size:12px;color:var(--ink-2);background:#F4F3F0;padding:2px 10px;border-radius:999px;}
+.voice-quote{font-size:13px;color:var(--ink);line-height:1.65;}
+
+/* priority */
+.pri-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.pri-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0 0 14px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.pri-h{border-top:3px solid;padding:14px 16px;font-size:14px;font-weight:700;margin-bottom:6px;}
+.pri-col ul{margin:0;padding:0 16px;list-style:none;}
+.pri-col li{font-size:13px;color:var(--ink);line-height:1.65;padding:9px 0 9px 16px;position:relative;border-bottom:1px solid #F3F1EC;}
+.pri-col li:last-child{border-bottom:none;}
+.pri-col li::before{content:"";position:absolute;left:0;top:16px;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;}
+
+/* sources */
+.ref-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px 20px;}
+.ref{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid #F3F1EC;font-size:13px;}
+.ref-no{color:var(--accent);font-weight:700;min-width:18px;}
+.ref a{color:var(--accent-ink);text-decoration:none;font-weight:500;}
+.ref a:hover{text-decoration:underline;}
+.ref-dom{color:var(--muted);font-size:11px;margin-left:auto;}
+.cred{font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:8px;flex-shrink:0;}
+.cred.high{background:#DCFCE7;color:#15803D;}
+.cred.mid{background:#FEF3C7;color:#B45309;}
+.cred.low{background:#FEE2E2;color:#B91C1C;}
+
+/* generic tables */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th,.tbl td{padding:11px 14px;text-align:left;border-bottom:1px solid #F3F1EC;}
+.tbl th{font-weight:600;color:var(--ink-2);font-size:12px;background:#FAFAF9;}
+.tbl tbody tr:hover{background:var(--accent-soft);}
+.tbl tr:last-child td{border-bottom:none;}
+.pos-table th,.pos-table td{padding:13px 16px;}
+.pos-dim{font-weight:600;color:var(--ink);white-space:nowrap;}
+.pos-ph{padding:4px 12px;border-radius:999px;font-weight:700;white-space:nowrap;font-size:12.5px;}
+.pos-di{display:inline-flex;vertical-align:middle;margin-right:8px;color:var(--accent);}
+
+/* score badge */
+.score-badge{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:54px;height:54px;border-radius:50%;font-weight:700;flex-shrink:0;}
+.score-badge .sb-num{font-size:19px;line-height:1;font-variant-numeric:tabular-nums;}
+.score-badge .sb-lab{font-size:9px;font-weight:600;opacity:.75;margin-top:2px;}
+
+/* footer / evidence footer */
+.ev-footer{margin-top:48px;padding:24px 0 0;border-top:1px solid var(--border);color:var(--muted);font-size:12px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;}
+.ev-footer .ef-brand{font-weight:700;color:var(--ink);}
+.ev-footer .ef-sep{width:1px;height:14px;background:var(--border);}
+
+@media(max-width:920px){
+  .side{display:none;}
+  .main{margin-left:0;padding:32px 24px 80px;}
+  .content{max-width:none;}
+  .ai-grid{grid-template-columns:1fr;}
+  .radar-dash{flex-direction:column;}
+  .comp-stage{width:340px;height:340px;}
+}
+@media(max-width:640px){
+  .pri-row{grid-template-columns:1fr;}
+  .swot-grid{grid-template-columns:1fr;}
+  .findings{grid-template-columns:1fr;}
+  .masthead h1{font-size:28px;}
+}
+</style></head><body><div class="app"><aside class="side"><div class="brand"><span class="logo">瞭</span><div>瞭望台<small>AIPM Watchtower</small></div></div><ul class="nav"><li><a href="#sec-1"><span class="n">01</span>执行摘要</a></li><li><a href="#sec-2"><span class="n">02</span>市场概览</a></li><li><a href="#sec-3"><span class="n">03</span>产品定位</a></li><li><a href="#sec-4"><span class="n">04</span>功能矩阵</a></li><li><a href="#sec-5"><span class="n">05</span>AI 能力</a></li><li><a href="#sec-6"><span class="n">06</span>商业模式</a></li><li><a href="#sec-7"><span class="n">07</span>增长</a></li><li><a href="#sec-8"><span class="n">08</span>竞争格局</a></li><li><a href="#sec-9"><span class="n">09</span>SWOT</a></li><li><a href="#sec-10"><span class="n">10</span>能力雷达</a></li><li><a href="#sec-11"><span class="n">11</span>市场地图</a></li><li><a href="#sec-12"><span class="n">12</span>时间线</a></li><li><a href="#sec-13"><span class="n">13</span>用户口碑</a></li><li><a href="#sec-14"><span class="n">14</span>行动建议</a></li><li><a href="#sec-15"><span class="n">15</span>来源</a></li></ul></aside><main class="main"><header class="masthead"><div class="kicker"><span class="k-dot"></span>AI PM · 竞品研究报告</div><h1>VS Code 竞品分析报告：代码编辑器市场的统治与挑战</h1><div class="docmeta"><div class="dm-line"><span class="dm-item"><span class="dm-k">分析对象</span><span class="dm-v">VS Code（对比 JetBrains、Cursor、GitHub Copilot）</span></span><span class="dm-item"><span class="dm-k">研究意图</span><span class="dm-v">竞品对比</span></span><span class="dm-item"><span class="dm-k">数据可信等级</span><span class="dm-v">高（公开来源检索）</span></span><span class="dm-item"><span class="dm-k">日期</span><span class="dm-v">2026年8月27日</span></span></div><div class="dm-line"><span class="dm-item"><span class="dm-k">选用维度</span><span class="dm-v">全 10 维</span></span><span class="dm-item"><span class="dm-k">研究深度</span><span class="dm-v">标准</span></span></div></div></header><div class="content"><section id="sec-1"><div class="sec-head"><div class="sec-no">01</div><div><div class="sec-eyebrow">EXECUTIVE SUMMARY</div><h2>执行摘要</h2><div class="sec-sub">核心结论与关键洞察</div></div></div><div class="findings"><div class="finding"><span class="find-num">01</span><div class="find-body"><span class="find-kw">市场统治地位稳固</span><span class="find-text">VS Code 在 Stack Overflow 2025 年调查中以 75.9% 的使用率连续第四年位居最受欢迎开发环境榜首，月活跃开发者（含 Visual Studio）约 5000 万，是第二名 Visual Studio 的两倍以上。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">02</span><div class="find-body"><span class="find-kw">免费+开源策略构筑护城河</span><span class="find-text">核心 Code-OSS 以 MIT 许可证开源，但微软官方二进制版本含专有组件（品牌、遥测），形成&quot;开源社区+商业分发&quot;的双轨模式。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">03</span><div class="find-body"><span class="find-kw">扩展生态是核心壁垒</span><span class="find-text">扩展市场已超 10 万款，覆盖几乎所有编程语言和开发场景，这是 JetBrains 等竞品难以复制的网络效应。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">04</span><div class="find-body"><span class="find-kw">AI 能力面临双重夹击</span><span class="find-text">内置 GitHub Copilot 集成面临 Cursor（AI-native IDE）和独立 Copilot 订阅的双重竞争，AI 功能深度不及前者，灵活性不及后者。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">05</span><div class="find-body"><span class="find-kw">商业模式以生态变现为主</span><span class="find-text">编辑器本身免费，通过 Azure 云服务、Visual Studio 订阅（企业版 $250/月）和 Copilot 订阅（$10-$39/月）实现商业闭环。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div><div class="finding"><span class="find-num">06</span><div class="find-body"><span class="find-kw">性能与调试是主要短板</span><span class="find-text">基于 Electron 框架导致内存占用高，复杂调试场景（大堆内存、特殊语言）表现不佳，这是用户转向 JetBrains 的核心原因。</span></div><div class="find-ev"><span class="ev-badge high">公开检索</span><span class="ev-conf">来源可溯源</span></div></div></div></section><section id="sec-2"><div class="sec-head"><div class="sec-no">02</div><div><div class="sec-eyebrow">MARKET OVERVIEW</div><h2>市场概览</h2><div class="sec-sub">赛道格局与竞争梯队</div></div></div><p>VS Code 由微软于 2015 年 4 月发布预览版，2016 年 4 月正式版发布，此后保持每月更新节奏。其定位为&quot;轻量级代码编辑器+IDE 功能&quot;，填补了传统文本编辑器（Sublime、Atom）与重量级 IDE（Visual Studio、JetBrains）之间的市场空白。</p><p>当前市场竞争格局呈现三级分化：</p><p>传统 IDE：JetBrains 系列（IntelliJ、PyCharm 等）以深度调试、专业语言支持见长，但价格昂贵（$499/年起）。</p><p>AI-native 编辑器：Cursor、Windsurf 等以 AI 优先设计，提供更紧密的 AI 集成，但生态尚浅。</p><p>AI 插件：GitHub Copilot、Tabnine 等以插件形式寄生在 VS Code 等编辑器上，形成互补而非替代关系。</p><p>VS Code 的免费策略使其在个人开发者、教育领域和初创公司中占据绝对优势，而 JetBrains 在企业级专业开发中仍保有忠诚用户。</p><div class="chart-card"><div class="chart-head"><span class="chart-title">竞争梯队金字塔</span><span class="chart-note">按市场规模 / 影响力划分</span></div><div class="pyramid"><div class="pyr-band t1"><div class="pyr-txt"><div class="pyr-label">第一梯队<span>头部领跑</span></div><div class="pyr-names">VS Code</div><div class="pyr-desc">行业绝对领先，能力全面、规模与商业化突出</div></div></div><div class="pyr-band t2"><div class="pyr-txt"><div class="pyr-label">第二梯队<span>强势跟进</span></div><div class="pyr-names">JetBrains</div><div class="pyr-desc">能力优秀、增长迅速，细分场景具强竞争力</div></div></div><div class="pyr-band t3"><div class="pyr-txt"><div class="pyr-label">第三梯队<span>细分突围</span></div><div class="pyr-names">Cursor、Sublime Text、Neovim</div><div class="pyr-desc">聚焦特定场景或用户群，寻求差异化突破</div></div></div></div></div></section><section id="sec-3"><div class="sec-head"><div class="sec-no">03</div><div><div class="sec-eyebrow">POSITIONING</div><h2>产品定位</h2><div class="sec-sub">差异化定位对照</div></div></div><p>轻量快速：秒开项目，即使是大型项目也能快速加载</p><p>全语言支持：内置 Web 前端、Node.js、PHP 支持，通过扩展覆盖 Java、Python、Go、C# 等几乎所有语言</p><p>开箱即用的核心功能：语法高亮、IntelliSense 智能补全、代码重构、调试、Git 集成</p><p>跨平台：Windows、macOS、Linux 全覆盖</p><p>vs JetBrains：VS Code 强调&quot;简单即用&quot;，JetBrains 强调&quot;专业深度&quot;。VS Code 是&quot;编辑器+插件&quot;，JetBrains 是&quot;全家桶 IDE&quot;。</p><p>vs Cursor：Cursor 是&quot;AI-first&quot;设计，VS Code 是&quot;编辑器-first，AI 作为增强&quot;。Cursor 的 AI 集成更深，但 VS Code 的生态和稳定性更强。</p><div class="callout"><span class="callout-bar"></span><div>VS Code 定位为&quot;一个编辑器，从代码到云&quot;（Microsoft Azure 官方描述），核心价值主张是： 与竞品对比：</div></div></section><section id="sec-4"><div class="sec-head"><div class="sec-no">04</div><div><div class="sec-eyebrow">CAPABILITY MATRIX</div><h2>功能矩阵</h2><div class="sec-sub">核心能力覆盖情况</div></div></div><div class="matrix-card"><table class="feature-matrix"><thead><tr><th class="fm-feat">功能模块</th><th style="color:#14B8A6"><span class="fm-ph" style="background:#14B8A61a;color:#14B8A6">VS Code</span></th><th style="color:#F59E0B"><span class="fm-ph" style="background:#F59E0B1a;color:#F59E0B">JetBrains</span></th><th style="color:#0EA5E9"><span class="fm-ph" style="background:#0EA5E91a;color:#0EA5E9">Cursor</span></th></tr></thead><tbody><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>代码编辑</td><td class="fm-cell partial"><span class="fm-dot partial"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span><span class="fm-note">基础编辑+IntelliSense</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">深度代码分析+智能重构</span></td><td class="fm-cell partial"><span class="fm-dot partial"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span><span class="fm-note">基础编辑+AI 补全</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>调试</td><td class="fm-cell partial"><span class="fm-dot partial"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span><span class="fm-note">基础调试，特殊语言需配置</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">专业级调试，内存/变量监控</span></td><td class="fm-cell partial"><span class="fm-dot partial"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span><span class="fm-note">基础调试</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>Git 集成</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">内置，冲突解决友好</span></td><td class="fm-cell yes"><span class="fm-dot yes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="fm-note">更强大的分支/日志管理</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">内置</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>远程开发</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">远程 SSH、容器、WSL</span></td><td class="fm-cell yes"><span class="fm-dot yes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="fm-note">远程开发支持</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">远程开发</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>扩展生态</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">10万+扩展</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">插件市场较小</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">兼容 VS Code 扩展</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>AI 能力</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">Copilot 集成（可选</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">AI Assistant（付费</span></td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">原生 AI 深度集成</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>云集成</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">Azure 深度集成</span></td><td class="fm-cell yes"><span class="fm-dot yes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="fm-note">云服务支持</span></td><td class="fm-cell yes"><span class="fm-dot yes"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><span class="fm-note">云服务支持</span></td></tr><tr><td class="fm-feat"><span class="fm-fi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg></span>协作</td><td class="fm-cell na"><span class="fm-dot na">–</span><span class="fm-note">Live Share</span></td><td class="fm-cell no"><span class="fm-dot no"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span><span class="fm-note">原生方案</span></td><td class="fm-cell no"><span class="fm-dot no"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span><span class="fm-note">原生方案</span></td></tr></tbody></table><div class="fm-cov-wrap"><span class="fm-cov-title">功能覆盖率</span><div class="fm-cov"><span class="fm-cov-name" style="color:#14B8A6">VS Code</span><span class="fm-cov-bar"><i style="width:0%;background:#14B8A6"></i></span><span class="fm-cov-pct">0%</span></div><div class="fm-cov"><span class="fm-cov-name" style="color:#F59E0B">JetBrains</span><span class="fm-cov-bar"><i style="width:38%;background:#F59E0B"></i></span><span class="fm-cov-pct">38%</span></div><div class="fm-cov"><span class="fm-cov-name" style="color:#0EA5E9">Cursor</span><span class="fm-cov-bar"><i style="width:12%;background:#0EA5E9"></i></span><span class="fm-cov-pct">12%</span></div></div><div class="fm-legend"><span><i class="lg yes"></i>强</span><span><i class="lg partial"></i>中</span><span><i class="lg no"></i>小</span></div></div></section><section id="sec-5"><div class="sec-head"><div class="sec-no">05</div><div><div class="sec-eyebrow">AI CAPABILITIES</div><h2>AI 能力</h2><div class="sec-sub">底层技术与智能化能力</div></div></div><div class="ai-grid"><div class="ai-card"><span class="ai-idx">01</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>Free</h4><p>$0，50 premium requests/月，2,000 completions/月</p></div></div><div class="ai-card"><span class="ai-idx">02</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>Pro</h4><p>$10/月，300 premium requests，无限 completions，含 Claude Opus 4.6</p></div></div><div class="ai-card"><span class="ai-idx">03</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>Pro+</h4><p>$39/月，1,500 premium requests，所有模型</p></div></div><div class="ai-card"><span class="ai-idx">04</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>Business</h4><p>$19/用户/月，IP 赔偿</p></div></div><div class="ai-card"><span class="ai-idx">05</span><div class="ai-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E40AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5h5L15 11l1.5 5-5-3-5 3 1.5-5-4-4h5z"/></svg></div><div class="ai-body"><h4>Enterprise</h4><p>$39/用户/月，企业级安全</p></div></div></div></section><section id="sec-6"><div class="sec-head"><div class="sec-no">06</div><div><div class="sec-eyebrow">BUSINESS MODEL</div><h2>商业模式</h2><div class="sec-sub">定价结构与变现路径</div></div></div><p>VS Code 采用&quot;免费+生态变现&quot;模式：</p><div class="biz-wrap"><div class="biz-col"><div class="biz-ph" style="border-color:#14B8A6"><span class="biz-dot" style="background:#14B8A6"></span>定价</div><div class="biz-tiers"></div></div><div class="biz-col"><div class="biz-ph" style="border-color:#14B8A6"><span class="biz-dot" style="background:#14B8A6"></span>目标用户</div><div class="biz-tiers"></div></div></div><div class="biz-extra"><div class="biz-extra-title">变现结构对照</div><div class="biz-table-wrap"><table class="biz-table"><thead><tr><th>维度</th><th>定价</th><th>目标用户</th></tr></thead><tbody><tr><td class="bk">VS Code 编辑器</td><td>免费</td><td>所有开发者</td></tr><tr><td class="bk">GitHub Copilot</td><td>$10-$39/月</td><td>个人/企业开发者</td></tr><tr><td class="bk">Visual Studio 订阅</td><td>$45-$250/月</td><td>企业级 .NET 开发</td></tr><tr><td class="bk">Azure 云服务</td><td>即用即付</td><td>云开发用户</td></tr><tr><td class="bk">扩展市场</td><td>免费+付费扩展</td><td>开发者</td></tr></tbody></table></div></div><p>核心逻辑：通过免费编辑器获取海量用户，通过 Copilot、Azure 和 Visual Studio 订阅实现商业变现。VS Code 本身是流量入口，而非利润中心。</p></section><section id="sec-7"><div class="sec-head"><div class="sec-no">07</div><div><div class="sec-eyebrow">GROWTH &amp; TRACTION</div><h2>增长</h2><div class="sec-sub">用户规模与增长动能</div></div></div><div class="kpi-grid"><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">2015 年 4 月</div><div class="kpi-desc">Build 大会发布预览版</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">2015 年 11 月</div><div class="kpi-desc">Code-OSS 以 MIT 许可证开源</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">2016 年 4 月</div><div class="kpi-desc">正式版发布</div></div><div class="kpi"><div class="kpi-num"></div><div class="kpi-label">2022 年</div><div class="kpi-desc">Stack Overflow 调查中首次登顶最受欢迎开发环境</div></div><div class="kpi"><div class="kpi-num">75.9%</div><div class="kpi-label">2025 年</div><div class="kpi-desc">75.9% 使用率，连续第四年第一</div></div><div class="kpi"><div class="kpi-num">5000 万</div><div class="kpi-label">2026 年</div><div class="kpi-desc">月活跃开发者（含 VS）约 5000 万</div></div></div></section><section id="sec-8"><div class="sec-head"><div class="sec-no">08</div><div><div class="sec-eyebrow">COMPETITIVE LANDSCAPE</div><h2>竞争格局</h2><div class="sec-sub">主要竞品对标关系</div></div></div><p>VS Code 的核心竞争壁垒是扩展生态网络效应，而非技术本身。JetBrains 在专业场景（Java、Python 深度开发）仍有优势，Cursor 在 AI 场景构成潜在威胁。</p><div class="chart-card"><div class="chart-head"><span class="chart-title">竞争关系图</span><span class="chart-note">中心 = 分析主体 · 外环 = 主要竞品 · 连线 = 竞争关系</span></div><div id="comp_1" class="echart" style="height:420px"></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("comp_1"));c.setOption({"backgroundColor": "transparent", "tooltip": {"trigger": "item", "formatter": "{b}"}, "series": [{"type": "graph", "layout": "circular", "circular": {"rotateLabel": true}, "roam": true, "draggable": true, "label": {"show": true, "position": "right"}, "lineStyle": {"opacity": 0.9, "curveness": 0.08}, "data": [{"name": "VS Code", "symbolSize": 56, "itemStyle": {"color": "#1E40AF", "borderColor": "#fff", "borderWidth": 2}, "label": {"fontSize": 13, "fontWeight": "bold", "color": "#1E40AF"}}, {"name": "JetBrains", "symbolSize": 56, "itemStyle": {"color": "#1E40AF", "borderColor": "#fff", "borderWidth": 2}, "label": {"fontSize": 13, "fontWeight": "bold", "color": "#1E40AF"}}, {"name": "Cursor", "symbolSize": 42, "itemStyle": {"color": "#CBD5E1", "borderColor": "#fff", "borderWidth": 2}, "label": {"fontSize": 12, "color": "#475569"}}, {"name": "Sublime Text", "symbolSize": 42, "itemStyle": {"color": "#CBD5E1", "borderColor": "#fff", "borderWidth": 2}, "label": {"fontSize": 12, "color": "#475569"}}, {"name": "Neovim", "symbolSize": 42, "itemStyle": {"color": "#CBD5E1", "borderColor": "#fff", "borderWidth": 2}, "label": {"fontSize": 12, "color": "#475569"}}], "links": [{"source": "VS Code", "target": "Cursor", "lineStyle": {"color": "#94A3B8", "width": 2}, "label": {"show": true, "formatter": "竞争", "color": "#94A3B8", "fontSize": 11}}, {"source": "VS Code", "target": "Sublime Text", "lineStyle": {"color": "#94A3B8", "width": 2}, "label": {"show": true, "formatter": "竞争", "color": "#94A3B8", "fontSize": 11}}, {"source": "VS Code", "target": "Neovim", "lineStyle": {"color": "#94A3B8", "width": 2}, "label": {"show": true, "formatter": "竞争", "color": "#94A3B8", "fontSize": 11}}, {"source": "Cursor", "target": "Sublime Text", "lineStyle": {"color": "#E2E8F0", "width": 1, "type": "dashed"}, "label": {"show": false}}, {"source": "Cursor", "target": "Neovim", "lineStyle": {"color": "#E2E8F0", "width": 1, "type": "dashed"}, "label": {"show": false}}, {"source": "Sublime Text", "target": "Neovim", "lineStyle": {"color": "#E2E8F0", "width": 1, "type": "dashed"}, "label": {"show": false}}], "emphasis": {"focus": "adjacency"}}]});REG.push(c);});</script></section><section id="sec-9"><div class="sec-head"><div class="sec-no">09</div><div><div class="sec-eyebrow">SWOT ANALYSIS</div><h2>SWOT</h2><div class="sec-sub">优势 / 劣势 / 机会 / 威胁</div></div></div><div class="swot"><div class="swot-grid"><div class="sw-cell s"><div class="sw-h">优势 S</div><div class="sw-line">trengths）：</div></div><div class="sw-cell w"><div class="sw-h">劣势 W</div><div class="sw-line">eaknesses）：</div></div><div class="sw-cell o"><div class="sw-h">机会 O</div><div class="sw-line">pportunities）：</div></div><div class="sw-cell t"><div class="sw-h">威胁 T</div><div class="sw-line">hreats）：</div></div></div></div></section><section id="sec-10"><div class="sec-head"><div class="sec-no">10</div><div><div class="sec-eyebrow">CAPABILITY RADAR</div><h2>能力雷达</h2><div class="sec-sub">多维度能力综合评估</div></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">多维能力图谱</span><span class="chart-note">5=领先 · 3=平均 · 1=基本不覆盖</span></div><div class="radar-dash"><div class="radar-main"><div id="radar_2" class="echart"></div></div><div class="score-panel"><div class="sp-title">能力评分 · 编辑体验</div><div class="score-item"><div class="si-top"><span class="si-name">VS Code</span><span class="si-score" style="color:#1E3A8A">4.0</span></div><div class="si-bar"><i style="width:80%;background:#1E3A8A"></i></div></div><div class="score-item"><div class="si-top"><span class="si-name">JetBrains</span><span class="si-score" style="color:#1E3A8A">5.0</span></div><div class="si-bar"><i style="width:100%;background:#1E3A8A"></i></div></div><div class="score-item"><div class="si-top"><span class="si-name">Cursor</span><span class="si-score" style="color:#475569">3.0</span></div><div class="si-bar"><i style="width:60%;background:#475569"></i></div></div><div class="score-item"><div class="si-top"><span class="si-name">行业平均</span><span class="si-score" style="color:#475569">3.0</span></div><div class="si-bar"><i style="width:60%;background:#475569"></i></div></div></div></div><div class="cmp-legend"><span class="cmp-chip"><i style="background:#1E40AF"></i>编辑体验<small>分析主体</small></span><span class="cmp-chip"><i style="background:#94A3B8"></i>调试能力<small>竞品</small></span><span class="cmp-chip"><i style="background:#CBD5E1"></i>扩展生态<small>竞品</small></span><span class="cmp-chip"><i style="background:#93C5FD"></i>AI 能力<small>竞品</small></span><span class="cmp-chip"><i style="background:#94A3B8"></i>性能表现<small>竞品</small></span><span class="cmp-chip"><i style="background:#CBD5E1"></i>跨平台<small>竞品</small></span><span class="cmp-chip"><i style="background:#93C5FD"></i>协作功能<small>竞品</small></span><span class="cmp-chip"><i style="background:#94A3B8"></i>云集成<small>竞品</small></span><span class="cmp-chip"><i style="background:#CBD5E1"></i>商业模式<small>竞品</small></span><span class="cmp-chip"><i style="background:#93C5FD"></i>社区活跃<small>竞品</small></span></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("radar_2"));c.setOption({"backgroundColor": "transparent", "tooltip": {"trigger": "item"}, "radar": {"indicator": [{"name": "VS Code", "max": 5}, {"name": "JetBrains", "max": 5}, {"name": "Cursor", "max": 5}, {"name": "行业平均", "max": 5}], "radius": "72%", "center": ["50%", "48%"], "axisName": {"color": "#666666", "fontSize": 12}, "splitNumber": 4, "splitLine": {"lineStyle": {"color": "#ECECEC"}}, "axisLine": {"lineStyle": {"color": "#ECECEC"}}, "splitArea": {"areaStyle": {"color": ["rgba(255,255,255,0)", "rgba(0,0,0,0.018)"]}}}, "series": [{"type": "radar", "data": [{"name": "编辑体验", "value": [4.0, 5.0, 3.0, 3.0], "lineStyle": {"color": "#1E40AF", "width": 3}, "itemStyle": {"color": "#1E40AF"}, "symbolSize": 7, "areaStyle": {"color": "#1E40AF", "opacity": 0.18}}, {"name": "调试能力", "value": [3.0, 5.0, 2.0, 3.0], "lineStyle": {"color": "#94A3B8", "width": 1.8}, "itemStyle": {"color": "#94A3B8"}, "symbolSize": 4}, {"name": "扩展生态", "value": [5.0, 3.0, 4.0, 3.0], "lineStyle": {"color": "#CBD5E1", "width": 1.8}, "itemStyle": {"color": "#CBD5E1"}, "symbolSize": 4}, {"name": "AI 能力", "value": [3.0, 3.0, 5.0, 3.0], "lineStyle": {"color": "#93C5FD", "width": 1.8}, "itemStyle": {"color": "#93C5FD"}, "symbolSize": 4}, {"name": "性能表现", "value": [3.0, 4.0, 3.0, 3.0], "lineStyle": {"color": "#94A3B8", "width": 1.8}, "itemStyle": {"color": "#94A3B8"}, "symbolSize": 4}, {"name": "跨平台", "value": [5.0, 4.0, 4.0, 3.0], "lineStyle": {"color": "#CBD5E1", "width": 1.8}, "itemStyle": {"color": "#CBD5E1"}, "symbolSize": 4}, {"name": "协作功能", "value": [4.0, 2.0, 2.0, 2.0], "lineStyle": {"color": "#93C5FD", "width": 1.8}, "itemStyle": {"color": "#93C5FD"}, "symbolSize": 4}, {"name": "云集成", "value": [5.0, 3.0, 3.0, 3.0], "lineStyle": {"color": "#94A3B8", "width": 1.8}, "itemStyle": {"color": "#94A3B8"}, "symbolSize": 4}, {"name": "商业模式", "value": [5.0, 3.0, 3.0, 3.0], "lineStyle": {"color": "#CBD5E1", "width": 1.8}, "itemStyle": {"color": "#CBD5E1"}, "symbolSize": 4}, {"name": "社区活跃", "value": [5.0, 3.0, 2.0, 3.0], "lineStyle": {"color": "#93C5FD", "width": 1.8}, "itemStyle": {"color": "#93C5FD"}, "symbolSize": 4}]}], "graphic": [{"type": "text", "left": "center", "top": "40%", "style": {"text": "3.8", "fontSize": 34, "fontWeight": "bold", "fill": "#1E40AF", "textAlign": "center"}}, {"type": "text", "left": "center", "top": "50%", "style": {"text": "AI 能力分", "fontSize": 11, "fill": "#999999", "textAlign": "center"}}]});REG.push(c);});</script></section><section id="sec-11"><div class="sec-head"><div class="sec-no">11</div><div><div class="sec-eyebrow">MARKET MAP</div><h2>市场地图</h2><div class="sec-sub">产品定位气泡图</div></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">市场地图</span><span class="chart-note">气泡位置 = 定位 · 主分析对象深蓝高亮，竞品灰色</span></div><div id="scatter_3" class="echart"></div></div>
+<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("scatter_3"));c.setOption({"backgroundColor": "transparent", "tooltip": {"trigger": "item", "formatter": "{b}<br/>{c}"}, "grid": {"left": "10%", "right": "8%", "top": "11%", "bottom": "13%"}, "xAxis": {"type": "value", "name": "X（AI 能力）", "nameLocation": "middle", "nameGap": 30, "nameTextStyle": {"color": "#666666"}, "min": 0, "max": 10, "axisLabel": {"color": "#666666"}, "axisLine": {"lineStyle": {"color": "#E8E6E1"}}, "splitLine": {"lineStyle": {"color": "#EFEFEF", "type": "dashed"}}}, "yAxis": {"type": "value", "name": "Y（生态丰富度）", "nameTextStyle": {"color": "#666666"}, "min": 0, "max": 10, "axisLabel": {"color": "#666666"}, "axisLine": {"lineStyle": {"color": "#E8E6E1"}}, "splitLine": {"lineStyle": {"color": "#EFEFEF", "type": "dashed"}}}, "series": [{"type": "scatter", "data": [{"name": "VS Code", "value": [3.0, 5.0], "itemStyle": {"color": "#1E40AF", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}, "symbolSize": 44}, {"name": "JetBrains", "value": [3.0, 3.0], "itemStyle": {"color": "#CBD5E1", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}, "symbolSize": 21}, {"name": "Cursor", "value": [5.0, 2.0], "itemStyle": {"color": "#CBD5E1", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}, "symbolSize": 19}, {"name": "Sublime Text", "value": [1.0, 2.0], "itemStyle": {"color": "#CBD5E1", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}, "symbolSize": 19}, {"name": "Neovim", "value": [2.0, 3.0], "itemStyle": {"color": "#CBD5E1", "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2}, "label": {"show": true, "formatter": "{b}", "position": "bottom", "color": "#171717", "fontSize": 11, "fontWeight": "600"}, "symbolSize": 19}], "markLine": {"silent": true, "symbol": "none", "lineStyle": {"color": "#E8E6E1", "type": "solid", "width": 1.5}, "data": [{"xAxis": 5}, {"yAxis": 5}]}, "markArea": {"silent": true, "itemStyle": {"color": "rgba(30,64,175,0.05)"}, "data": [[{"coord": [5, 5]}, {"coord": [10, 10]}]]}}], "graphic": [{"type": "text", "right": "7%", "top": "9%", "style": {"text": "高Y（生态丰富度）·高X（AI 能力）", "fontSize": 12, "fill": "#999999"}}, {"type": "text", "left": "10%", "top": "9%", "style": {"text": "低X（AI 能力）·高Y（生态丰富度）", "fontSize": 12, "fill": "#999999"}}, {"type": "text", "right": "7%", "bottom": "11%", "style": {"text": "高X（AI 能力）·低Y（生态丰富度）", "fontSize": 12, "fill": "#999999"}}, {"type": "text", "left": "10%", "bottom": "11%", "style": {"text": "低X（AI 能力）·低Y（生态丰富度）", "fontSize": 12, "fill": "#999999"}}]});REG.push(c);});</script></section><section id="sec-12"><div class="sec-head"><div class="sec-no">12</div><div><div class="sec-eyebrow">TIMELINE</div><h2>时间线</h2><div class="sec-sub">关键节点编年</div></div></div><div class="timeline-h"><div class="tl-track"><div class="tl-node"><div class="tl-year">2015</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2015 年 4 月</div><div class="tl-text">微软在 Build 大会发布 VS Code 预览版</div></div></div><div class="tl-node"><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2015 年 11 月</div><div class="tl-text">Code-OSS 以 MIT 许可证开源</div></div></div><div class="tl-node"><div class="tl-year">2016</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2016 年 4 月</div><div class="tl-text">VS Code 正式版发布</div></div></div><div class="tl-node"><div class="tl-year">2021</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2021 年</div><div class="tl-text">GitHub Copilot 发布，VS Code 成为主要载体</div></div></div><div class="tl-node"><div class="tl-year">2022</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2022 年</div><div class="tl-text">首次登顶 Stack Overflow 最受欢迎开发环境</div></div></div><div class="tl-node"><div class="tl-year">2023</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2023 年</div><div class="tl-text">CEC-IDE 换皮事件引发开源合规讨论</div></div></div><div class="tl-node"><div class="tl-year">2025</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2025 年</div><div class="tl-text">75.9% 使用率，连续第四年第一</div></div></div><div class="tl-node"><div class="tl-year">2026</div><span class="tl-dot"></span><div class="tl-card"><div class="tl-date">2026 年</div><div class="tl-text">Copilot 推出五档定价，AI 编程市场竞争加剧</div></div></div></div></div></section><section id="sec-13"><div class="sec-head"><div class="sec-no">13</div><div><div class="sec-eyebrow">USER VOICE</div><h2>用户口碑</h2><div class="sec-sub">来自真实用户的声音</div></div></div><div class="chart-card"><div class="chart-head"><span class="chart-title">用户口碑</span><span class="chart-note">样本 4 条</span></div><div class="sent-bar"><i class="sent-pos" style="width:50%"></i><i class="sent-neg" style="width:50%"></i></div><div class="sent-legend"><span><i class="dot pos"></i>正面 2</span><span><i class="dot neg"></i>负面 / 建议 2</span><span class="sent-pw">好评率 50%</span></div><div class="voice-cols"><div class="voice-col pos-col"><div class="vc-head pos">正面</div><div class="vc-body"><div class="voice pos"><div class="voice-mono" style="background:#14B8A620;color:#14B8A6">p</div><div class="voice-main"><div class="voice-meta"></div><div class="voice-quote">&quot;VS Code 是我用过的最好的代码编辑器，让我的编码工作流更快更结构化。&quot;（Capterra 用户评价）</div></div></div><div class="voice pos"><div class="voice-mono" style="background:#14B8A620;color:#14B8A6">p</div><div class="voice-main"><div class="voice-meta"></div><div class="voice-quote">&quot;远程开发体验极佳，用户界面在本地运行，不受网络延迟影响。&quot;（知乎用户）</div></div></div></div></div><div class="voice-col neg-col"><div class="vc-head neg">负面</div><div class="vc-body"><div class="voice neg"><div class="voice-mono" style="background:#EF444420;color:#EF4444">n</div><div class="voice-main"><div class="voice-meta"></div><div class="voice-quote">&quot;当程序需要更大堆内存时，VS Code 的调试器会一直卡到崩溃。&quot;（InfoQ 用户）</div></div></div><div class="voice neg"><div class="voice-mono" style="background:#EF444420;color:#EF4444">n</div><div class="voice-main"><div class="voice-meta"></div><div class="voice-quote">&quot;用了五年 VS Code，我决定换成 JetBrains——调试能力和性能差距明显。&quot;（InfoQ 文章）</div></div></div></div></div></div></div></section><section id="sec-14"><div class="sec-head"><div class="sec-no">14</div><div><div class="sec-eyebrow">RECOMMENDATIONS</div><h2>行动建议</h2><div class="sec-sub">后续行动优先级</div></div></div><div class="pri"><div class="pri-row"><div class="pri-col m"><div class="pri-h" style="border-color:#1E40AF;color:#1E40AF">Must · 必做</div><ul><li>持续强化扩展生态，这是 VS Code 最核心的竞争壁垒，需确保扩展市场对 AI 时代的兼容性（如支持 AI 插件）。</li></ul></div><div class="pri-col s"><div class="pri-h" style="border-color:#F59E0B;color:#F59E0B">Should · 应做</div><ul><li>提升原生 AI 能力，减少对 Copilot 的依赖，应对 Cursor 等 AI-native 编辑器的威胁。</li></ul></div><div class="pri-col c"><div class="pri-h" style="border-color:#7C3AED;color:#7C3AED">Could · 可做</div><ul><li>探索&quot;免费编辑器+增值服务&quot;的更多变现路径（如企业级安全、合规功能），在 AI 编程助手市场（预计 2026 年达 $200/月高端档位）中占据更大份额。</li></ul></div></div></div></section><section id="sec-15"><div class="sec-head"><div class="sec-no">15</div><div><div class="sec-eyebrow">SOURCES</div><h2>来源</h2><div class="sec-sub">数据来源与参考</div></div></div><div class="ref-list"><div class="ref"><span class="ref-no">1</span><a href="https://zh.wikipedia.org/zh-hans/Visual_Studio_Code" target="_blank" rel="noopener">Visual Studio Code - 维基百科</a><span class="ref-dom">zh.wikipedia.org</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">2</span><a href="https://vscode.cool" target="_blank" rel="noopener">VS Code 入门教程</a><span class="ref-dom">vscode.cool</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">3</span><a href="https://azure.microsoft.com/zh-cn/products/visual-studio-code" target="_blank" rel="noopener">Visual Studio Code - Microsoft Azure</a><span class="ref-dom">azure.microsoft.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">4</span><a href="https://github.com/microsoft/vscode" target="_blank" rel="noopener">GitHub - microsoft/vscode</a><span class="ref-dom">github.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">5</span><a href="https://visualstudio.microsoft.com/zh-hans/vs/pricing" target="_blank" rel="noopener">Visual Studio 定价</a><span class="ref-dom">visualstudio.microsoft.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">6</span><a href="https://juejin.cn/post/7588140921249136678" target="_blank" rel="noopener">VSCode 重磅更新！要收费了？</a><span class="ref-dom">juejin.cn</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">7</span><a href="https://www.nxcode.io/zh/resources/news/ai-coding-tools-pricing-comparison-2026" target="_blank" rel="noopener">AI 编程工具价格对比 2026</a><span class="ref-dom">www.nxcode.io</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">8</span><a href="https://www.capterra.com/p/186634/Visual-Studio-Code/reviews" target="_blank" rel="noopener">Reviews of Visual Studio Code</a><span class="ref-dom">www.capterra.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">9</span><a href="https://zhuanlan.zhihu.com/p/120360684" target="_blank" rel="noopener">使用 VSCode 打造一站式全平台开发体验</a><span class="ref-dom">zhuanlan.zhihu.com</span><span class="cred mid">中</span></div><div class="ref"><span class="ref-no">10</span><a href="https://www.infoq.cn/article/2jyfgdbfkusp9j9sjpcu" target="_blank" rel="noopener">用了五年 VS Code，我决定换成 JetBrains</a><span class="ref-dom">www.infoq.cn</span><span class="cred mid">中</span></div></div></section></div><footer class="ev-footer"><span class="ef-brand">AIPM·瞭望台</span><span class="ef-sep"></span><span>本报告由 AI 实时检索公开来源生成，结论可溯源</span><span class="ef-sep"></span><span>更新于 2026年8月27日</span></footer></main></div><script>var REG=[];window.addEventListener("load",function(){REG.forEach(function(c){c.resize();});});window.addEventListener("resize",function(){REG.forEach(function(c){c.resize();});});var navs=document.querySelectorAll(".nav a");navs.forEach(function(a){a.addEventListener("click",function(){navs.forEach(function(x){x.classList.remove("active");});this.classList.add("active");});});var secs=[].slice.call(document.querySelectorAll("section"));window.addEventListener("scroll",function(){var pos=window.scrollY+120;secs.forEach(function(s){if(s.offsetTop<=pos){navs.forEach(function(x){x.classList.remove("active");});var a=document.querySelector('.nav a[href="#'+s.id+'"]');if(a)a.classList.add("active");}});});</script></body></html>

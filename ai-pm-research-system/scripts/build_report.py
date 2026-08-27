@@ -423,11 +423,16 @@ def render_scatter(mid, header, rows, title):
         except Exception:
             continue
         c = "#1E40AF" if i == 0 else "#CBD5E1"
-        pts.append({"name": r[0], "value": [x, y],
-                    "symbolSize": 24 + (s or 1) * 9,
+        pts.append({"name": r[0], "value": [x, y], "_s": s,
                     "itemStyle": {"color": c, "opacity": 0.92, "borderColor": "#fff", "borderWidth": 2},
                     "label": {"show": True, "formatter": "{b}", "position": "bottom",
                               "color": "#171717", "fontSize": 11, "fontWeight": "600"}})
+    # 气泡尺寸按最大值归一化（最大约 46px），避免大值气泡溢出绘图区
+    max_s = max((p["_s"] for p in pts), default=1) or 1
+    for p in pts:
+        ratio = (p["_s"] / max_s) if max_s else 0
+        p["symbolSize"] = round(18 + 26 * ratio)
+        del p["_s"]
     if not pts:
         return ('<div class="chart-card"><div class="chart-head"><span class="chart-title">' + html.escape(title)
                 + '</span></div><div class="chart-empty">暂无可定位的产品数据——请检查市场地图表格是否包含「名称 / '
@@ -541,21 +546,20 @@ def render_business_model(header, rows):
             if not v:
                 continue
             tier_cards += ('<div class="plan"><span class="plan-tag" style="background:{0}1a;color:{0}">{1}</span>'
-                           '<span class="plan-val">{2}</span></div>').format(c, TIER_LABELS.index(t) and TIER_TAG[t] or TIER_TAG[t], html.escape(v))
+                           '<span class="plan-val">{2}</span></div>').format(c, TIER_TAG[t], html.escape(v))
         cols += ('<div class="biz-col"><div class="biz-ph" style="border-color:{0}"><span class="biz-dot" style="background:{0}"></span>{1}</div>'
-                 '{2}</div>').format(c, html.escape(p), tier_cards)
+                 '<div class="biz-tiers">{2}</div></div>').format(c, html.escape(p), tier_cards)
     extra_html = ""
     if extras:
-        rows_html = ""
+        head = '<tr><th>维度</th>' + ''.join('<th>' + html.escape(p) + '</th>' for p in products) + '</tr>'
+        body_rows = ""
         for dim, vals in extras:
-            cells = "".join('<td>' + html.escape(vals[pi] if pi < len(vals) else '') + '</td>'
+            cells = ''.join('<td>' + html.escape(vals[pi] if pi < len(vals) else '') + '</td>'
                             for pi in range(len(products)))
+            body_rows += '<tr><td class="bk">' + html.escape(dim) + '</td>' + cells + '</tr>'
         extra_html = ('<div class="biz-extra"><div class="biz-extra-title">变现结构对照</div>'
-                      '<table class="biz-table"><thead><tr><th>' + html.escape(clean('维度'))
-                      + '</th>' + ''.join('<th>' + html.escape(p) + '</th>' for p in products)
-                      + '</tr></thead><tbody>'
-                      + ''.join('<tr><td class="bk">' + html.escape(dim) + '</td>' + cells + '</tr>' for dim, vals in extras)
-                      + '</tbody></table></div>')
+                      '<div class="biz-table-wrap"><table class="biz-table"><thead>' + head + '</thead><tbody>'
+                      + body_rows + '</tbody></table></div></div>')
     return '<div class="biz-wrap">' + cols + '</div>' + extra_html
 
 
@@ -574,43 +578,51 @@ def render_growth(items):
     return '<div class="kpi-grid">' + cards + '</div>'
 
 
-# ---------- 竞争格局：中心-竞品辐射图 ----------
+# ---------- 竞争格局：竞争关系图（ECharts 关系网络） ----------
 def render_competition_graph(mid, center, others):
-    mains = [x.strip() for x in center.split('、')] if '、' in center else [center]
-    items = [("m", x) for x in mains] + [("c", x) for x in others]
-    N = len(items)
-    if N < 2:
+    mains = [x.strip() for x in center.split('、') if x.strip()] if center else []
+    comps = [x.strip() for x in others if x.strip()]
+    if not mains and comps:
+        mains = [comps.pop(0)]
+    if not mains:
+        mains = ["分析主体"]
+    nodes = [{"name": n, "symbolSize": 56,
+              "itemStyle": {"color": "#1E40AF", "borderColor": "#fff", "borderWidth": 2},
+              "label": {"fontSize": 13, "fontWeight": "bold", "color": "#1E40AF"}} for n in mains]
+    for c in comps:
+        nodes.append({"name": c, "symbolSize": 42,
+                      "itemStyle": {"color": "#CBD5E1", "borderColor": "#fff", "borderWidth": 2},
+                      "label": {"fontSize": 12, "color": "#475569"}})
+    links = []
+    for c in comps:
+        links.append({"source": mains[0], "target": c,
+                      "lineStyle": {"color": "#94A3B8", "width": 2},
+                      "label": {"show": True, "formatter": "竞争", "color": "#94A3B8", "fontSize": 11}})
+    for i in range(len(comps)):
+        for j in range(i + 1, len(comps)):
+            links.append({"source": comps[i], "target": comps[j],
+                          "lineStyle": {"color": "#E2E8F0", "width": 1, "type": "dashed"},
+                          "label": {"show": False}})
+    if len(nodes) < 2:
         return ''
-    W = H = 420
-    cx = cy = W // 2
-    R = 165
-    positions = []
-    for i, (kind, name) in enumerate(items):
-        ang = -90 + 360.0 * i / N
-        rad = math.radians(ang)
-        x = cx + R * math.cos(rad)
-        y = cy + R * math.sin(rad)
-        positions.append((kind, name, x, y))
-    line_elems = []
-    for kind, name, x, y in positions:
-        if kind == 'm':
-            continue
-        line_elems.append('<line x1="%d" y1="%d" x2="%.1f" y2="%.1f" stroke="#E2E8F0" stroke-width="1.5"/>'
-                          % (cx, cy, x, y))
-    svg = ('<svg class="comp-svg" viewBox="0 0 %d %d" width="%d" height="%d">%s'
-           '<circle cx="%d" cy="%d" r="6" fill="#1E40AF"/></svg>'
-           % (W, H, W, H, ''.join(line_elems), cx, cy))
-    nodes = ""
-    for kind, name, x, y in positions:
-        if kind == 'm':
-            nodes += ('<div class="comp-core" style="left:{0:.1f}px;top:{1:.1f}px">{2}<small>本报告主体</small></div>'
-                      .format(x, y, html.escape(name)))
-        else:
-            nodes += ('<div class="comp-sat" style="left:{0:.1f}px;top:{1:.1f}px">{2}</div>'
-                      .format(x, y, html.escape(name)))
-    return ('<div class="chart-card"><div class="chart-head"><span class="chart-title">竞争辐射关系</span>'
-            '<span class="chart-note">中心 = 主体 · 外环 = 主要竞品</span></div>'
-            '<div class="comp-stage">' + svg + nodes + '</div></div>')
+    opt = {
+        "backgroundColor": "transparent",
+        "tooltip": {"trigger": "item", "formatter": "{b}"},
+        "series": [{
+            "type": "graph", "layout": "circular", "circular": {"rotateLabel": True},
+            "roam": True, "draggable": True,
+            "label": {"show": True, "position": "right"},
+            "lineStyle": {"opacity": 0.9, "curveness": 0.08},
+            "data": nodes, "links": links,
+            "emphasis": {"focus": "adjacency"}
+        }]
+    }
+    opt_json = json.dumps(opt, ensure_ascii=False)
+    return ('<div class="chart-card"><div class="chart-head"><span class="chart-title">竞争关系图</span>'
+            '<span class="chart-note">中心 = 分析主体 · 外环 = 主要竞品 · 连线 = 竞争关系</span></div>'
+            '<div id="comp_' + str(mid) + '" class="echart" style="height:420px"></div></div>\n'
+            + '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("comp_'
+            + str(mid) + '"));c.setOption(' + opt_json + ');REG.push(c);});</script>')
 
 
 # ---------- SWOT 2x2 ----------
@@ -706,29 +718,33 @@ def render_summary(items):
 
 
 def render_sentiment(items):
-    pos = sum(1 for k, _, _ in items if k == '正面')
-    neg = sum(1 for k, _, _ in items if k == '负面')
-    tot = pos + neg
-    pw = 0 if tot == 0 else round(pos / tot * 100)
-    nw = 100 - pw
-    cards = ""
-    for idx, (k, prod, t) in enumerate(items):
-        cls = 'pos' if k == '正面' else 'neg'
-        mono = (prod[:1] if prod else (k[:1]))
-        cards += ('<div class="voice ' + cls + '">'
-                  + '<div class="voice-mono" style="background:' + ('#14B8A6' if cls == 'pos' else '#EF4444') + '20;color:'
-                  + ('#14B8A6' if cls == 'pos' else '#EF4444') + '">' + html.escape(mono) + '</div>'
-                  + '<div class="voice-main"><div class="voice-meta"><span class="voice-badge ' + cls + '">'
-                  + html.escape(k) + '</span>' + (('<span class="voice-prod">' + html.escape(prod) + '</span>') if prod else '')
-                  + '</div><div class="voice-quote">' + html.escape(t) + '</div></div></div>')
+    pos_items = [(p, t) for k, p, t in items if k == '正面']
+    neg_items = [(p, t) for k, p, t in items if k == '负面']
+    tot = len(pos_items) + len(neg_items)
+    pw = 0 if tot == 0 else round(len(pos_items) / tot * 100)
+
+    def _card(cls, prod, t):
+        mono = (prod[:1] if prod else (cls[:1]))
+        col = '#14B8A6' if cls == 'pos' else '#EF4444'
+        return ('<div class="voice ' + cls + '">'
+                + '<div class="voice-mono" style="background:' + col + '20;color:' + col + '">' + html.escape(mono) + '</div>'
+                + '<div class="voice-main"><div class="voice-meta">'
+                + (('<span class="voice-prod">' + html.escape(prod) + '</span>') if prod else '')
+                + '</div><div class="voice-quote">' + html.escape(t) + '</div></div></div>')
+
+    pos_cards = "".join(_card('pos', p, t) for p, t in pos_items)
+    neg_cards = "".join(_card('neg', p, t) for p, t in neg_items)
     return ('<div class="chart-card"><div class="chart-head"><span class="chart-title">用户口碑</span>'
             '<span class="chart-note">样本 ' + str(tot) + ' 条</span></div>'
             '<div class="sent-bar"><i class="sent-pos" style="width:' + str(pw) + '%"></i>'
-            '<i class="sent-neg" style="width:' + str(nw) + '%"></i></div>'
-            '<div class="sent-legend"><span><i class="dot pos"></i>正面 ' + str(pos) + '</span>'
-            '<span><i class="dot neg"></i>负面 / 建议 ' + str(neg) + '</span>'
+            '<i class="sent-neg" style="width:' + str(100 - pw) + '%"></i></div>'
+            '<div class="sent-legend"><span><i class="dot pos"></i>正面 ' + str(len(pos_items)) + '</span>'
+            '<span><i class="dot neg"></i>负面 / 建议 ' + str(len(neg_items)) + '</span>'
             '<span class="sent-pw">好评率 ' + str(pw) + '%</span></div>'
-            '<div class="voice-list">' + cards + '</div></div>')
+            '<div class="voice-cols">'
+            '<div class="voice-col pos-col"><div class="vc-head pos">正面</div><div class="vc-body">' + pos_cards + '</div></div>'
+            '<div class="voice-col neg-col"><div class="vc-head neg">负面</div><div class="vc-body">' + neg_cards + '</div></div>'
+            '</div></div>')
 
 
 def render_priority(must, should, could):
@@ -929,6 +945,8 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .plan:last-child{border-bottom:none;}
 .plan-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
 .plan-val{font-size:13px;color:var(--ink);font-weight:500;text-align:right;}
+.biz-tiers{display:flex;flex-direction:column;}
+.biz-table-wrap{overflow-x:auto;}
 .biz-extra{margin-top:18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);}
 .biz-extra-title{font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--ink-2);margin-bottom:8px;}
 .biz-table{width:100%;border-collapse:collapse;font-size:13px;}
@@ -1028,6 +1046,12 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .dot.pos{background:var(--teal);} .dot.neg{background:#EF4444;}
 .sent-pw{margin-left:auto;font-weight:700;color:var(--ink);}
 .voice-list{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+.voice-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px;}
+.voice-col{background:#FAFAF9;border:1px solid var(--border);border-radius:14px;padding:14px;min-width:0;}
+.vc-head{font-size:13px;font-weight:700;padding:5px 14px;border-radius:999px;display:inline-block;margin-bottom:12px;}
+.vc-head.pos{background:rgba(20,184,166,0.12);color:#0F9E8E;}
+.vc-head.neg{background:rgba(239,68,68,0.1);color:#DC2626;}
+.vc-body{display:flex;flex-direction:column;gap:10px;}
 .voice{display:flex;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;align-items:flex-start;box-shadow:var(--shadow-sm);}
 .voice.pos{border-left:3px solid var(--teal);}
 .voice.neg{border-left:3px solid #EF4444;}
@@ -1162,6 +1186,8 @@ def render_section(sec, mid_state, market_map, idx):
                 parts.append(render_business_model(header, rows))
             elif title == 'SWOT':
                 parts.append(render_swot_table(header, rows))
+            elif title == '竞争格局':
+                pass  # 竞品信息由竞争关系图统一呈现，避免重复渲染纯表格
             else:
                 parts.append(render_table(header, rows))
             i = table_at[i][0] + 1
@@ -1175,7 +1201,7 @@ def render_section(sec, mid_state, market_map, idx):
             if title == '用户口碑' and mk:
                 sentiment.append((mk.group(1), mk.group(2).strip(), mk.group(3).strip()))
             elif title == '时间线':
-                mm = re.match(r'^(\d{4}(?:年\d{1,2}月?|[-/]\d{1,2}(?:[-/]\d{1,2})?|[ \t]+Q[1-4])?)\s*[：:]\s*(.*)$', bl)
+                mm = re.match(r'^(\d{4}(?:\s*年(?:\s*\d{1,2}\s*月?)?|\s*[-\/]\s*\d{1,2}(?:\s*[-\/]\s*\d{1,2})?|[ \t]+Q[1-4])?)\s*[：:]\s*(.*)$', bl)
                 if mm:
                     timeline.append((mm.group(1).strip(), mm.group(2).strip()))
             elif title == '行动建议':
@@ -1278,6 +1304,14 @@ def render(input_path, output_path):
                 break
         if market_map:
             break
+
+    # 统一章节顺序：来源 始终置底（行动建议随之自然在其前），历史与未来报告一致
+    _lvl1 = [s for s in sections if s["level"] == 1]
+    _lvl2 = [s for s in sections if s["level"] != 1]
+    _src_idx = next((i for i, s in enumerate(_lvl2) if s["title"] == "来源"), None)
+    if _src_idx is not None:
+        _lvl2.append(_lvl2.pop(_src_idx))
+    sections = _lvl1 + _lvl2
 
     body_parts = []
     sec_idx = 0
