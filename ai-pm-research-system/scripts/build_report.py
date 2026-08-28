@@ -364,19 +364,6 @@ def render_score_matrix(mid, header, rows):
                       {"type": "text", "left": "center", "top": "50%",
                        "style": {"text": "AI 能力分", "fontSize": 11, "fill": "#999999", "textAlign": "center"}}]
 
-    # 右侧：主体对象各能力维度评分（进度条 + 分数 + 状态色）
-    score_items = ""
-    main_obj = objects[0] if objects else ""
-    for j, d in enumerate(dims):
-        v = matrix[0][j] if matrix else 0
-        bg, fg = score_bg(v)
-        pct = (v / 5.0) * 100
-        score_items += ('<div class="score-item">'
-                        '<div class="si-top"><span class="si-name">' + html.escape(d)
-                        + '</span><span class="si-score" style="color:' + fg + '">' + f'{v:.1f}' + '</span></div>'
-                        '<div class="si-bar"><i style="width:' + f'{pct:.0f}' + '%;background:' + fg + '"></i></div>'
-                        '</div>')
-
     # 底部：竞品对象图例（全局对比索引）
     legend_items = ""
     for oi, obj in enumerate(objects):
@@ -387,11 +374,7 @@ def render_score_matrix(mid, header, rows):
 
     return ('<div class="chart-card"><div class="chart-head"><span class="chart-title">多维能力图谱</span>'
             '<span class="chart-note">5=领先 · 3=平均 · 1=基本不覆盖</span></div>'
-            '<div class="radar-dash">'
-            '<div class="radar-main"><div id="radar_' + str(mid) + '" class="echart"></div></div>'
-            '<div class="score-panel"><div class="sp-title">能力评分 · ' + html.escape(main_obj) + '</div>'
-            + score_items + '</div>'
-            '</div>'
+            '<div class="echart" id="radar_' + str(mid) + '" style="height:460px"></div>'
             '<div class="cmp-legend">' + legend_items + '</div></div>\n'
             '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("radar_'
             + str(mid) + '"));c.setOption(' + json.dumps(opt, ensure_ascii=False)
@@ -547,20 +530,25 @@ def render_business_model(header, rows):
                 continue
             tier_cards += ('<div class="plan"><span class="plan-tag" style="background:{0}1a;color:{0}">{1}</span>'
                            '<span class="plan-val">{2}</span></div>').format(c, TIER_TAG[t], html.escape(v))
+        if not tier_cards:
+            continue
         cols += ('<div class="biz-col"><div class="biz-ph" style="border-color:{0}"><span class="biz-dot" style="background:{0}"></span>{1}</div>'
                  '<div class="biz-tiers">{2}</div></div>').format(c, html.escape(p), tier_cards)
     extra_html = ""
     if extras:
-        head = '<tr><th>维度</th>' + ''.join('<th>' + html.escape(p) + '</th>' for p in products) + '</tr>'
+        head = '<tr><th>维度</th>' + ''.join('<th><span class="bd-dot" style="background:{0}"></span>{1}</th>'
+                                             .format(product_color(p), html.escape(p)) for p in products) + '</tr>'
         body_rows = ""
         for dim, vals in extras:
             cells = ''.join('<td>' + html.escape(vals[pi] if pi < len(vals) else '') + '</td>'
                             for pi in range(len(products)))
-            body_rows += '<tr><td class="bk">' + html.escape(dim) + '</td>' + cells + '</tr>'
+            body_rows += ('<tr><td class="bk"><span class="bd-dot" style="background:{0}"></span>{1}</td>'
+                          .format(product_color(dim), html.escape(dim)) + cells + '</tr>')
         extra_html = ('<div class="biz-extra"><div class="biz-extra-title">变现结构对照</div>'
                       '<div class="biz-table-wrap"><table class="biz-table"><thead>' + head + '</thead><tbody>'
                       + body_rows + '</tbody></table></div></div>')
-    return '<div class="biz-wrap">' + cols + '</div>' + extra_html
+    biz_html = ('<div class="biz-wrap">' + cols + '</div>') if cols else ''
+    return biz_html + extra_html
 
 
 # ---------- 增长：KPI 指标卡 ----------
@@ -570,59 +558,33 @@ NUM_RE = re.compile(r'(\d+(?:\.\d+)?\s*(?:万|亿|%|次|万次|万月|万+|个|�
 def render_growth(items):
     cards = ""
     for title, body in items:
-        m = NUM_RE.search(body)
-        num = m.group(1) if m else ''
-        cards += ('<div class="kpi"><div class="kpi-num">' + html.escape(num) + '</div>'
-                  + '<div class="kpi-label">' + html.escape(title) + '</div>'
-                  + '<div class="kpi-desc">' + html.escape(body) + '</div></div>')
-    return '<div class="kpi-grid">' + cards + '</div>'
+        label = re.sub(r'^\d+[\.、]\s*', '', title).strip() if title else ''
+        text = body if body else title
+        cards += ('<div class="stage-card"><span class="stage-dot"></span>'
+                  + '<div class="stage-label">' + html.escape(label) + '</div>'
+                  + '<div class="stage-text">' + html.escape(text) + '</div></div>')
+    return '<div class="stage-row">' + cards + '</div>'
 
 
 # ---------- 竞争格局：竞争关系图（ECharts 关系网络） ----------
-def render_competition_graph(mid, center, others):
-    mains = [x.strip() for x in center.split('、') if x.strip()] if center else []
-    comps = [x.strip() for x in others if x.strip()]
-    if not mains and comps:
-        mains = [comps.pop(0)]
-    if not mains:
-        mains = ["分析主体"]
-    nodes = [{"name": n, "symbolSize": 56,
-              "itemStyle": {"color": "#1E40AF", "borderColor": "#fff", "borderWidth": 2},
-              "label": {"fontSize": 13, "fontWeight": "bold", "color": "#1E40AF"}} for n in mains]
-    for c in comps:
-        nodes.append({"name": c, "symbolSize": 42,
-                      "itemStyle": {"color": "#CBD5E1", "borderColor": "#fff", "borderWidth": 2},
-                      "label": {"fontSize": 12, "color": "#475569"}})
-    links = []
-    for c in comps:
-        links.append({"source": mains[0], "target": c,
-                      "lineStyle": {"color": "#94A3B8", "width": 2},
-                      "label": {"show": True, "formatter": "竞争", "color": "#94A3B8", "fontSize": 11}})
-    for i in range(len(comps)):
-        for j in range(i + 1, len(comps)):
-            links.append({"source": comps[i], "target": comps[j],
-                          "lineStyle": {"color": "#E2E8F0", "width": 1, "type": "dashed"},
-                          "label": {"show": False}})
-    if len(nodes) < 2:
-        return ''
-    opt = {
-        "backgroundColor": "transparent",
-        "tooltip": {"trigger": "item", "formatter": "{b}"},
-        "series": [{
-            "type": "graph", "layout": "circular", "circular": {"rotateLabel": True},
-            "roam": True, "draggable": True,
-            "label": {"show": True, "position": "right"},
-            "lineStyle": {"opacity": 0.9, "curveness": 0.08},
-            "data": nodes, "links": links,
-            "emphasis": {"focus": "adjacency"}
-        }]
-    }
-    opt_json = json.dumps(opt, ensure_ascii=False)
-    return ('<div class="chart-card"><div class="chart-head"><span class="chart-title">竞争关系图</span>'
-            '<span class="chart-note">中心 = 分析主体 · 外环 = 主要竞品 · 连线 = 竞争关系</span></div>'
-            '<div id="comp_' + str(mid) + '" class="echart" style="height:420px"></div></div>\n'
-            + '<script>window.addEventListener("load",function(){var c=echarts.init(document.getElementById("comp_'
-            + str(mid) + '"));c.setOption(' + opt_json + ');REG.push(c);});</script>')
+def render_competition_matrix(header, rows):
+    """竞争格局：竞品对比矩阵表（竞品 × 维度），优势绿、劣势红，结构化呈现。"""
+    head = ''.join('<th>' + html.escape(clean(h)) + '</th>' for h in header)
+    body = ""
+    for r in rows:
+        cells = ""
+        for ci, c in enumerate(r):
+            cc = html.escape(clean(c))
+            cls = ""
+            hname = clean(header[ci]) if ci < len(header) else ""
+            if "优势" in hname:
+                cls = ' style="color:#15803D"'
+            elif "劣势" in hname:
+                cls = ' style="color:#B91C1C"'
+            cells += '<td' + cls + '>' + cc + '</td>'
+        body += '<tr>' + cells + '</tr>'
+    return ('<div class="tbl-wrap"><table class="tbl comp-matrix"><thead><tr>' + head
+            + '</tr></thead><tbody>' + body + '</tbody></table></div>')
 
 
 # ---------- SWOT 2x2 ----------
@@ -953,6 +915,7 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .biz-table th{padding:9px 12px;text-align:left;color:var(--ink-2);font-weight:600;border-bottom:1px solid var(--border);}
 .biz-table td{padding:9px 12px;border-bottom:1px solid #F3F1EC;color:var(--ink);vertical-align:top;}
 .biz-table td.bk{font-weight:600;color:var(--ink);}
+.bd-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;}
 .biz-table tr:last-child td{border-bottom:none;}
 
 /* KPI */
@@ -961,6 +924,13 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .kpi-num{font-size:32px;font-weight:700;color:var(--accent);line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-1px;}
 .kpi-label{font-size:12px;font-weight:600;color:var(--ink);margin:10px 0 4px;}
 .kpi-desc{font-size:12.5px;color:var(--ink-2);line-height:1.6;}
+
+/* growth · 阶段分段 */
+.stage-row{display:flex;flex-wrap:wrap;gap:16px;margin:8px 0;}
+.stage-card{flex:1;min-width:220px;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm);}
+.stage-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--accent);margin-bottom:10px;}
+.stage-label{font-size:14px;font-weight:700;color:var(--accent-ink);margin-bottom:6px;}
+.stage-text{font-size:13px;color:var(--ink-2);line-height:1.7;}
 
 /* competition */
 .comp-stage{position:relative;width:420px;height:420px;margin:10px auto;max-width:100%;}
@@ -999,6 +969,12 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .si-bar i{display:block;height:100%;border-radius:999px;transition:width .4s ease;}
 .cmp-legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
 .cmp-chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);}
+.cmp-dim{margin-bottom:14px;}
+.cmp-dim:last-child{margin-bottom:0;}
+.cmp-dim-name{font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:7px;}
+.cmp-row{display:flex;align-items:center;gap:9px;margin-bottom:6px;}
+.cmp-name{min-width:84px;max-width:120px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cmp-val{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;min-width:30px;text-align:right;}
 .cmp-chip i{width:10px;height:10px;border-radius:3px;display:inline-block;}
 .cmp-chip small{color:var(--muted);font-size:11px;margin-left:1px;}
 
@@ -1187,7 +1163,7 @@ def render_section(sec, mid_state, market_map, idx):
             elif title == 'SWOT':
                 parts.append(render_swot_table(header, rows))
             elif title == '竞争格局':
-                pass  # 竞品信息由竞争关系图统一呈现，避免重复渲染纯表格
+                parts.append(render_competition_matrix(header, rows))
             else:
                 parts.append(render_table(header, rows))
             i = table_at[i][0] + 1
@@ -1257,12 +1233,8 @@ def render_section(sec, mid_state, market_map, idx):
         if swot_bullets:
             parts = [render_swot_bullets(swot_bullets)]
     elif title == '竞争格局':
-        if market_map and market_map[2]:
-            names = [r[0] for r in market_map[2] if r]
-            center = "、".join(names[:2]) if len(names) >= 2 else names[0]
-            others = names[2:] if len(names) >= 2 else names[1:]
-            mid_state[0] += 1
-            parts.append(render_competition_graph(mid_state[0], center, others))
+        # 竞品对比矩阵表已在表格分支渲染，此处不再叠加关系图
+        pass
     elif (title == '能力雷达') and any(classify_table(t[1], t[2]) == 'matrix' for t in tables):
         pass  # 已在表格分支渲染
 
