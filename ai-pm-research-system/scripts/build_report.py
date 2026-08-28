@@ -320,27 +320,31 @@ def render_feature_matrix(header, rows):
 
 # ---------- 能力雷达 ----------
 def render_score_matrix(mid, header, rows):
-    dims = header[1:]
-    objects = [clean(r[0]) for r in rows]
+    # 数据约定：首列=维度（雷达顶点），后续列为各产品（雷达折线）
+    products = [clean(h) for h in header[1:] if h.strip() != ""]
+    dimensions = [clean(r[ 0]) for r in rows]
     matrix = []
-    for r in rows:
-        vals = [float(v) if re.match(r'^\d+(\.\d+)?$', v) else 0 for v in r[1:]]
+    for pi in range(len(products)):
+        vals = []
+        for r in rows:
+            v = r[1 + pi] if (1 + pi) < len(r) else "0"
+            vals.append(float(v) if re.match(r'^\d+(\.\d+)?$', v) else 0)
         matrix.append(vals)
-    indicators = [{"name": d, "max": 5} for d in dims]
+    indicators = [{"name": d, "max": 5} for d in dimensions]
 
-    # 颜色层级：主体高识别度 AI 紫，竞品降饱和
+    # 颜色层级：主体高识别度深蓝，竞品降饱和
     MAIN_C = "#1E40AF"
     COMP_C = ["#94A3B8", "#CBD5E1", "#93C5FD"]
     def obj_color(oi):
         return MAIN_C if oi == 0 else COMP_C[(oi - 1) % len(COMP_C)]
 
     radar_data = []
-    for oi, obj in enumerate(objects):
-        c = obj_color(oi)
-        d = {"name": obj, "value": matrix[oi],
-             "lineStyle": {"color": c, "width": 3 if oi == 0 else 1.8},
-             "itemStyle": {"color": c}, "symbolSize": 7 if oi == 0 else 4}
-        if oi == 0:
+    for pi, prod in enumerate(products):
+        c = obj_color(pi)
+        d = {"name": prod, "value": matrix[pi],
+             "lineStyle": {"color": c, "width": 3 if pi == 0 else 1.8},
+             "itemStyle": {"color": c}, "symbolSize": 7 if pi == 0 else 4}
+        if pi == 0:
             d["areaStyle"] = {"color": c, "opacity": 0.18}
         radar_data.append(d)
 
@@ -364,13 +368,13 @@ def render_score_matrix(mid, header, rows):
                       {"type": "text", "left": "center", "top": "50%",
                        "style": {"text": "AI 能力分", "fontSize": 11, "fill": "#999999", "textAlign": "center"}}]
 
-    # 底部：竞品对象图例（全局对比索引）
+    # 底部：产品图例（全局对比索引）
     legend_items = ""
-    for oi, obj in enumerate(objects):
-        c = obj_color(oi)
-        tag = "分析主体" if oi == 0 else "竞品"
+    for pi, prod in enumerate(products):
+        c = obj_color(pi)
+        tag = "分析主体" if pi == 0 else "竞品"
         legend_items += ('<span class="cmp-chip"><i style="background:' + c + '"></i>'
-                         + html.escape(obj) + '<small>' + tag + '</small></span>')
+                         + html.escape(prod) + '<small>' + tag + '</small></span>')
 
     return ('<div class="chart-card"><div class="chart-head"><span class="chart-title">多维能力图谱</span>'
             '<span class="chart-note">5=领先 · 3=平均 · 1=基本不覆盖</span></div>'
@@ -1050,8 +1054,8 @@ section p{margin:8px 0;font-size:14px;line-height:1.7;color:var(--ink);}
 .pri-col li::before{content:"";position:absolute;left:0;top:16px;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;}
 
 /* sources */
-.ref-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px 20px;}
-.ref{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid #F3F1EC;font-size:13px;}
+.ref-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:2px 20px;}
+.ref{display:flex;align-items:baseline;gap:10px;padding:5px 0;border-bottom:1px solid #F3F1EC;font-size:13px;}
 .ref-no{color:var(--accent);font-weight:700;min-width:18px;}
 .ref a{color:var(--accent-ink);text-decoration:none;font-weight:500;}
 .ref a:hover{text-decoration:underline;}
